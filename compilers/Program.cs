@@ -11,29 +11,29 @@ namespace compilers
             {
                 var line = Console.ReadLine();
 
-                var syntaxTree = SyntaxTree.Parse(line!);
+                // var syntaxTree = SyntaxTree.Parse(line!);
 
-                Console.ForegroundColor = ConsoleColor.Green;
+                // Console.ForegroundColor = ConsoleColor.Green;
 
-                PrintTree(syntaxTree.Root);
+                // PrintTree(syntaxTree.Root);
 
-                Console.ResetColor();
+                // Console.ResetColor();
 
-                if (syntaxTree.Errors.Any())
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    foreach (var error in syntaxTree.Errors)
-                    {
-                        Console.WriteLine(error);
-                    }
-                    Console.ResetColor();
-                }
-                else
-                {
-                    var e = new Evaluator(syntaxTree.Root);
-                    var res = e.Evaluate();
-                    Console.WriteLine(res);
-                }
+                // if (syntaxTree.Errors.Any())
+                // {
+                //     Console.ForegroundColor = ConsoleColor.Red;
+                //     foreach (var error in syntaxTree.Errors)
+                //     {
+                //         Console.WriteLine(error);
+                //     }
+                //     Console.ResetColor();
+                // }
+                // else
+                // {
+                //     var e = new Evaluator(syntaxTree.Root);
+                //     var res = e.Evaluate();
+                //     Console.WriteLine(res);
+                // }
 
                 var lexer = new Lexer(line!);
                 while (true)

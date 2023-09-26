@@ -28,27 +28,31 @@ namespace compilers.CodeAnalysis
             _position++;
         }
 
+        private SyntaxToken ReadNumber(int start)
+        {
+            while (char.IsDigit(Current))
+            {
+                Next();
+            }
+            var number = _text[start.._position];
+            if (!int.TryParse(number, out var value))
+            {
+                _errors.Add($"The number '{_text}' cannot be represented");
+            }
+            return new SyntaxToken(SyntaxKind.NumberToken, start, number, value);
+        }
+
         public SyntaxToken NextToken()
         {
             if (_position >= _text.Length)
                 return new SyntaxToken(SyntaxKind.EOFToken, _position, "\0", null);
+            var start = _position;
             if (char.IsDigit(Current))
             {
-                var start = _position;
-                while (char.IsDigit(Current))
-                {
-                    Next();
-                }
-                var number = _text[start.._position];
-                if (!int.TryParse(number, out var value))
-                {
-                    _errors.Add($"The number '{_text}' cannot be represented");
-                }
-                return new SyntaxToken(SyntaxKind.NumberToken, start, number, value);
+                return ReadNumber(start);
             }
             if (char.IsWhiteSpace(Current))
             {
-                var start = _position;
                 while (char.IsWhiteSpace(Current))
                 {
                     Next();
