@@ -1,0 +1,10 @@
+var st is 0.0.0
+var en is 10
+var sum is 0
+for i in reverse st .. en loop
+    if i % 2 = 0 then 
+        sum := sum + i
+    else 
+        sum := sum - i
+    end 
+end  

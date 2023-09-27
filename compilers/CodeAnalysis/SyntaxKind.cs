@@ -3,6 +3,7 @@ namespace compilers.CodeAnalysis
     public enum SyntaxKind
     {
         NumberToken,
+        RealNumberToken,
         WhiteSpace,
         PlusToken,
         MinusToken,

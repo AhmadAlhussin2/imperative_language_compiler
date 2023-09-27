@@ -8,9 +8,14 @@ namespace compilers.CodeAnalysis
 
         public IEnumerable<string> Errors => _errors;
 
+        
         public Lexer(string text)
         {
             _text = text;
+        }
+        public List<string> ViewErrors ()
+        {
+            return _errors;
         }
 
         private char Current
@@ -66,14 +71,18 @@ namespace compilers.CodeAnalysis
         }
         private SyntaxToken ReadNumber(int start)
         {
-            while (char.IsDigit(Current))
+            while (char.IsDigit(Current) || Current=='.')
             {
                 Next();
             }
             var number = _text[start.._position];
             if (!int.TryParse(number, out var value))
             {
-                _errors.Add($"The number '{_text}' cannot be represented");
+                if(!double.TryParse(number, out var real_value))
+                {
+                    _errors.Add($"'{number}' cannot be parsed into number");
+                }
+                return new SyntaxToken(SyntaxKind.RealNumberToken, start, number, real_value);
             }
             return new SyntaxToken(SyntaxKind.NumberToken, start, number, value);
         }

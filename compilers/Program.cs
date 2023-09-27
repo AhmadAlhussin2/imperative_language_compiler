@@ -7,9 +7,21 @@ namespace compilers
     {
         static void Main(String[] args)
         {
+           
+
+            StreamReader reader = new StreamReader("source.txt");
+            StreamWriter writer = new StreamWriter("output.txt");
+
+            List<string> errors = new List<string>();
+            int LineCounter = 0;
             while (true)
             {
-                var line = Console.ReadLine();
+                var line = reader.ReadLine();
+                if(line==null)
+                {
+                    break;
+                }
+                LineCounter = LineCounter + 1;
 
                 // var syntaxTree = SyntaxTree.Parse(line!);
 
@@ -41,13 +53,30 @@ namespace compilers
                     var token = lexer.NextToken();
                     if (token.Kind == SyntaxKind.EOFToken)
                         break;
-                    Console.Write($"{token.Kind}: '{token.Text}'");
+                    writer.Write($"{token.Kind}: '{token.Text}'");
                     if (token.Value != null)
-                        Console.Write($" value : '{token.Value}'");
+                        writer.Write($" value : '{token.Value}'");
 
-                    Console.WriteLine();
+                    writer.WriteLine();
+                    foreach(string error in lexer.ViewErrors())
+                    {
+                        errors.Add($"Erorr in line {LineCounter}: "+error);
+                    }
+                }
+               
+               
+            }
+            if(errors.Count>0)
+            {
+                 writer.WriteLine("Erros:");
+                foreach(string error in errors)
+                {
+                    writer.WriteLine(error);
                 }
             }
+            
+            reader.Close();
+            writer.Close();
         }
         static void PrintTree(SyntaxNode node, string indent = "", bool isLast = true)
         {
