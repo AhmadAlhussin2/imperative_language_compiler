@@ -80,7 +80,8 @@ namespace compilers.CodeAnalysis
             {
                 if(!double.TryParse(number, out var real_value))
                 {
-                    _errors.Add($"'{number}' cannot be parsed into number");
+                    _errors.Add($"The term '{number}' cannot be parsed into decimal number");
+                    return new SyntaxToken(SyntaxKind.RealNumberToken, start, number, "Nan");
                 }
                 return new SyntaxToken(SyntaxKind.RealNumberToken, start, number, real_value);
             }

@@ -68,7 +68,7 @@ namespace compilers
             }
             if(errors.Count>0)
             {
-                 writer.WriteLine("Erros:");
+                writer.WriteLine("Erros:");
                 foreach(string error in errors)
                 {
                     writer.WriteLine(error);
