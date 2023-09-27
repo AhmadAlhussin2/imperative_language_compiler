@@ -65,6 +65,7 @@ namespace compilers.CodeAnalysis
                 "else" => SyntaxKind.ElseKeyword,
                 "routine" => SyntaxKind.RoutineKeyword,
                 "not" => SyntaxKind.NotKeyword,
+                "return" => SyntaxKind.ReturnKeyword,
                 _ => SyntaxKind.IdentifierToken,
             };
             return new SyntaxToken(kind, start, identifier, null);

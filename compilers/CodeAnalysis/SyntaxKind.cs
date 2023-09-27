@@ -52,6 +52,7 @@ namespace compilers.CodeAnalysis
         ThenKeyword,
         ElseKeyword,
         RoutineKeyword,
+        ReturnKeyword,
         NotKeyword,
         OpenSquareBracketToken,
         CloseSquareBracketToken
