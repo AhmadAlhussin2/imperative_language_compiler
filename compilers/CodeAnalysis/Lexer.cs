@@ -157,6 +157,8 @@ namespace compilers.CodeAnalysis
                         return new SyntaxToken(SyntaxKind.RangeToken, _position++, "..", null);
                     else
                         return new SyntaxToken(SyntaxKind.DotToken, _position, ".", null);
+                case ',':
+                    return new SyntaxToken(SyntaxKind.CommaToken, _position++, ",", null);
                 default:
                     if (Current == '_' || char.IsLetter(Current))
                         return ReadVarOrKeyword(start);

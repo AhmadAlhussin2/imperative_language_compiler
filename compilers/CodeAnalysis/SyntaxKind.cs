@@ -48,6 +48,7 @@ namespace compilers.CodeAnalysis
         ForKeyword,
         ReverseKeyword,
         DotToken,
+        CommaToken,
         RangeToken,
         ThenKeyword,
         ElseKeyword,
