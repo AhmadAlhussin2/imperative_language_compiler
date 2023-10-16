@@ -1,5 +1,3 @@
-using System;
-
 namespace compilers.CodeAnalysis
 {
     public sealed class UnaryExpressionSyntax : ExpressionSyntax

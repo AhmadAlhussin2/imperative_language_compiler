@@ -1,5 +1,3 @@
-using System;
-
 namespace compilers.CodeAnalysis
 {
     public static class OperatorsPriority

@@ -74,6 +74,15 @@ namespace compilers.CodeAnalysis
         {
             while (char.IsDigit(Current) || Current=='.')
             {
+                if (Current == '.')
+                {
+                    _position++;
+                    if (Current == '.')
+                    {
+                        _position--;
+                        break;
+                    }
+                }
                 Next();
             }
             var number = _text[start.._position];
