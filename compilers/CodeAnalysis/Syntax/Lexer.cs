@@ -4,19 +4,16 @@ namespace compilers.CodeAnalysis
     {
         private readonly string _text;
         private int _position;
-        private List<string> _errors = new List<string>();
+        private DiagnosticBag _diagnostics = new DiagnosticBag();
 
-        public IEnumerable<string> Errors => _errors;
+        public DiagnosticBag Diagnostics => _diagnostics;
 
         
         public Lexer(string text)
         {
             _text = text;
         }
-        public List<string> ViewErrors ()
-        {
-            return _errors;
-        }
+        
 
         private char Current => Peek(0);
         private char Lookahead => Peek(1);
@@ -84,12 +81,13 @@ namespace compilers.CodeAnalysis
                 }
                 Next();
             }
+            var length = _position - start;
             var number = _text[start.._position];
             if (!int.TryParse(number, out var value))
             {
                 if(!double.TryParse(number, out var real_value))
                 {
-                    _errors.Add($"The term '{number}' cannot be parsed into decimal number");
+                    _diagnostics.ReportInvalidNumber(new TextSpan(start, length), number, typeof(int));
                     return new SyntaxToken(SyntaxKind.RealNumberToken, start, number, "Nan");
                 }
                 return new SyntaxToken(SyntaxKind.RealNumberToken, start, number, real_value);
@@ -165,7 +163,7 @@ namespace compilers.CodeAnalysis
                 default:
                     if (Current == '_' || char.IsLetter(Current))
                         return ReadVarOrKeyword(start);
-                    _errors.Add($"Error bad character in the input: '{Current}'");
+                    _diagnostics.ReportBadCharacter(_position, Current);
                     return new SyntaxToken(SyntaxKind.UnknowToken, _position++, _text.Substring(_position - 1, 1), null);
             }
         }

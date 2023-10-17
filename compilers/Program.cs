@@ -38,9 +38,23 @@ namespace compilers
                 if (diagnostics.Any())
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    foreach (var error in diagnostics)
+                    foreach (var diagnostic in diagnostics)
                     {
-                        Console.WriteLine(error);
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.WriteLine(diagnostic);
+                        Console.ResetColor();
+                        var prefix = line.Substring(0, diagnostic.Span.Start);
+                        var error = line.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
+                        var suffix = line.Substring(diagnostic.Span.Start+ diagnostic.Span.Length);
+                        Console.Write("    "); 
+                        Console.Write(prefix);
+
+                        Console.ForegroundColor = ConsoleColor.DarkRed;
+                        Console.Write(error);
+                        Console.ResetColor();
+
+                        Console.WriteLine(suffix);
+                        Console.WriteLine();
                     }
                     Console.ResetColor();
                 }
@@ -48,26 +62,26 @@ namespace compilers
                 {
                     Console.WriteLine(result.Value);
                 }
+            
+                // var lexer = new Lexer(line!);
+                // while (true)
+                // {
+                //     var token = lexer.NextToken();
+                //     if (token.Kind == SyntaxKind.EOFToken)
+                //         break;
+                //     writer.Write($"{token.Kind}: '{token.Text}'");
+                //     if (token.Value != null)
+                //         writer.Write($" value : '{token.Value}'");
 
-                var lexer = new Lexer(line!);
-                while (true)
-                {
-                    var token = lexer.NextToken();
-                    if (token.Kind == SyntaxKind.EOFToken)
-                        break;
-                    writer.Write($"{token.Kind}: '{token.Text}'");
-                    if (token.Value != null)
-                        writer.Write($" value : '{token.Value}'");
-
-                    writer.WriteLine();
-                    foreach (string error in lexer.ViewErrors())
-                    {
-                        errors.Add($"Erorr in line {LineCounter}: " + error);
-                    }
-                }
+                //     writer.WriteLine();
+                //     foreach (string error in lexer.ViewErrors())
+                //     {
+                //         errors.Add($"Erorr in line {LineCounter}: " + error);
+                //     }
+                // }
 
 
-            }
+            } 
             if (errors.Count > 0)
             {
                 writer.WriteLine("Erros:");

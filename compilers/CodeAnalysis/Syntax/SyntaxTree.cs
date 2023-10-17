@@ -2,15 +2,16 @@ namespace compilers.CodeAnalysis
 {
     public sealed class SyntaxTree
     {
-        public ExpressionSyntax Root { get; }
-        public SyntaxToken EndOfFileToken { get; }
-        public IReadOnlyList<string> Errors { get; }
-        public SyntaxTree(IEnumerable<string> errors, ExpressionSyntax root, SyntaxToken endOfFileToken)
+        public SyntaxTree(IEnumerable<Diagnostic> diagnostics, ExpressionSyntax root, SyntaxToken endOfFileToken)
         {
-            Errors = errors.ToArray();
+            Diagnostics = diagnostics.ToArray();
             EndOfFileToken = endOfFileToken;
             Root = root;
         }
+
+        public ExpressionSyntax Root { get; }
+        public SyntaxToken EndOfFileToken { get; }
+        public IReadOnlyList<Diagnostic> Diagnostics { get; }
         public static SyntaxTree Parse(String text)
         {
             var parser = new Parser(text);

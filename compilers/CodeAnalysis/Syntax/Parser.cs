@@ -4,8 +4,8 @@ namespace compilers.CodeAnalysis
     {
         private readonly SyntaxToken[] _tokens;
         private int _position;
-        private List<string> _errors = new List<string>();
-        public IEnumerable<string> Errors => _errors;
+        private DiagnosticBag _diagnostics = new DiagnosticBag();
+        
 
         public Parser(string text)
         {
@@ -22,8 +22,10 @@ namespace compilers.CodeAnalysis
             } while (token.Kind != SyntaxKind.EOFToken);
 
             _tokens = tokens.ToArray();
-            _errors.AddRange(Lexer.Errors);
+            _diagnostics.AddRange(Lexer.Diagnostics);
         }
+
+        public DiagnosticBag Diagnostics => _diagnostics;
         private SyntaxToken Peek(int offset)
         {
             var index = _position + offset;
@@ -42,7 +44,7 @@ namespace compilers.CodeAnalysis
         {
             if (Current.Kind == kind)
                 return NextToken();
-            _errors.Add($"Error: unexpected token '{Current.Kind}' expected '{kind}'");
+            _diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, kind);
             return new SyntaxToken(kind, Current.Position, "", null);
         }
         private ExpressionSyntax ParseExpression(int parentPriority = 0)
@@ -78,7 +80,7 @@ namespace compilers.CodeAnalysis
         {
             var expression = ParseExpression();
             var EOFToken = MatchToken(SyntaxKind.EOFToken);
-            return new SyntaxTree(_errors, expression, EOFToken);
+            return new SyntaxTree(_diagnostics, expression, EOFToken);
         }
         private ExpressionSyntax ParsePrimaryExpression()
         {
