@@ -13,10 +13,6 @@ namespace compilers.CodeAnalysis
         CloseParenthesisToken,
         UnknowToken,
         EOFToken,
-        LiteralExpression,
-        BinaryExpression,
-        ParenthesizedExpression,
-        UnaryExpression,
         LessThanOrEqualToken,
         LessThanToken,
         GreaterThanOrEqualToken,
@@ -56,6 +52,15 @@ namespace compilers.CodeAnalysis
         ReturnKeyword,
         NotKeyword,
         OpenSquareBracketToken,
-        CloseSquareBracketToken
+        CloseSquareBracketToken,
+
+
+        //Expressions
+        LiteralExpression,
+        BinaryExpression,
+        NameExpression,
+        ParenthesizedExpression,
+        UnaryExpression,
+        AssignmentExpression
     }
 }

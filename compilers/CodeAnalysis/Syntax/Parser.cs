@@ -82,6 +82,11 @@ namespace compilers.CodeAnalysis
             var EOFToken = MatchToken(SyntaxKind.EOFToken);
             return new SyntaxTree(_diagnostics, expression, EOFToken);
         }
+
+        private ExpressionSyntax ParseAssignmentExpresion()
+        {
+            
+        }
         private ExpressionSyntax ParsePrimaryExpression()
         {
             switch (Current.Kind)
