@@ -8,7 +8,7 @@ namespace compilers
     {
         static void Main(String[] args)
         {
-           
+
 
             StreamReader reader = new StreamReader("source.txt");
             StreamWriter writer = new StreamWriter("output.txt");
@@ -18,7 +18,7 @@ namespace compilers
             while (true)
             {
                 var line = reader.ReadLine();
-                if(line==null)
+                if (line == null)
                 {
                     break;
                 }
@@ -32,9 +32,9 @@ namespace compilers
 
                 Console.ResetColor();
 
-                var binder = new Binder();
-                var boundExpression = binder.BindExpression(syntaxTree.Root);
-                var diagnostics = syntaxTree.Errors.Concat(binder.Diagnostics).ToArray();
+                var compilation = new Compilation(syntaxTree);
+                var result = compilation.Evaluate();
+                var diagnostics = result.Diagnostics;
                 if (diagnostics.Any())
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
@@ -46,9 +46,7 @@ namespace compilers
                 }
                 else
                 {
-                    var e = new Evaluator(boundExpression);
-                    var res = e.Evaluate();
-                    Console.WriteLine(res);
+                    Console.WriteLine(result.Value);
                 }
 
                 var lexer = new Lexer(line!);
@@ -62,23 +60,23 @@ namespace compilers
                         writer.Write($" value : '{token.Value}'");
 
                     writer.WriteLine();
-                    foreach(string error in lexer.ViewErrors())
+                    foreach (string error in lexer.ViewErrors())
                     {
-                        errors.Add($"Erorr in line {LineCounter}: "+error);
+                        errors.Add($"Erorr in line {LineCounter}: " + error);
                     }
                 }
-               
-               
+
+
             }
-            if(errors.Count>0)
+            if (errors.Count > 0)
             {
                 writer.WriteLine("Erros:");
-                foreach(string error in errors)
+                foreach (string error in errors)
                 {
                     writer.WriteLine(error);
                 }
             }
-            
+
             reader.Close();
             writer.Close();
         }
@@ -102,6 +100,6 @@ namespace compilers
         }
     }
 
-    
+
 }
 

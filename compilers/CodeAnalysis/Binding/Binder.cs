@@ -19,6 +19,8 @@ namespace compilers.CodeAnalysis.Binding
                     return BindUnaryExpression((UnaryExpressionSyntax)syntax);
                 case SyntaxKind.LiteralExpression:
                     return BindLiteralExpression((LiteralExpressionSyntax)syntax);
+                case SyntaxKind.ParenthesizedExpression:
+                    return BindExpression(((ParenthesizedExpressionSyntax)syntax).Expression);
                 default:
                     throw new Exception($"Unexpected syntax {syntax.Kind}");
             }
