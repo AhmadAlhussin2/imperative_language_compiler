@@ -1,1 +1,1 @@
-true and false
+a := not true

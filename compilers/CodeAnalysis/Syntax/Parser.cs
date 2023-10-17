@@ -5,7 +5,7 @@ namespace compilers.CodeAnalysis
         private readonly SyntaxToken[] _tokens;
         private int _position;
         private DiagnosticBag _diagnostics = new DiagnosticBag();
-        
+
 
         public Parser(string text)
         {
@@ -47,14 +47,18 @@ namespace compilers.CodeAnalysis
             _diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, kind);
             return new SyntaxToken(kind, Current.Position, "", null);
         }
-        private ExpressionSyntax ParseExpression(int parentPriority = 0)
+        private ExpressionSyntax ParseExpression()
+        {
+            return ParseAssignmentExpresion();
+        }
+        private ExpressionSyntax ParseBinaryExpression(int parentPriority = 0)
         {
             ExpressionSyntax left;
             var unaryOperatorPriority = Current.Kind.GetUnaryOperatorPriority();
             if (unaryOperatorPriority != 0 && unaryOperatorPriority >= parentPriority)
             {
                 var operatorToken = NextToken();
-                var operand = ParseExpression(unaryOperatorPriority);
+                var operand = ParseBinaryExpression(unaryOperatorPriority);
                 left = new UnaryExpressionSyntax(operatorToken, operand);
             }
             else
@@ -69,7 +73,7 @@ namespace compilers.CodeAnalysis
                     break;
                 }
                 var operatorToken = NextToken();
-                var right = ParseExpression(priority);
+                var right = ParseBinaryExpression(priority);
                 left = new BinaryExpressionSyntax(left, operatorToken, right);
             }
             return left;
@@ -85,7 +89,14 @@ namespace compilers.CodeAnalysis
 
         private ExpressionSyntax ParseAssignmentExpresion()
         {
-            
+            if (Peek(0).Kind == SyntaxKind.IdentifierToken && Peek(1).Kind == SyntaxKind.AssignmentToken)
+            {
+                var identifierToken = NextToken();
+                var operatorToken = NextToken();
+                var right = ParseAssignmentExpresion();
+                return new AssignmentExpressionSyntax(identifierToken, operatorToken, right);
+            }
+            return ParseBinaryExpression();
         }
         private ExpressionSyntax ParsePrimaryExpression()
         {
@@ -105,6 +116,11 @@ namespace compilers.CodeAnalysis
                         var keywordToken = NextToken();
                         var value = keywordToken.Kind == SyntaxKind.TrueKeyword;
                         return new LiteralExpressionSyntax(keywordToken, value);
+                    }
+                case SyntaxKind.IdentifierToken:
+                    {
+                        var identifierToken = NextToken();
+                        return new NameExpressionSyntax(identifierToken);
                     }
                 default:
                     var numberToken = MatchToken(SyntaxKind.NumberToken);

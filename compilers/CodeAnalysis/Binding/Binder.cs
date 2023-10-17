@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace compilers.CodeAnalysis.Binding
@@ -8,6 +9,13 @@ namespace compilers.CodeAnalysis.Binding
     internal sealed class Binder
     {
         private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
+        private readonly Dictionary<VariableSymbol, object> _variables;
+
+        public Binder(Dictionary<VariableSymbol, object> variables)
+        {
+            _variables = variables;
+        }
+
         public DiagnosticBag Diagnostics => _diagnostics;
         public BoundExpression BindExpression(ExpressionSyntax syntax)
         {
@@ -20,10 +28,45 @@ namespace compilers.CodeAnalysis.Binding
                 case SyntaxKind.LiteralExpression:
                     return BindLiteralExpression((LiteralExpressionSyntax)syntax);
                 case SyntaxKind.ParenthesizedExpression:
-                    return BindExpression(((ParenthesizedExpressionSyntax)syntax).Expression);
+                    return BindParenthesizedExpression((ParenthesizedExpressionSyntax)syntax);
+                case SyntaxKind.NameExpression:
+                    return BindNameExpression((NameExpressionSyntax)syntax);
+                case SyntaxKind.AssignmentExpression:
+                    return BindAssignmentExpression((AssignmentExpressionSyntax)syntax);
                 default:
                     throw new Exception($"Unexpected syntax {syntax.Kind}");
             }
+        }
+
+        private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
+        {
+            var name = syntax.IdentifierToken.Text;
+            var boundExpression = BindExpression(syntax.Expression);
+            
+            var existingVariable = _variables.Keys.FirstOrDefault(v => v.Name == name);
+            if (existingVariable != null){
+                _variables.Remove(existingVariable);
+            }
+            var variable = new VariableSymbol(name, boundExpression.Type);
+            _variables[variable] = null;
+            return new BoundAssignmentExpression(variable, boundExpression);
+        }
+
+        private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
+        {
+            var name = syntax.IdentifierToken.Text;
+            var variable = _variables.Keys.FirstOrDefault(v => v.Name == name);
+            if (variable == null)
+            {
+                _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+                return new BoundLiteralExpression(0);
+            }
+            return new BoundVariableExpression(variable);
+        }
+
+        private BoundExpression BindParenthesizedExpression(ParenthesizedExpressionSyntax syntax)
+        {
+            return BindExpression(syntax.Expression);
         }
 
         private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)

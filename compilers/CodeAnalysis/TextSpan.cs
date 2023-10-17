@@ -5,11 +5,10 @@ namespace compilers.CodeAnalysis
         public TextSpan(int start, int length)
         {
             Start = start;
-            Length = length ;
+            Length = length;
         }
         public int Start { get; }
         public int Length { get; }
 
     }
-
 }

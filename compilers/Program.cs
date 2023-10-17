@@ -15,6 +15,7 @@ namespace compilers
 
             List<string> errors = new List<string>();
             int LineCounter = 0;
+            var variables = new Dictionary<VariableSymbol, object>();
             while (true)
             {
                 var line = reader.ReadLine();
@@ -33,7 +34,7 @@ namespace compilers
                 Console.ResetColor();
 
                 var compilation = new Compilation(syntaxTree);
-                var result = compilation.Evaluate();
+                var result = compilation.Evaluate(variables);
                 var diagnostics = result.Diagnostics;
                 if (diagnostics.Any())
                 {
