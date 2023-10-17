@@ -18,14 +18,13 @@ namespace compilers.CodeAnalysis
             return _errors;
         }
 
-        private char Current
-        {
-            get
-            {
-                if (_position >= _text.Length)
-                    return '\0';
-                return _text[_position];
-            }
+        private char Current => Peek(0);
+        private char Lookahead => Peek(1);
+        private char Peek(int offset){
+            var index = _position + offset;
+            if (index >= _text.Length)
+                return '\0';
+            return _text[index];
         }
 
         private void Next()
@@ -125,9 +124,8 @@ namespace compilers.CodeAnalysis
                 case '*':
                     return new SyntaxToken(SyntaxKind.StarToken, _position++, "*", null);
                 case '/':
-                    _position++;
-                    if (Current == '=')
-                        return new SyntaxToken(SyntaxKind.NotEqualToken, _position++, "/=", null);
+                    if (Lookahead == '=')
+                        return new SyntaxToken(SyntaxKind.NotEqualToken, _position+=2, "/=", null);
                     else
                         return new SyntaxToken(SyntaxKind.NegationToken, _position++, "/", null);
                 case '(':
@@ -139,33 +137,29 @@ namespace compilers.CodeAnalysis
                 case ']':
                     return new SyntaxToken(SyntaxKind.CloseSquareBracketToken, _position++, "]", null);
                 case '<':
-                    _position++;
-                    if (Current == '=')
-                        return new SyntaxToken(SyntaxKind.LessThanOrEqualToken, _position++, "<=", null);
+                    if (Lookahead == '=')
+                        return new SyntaxToken(SyntaxKind.LessThanOrEqualToken, _position+=2, "<=", null);
                     else
-                        return new SyntaxToken(SyntaxKind.LessThanToken, _position, "<", null);
+                        return new SyntaxToken(SyntaxKind.LessThanToken, _position++, "<", null);
                 case '>':
-                    _position++;
-                    if (Current == '=')
-                        return new SyntaxToken(SyntaxKind.GreaterThanOrEqualToken, _position++, ">=", null);
+                    if (Lookahead == '=')
+                        return new SyntaxToken(SyntaxKind.GreaterThanOrEqualToken, _position+=2, ">=", null);
                     else
-                        return new SyntaxToken(SyntaxKind.GreaterThanToken, _position, ">", null);
+                        return new SyntaxToken(SyntaxKind.GreaterThanToken, _position++, ">", null);
                 case '%':
                     return new SyntaxToken(SyntaxKind.ModuloToken, _position++, "%", null);
                 case ':':
-                    _position++;
-                    if (Current == '=')
-                        return new SyntaxToken(SyntaxKind.AssignmentToken, _position++, ":=", null);
+                    if (Lookahead == '=')
+                        return new SyntaxToken(SyntaxKind.AssignmentToken, _position+=2, ":=", null);
                     else
-                        return new SyntaxToken(SyntaxKind.ColonToken, _position, ":", null);
+                        return new SyntaxToken(SyntaxKind.ColonToken, _position++, ":", null);
                 case '=':
                     return new SyntaxToken(SyntaxKind.EqualToken, _position++, "=", null);
                 case '.':
-                    _position++;
-                    if (Current == '.')
-                        return new SyntaxToken(SyntaxKind.RangeToken, _position++, "..", null);
+                    if (Lookahead == '.')
+                        return new SyntaxToken(SyntaxKind.RangeToken, _position+=2, "..", null);
                     else
-                        return new SyntaxToken(SyntaxKind.DotToken, _position, ".", null);
+                        return new SyntaxToken(SyntaxKind.DotToken, _position++, ".", null);
                 case ',':
                     return new SyntaxToken(SyntaxKind.CommaToken, _position++, ",", null);
                 default:

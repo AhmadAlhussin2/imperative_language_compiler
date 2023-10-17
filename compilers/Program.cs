@@ -1,5 +1,6 @@
 ﻿using System;
 using compilers.CodeAnalysis;
+using compilers.CodeAnalysis.Binding;
 
 namespace compilers
 {
@@ -31,10 +32,13 @@ namespace compilers
 
                 Console.ResetColor();
 
-                if (syntaxTree.Errors.Any())
+                var binder = new Binder();
+                var boundExpression = binder.BindExpression(syntaxTree.Root);
+                var diagnostics = syntaxTree.Errors.Concat(binder.Diagnostics).ToArray();
+                if (diagnostics.Any())
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    foreach (var error in syntaxTree.Errors)
+                    foreach (var error in diagnostics)
                     {
                         Console.WriteLine(error);
                     }
@@ -42,7 +46,7 @@ namespace compilers
                 }
                 else
                 {
-                    var e = new Evaluator(syntaxTree.Root);
+                    var e = new Evaluator(boundExpression);
                     var res = e.Evaluate();
                     Console.WriteLine(res);
                 }

@@ -8,7 +8,8 @@ namespace compilers.CodeAnalysis
             {
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
-                    return 3;
+                case SyntaxKind.NegationToken:
+                    return 7;
                 default:
                     return 0;
             }
@@ -19,9 +20,18 @@ namespace compilers.CodeAnalysis
             {
                 case SyntaxKind.StarToken:
                 case SyntaxKind.SlashToken:
-                    return 2;
+                    return 6;
                 case SyntaxKind.PlusToken:
                 case SyntaxKind.MinusToken:
+                    return 5;
+                case SyntaxKind.EqualToken:
+                case SyntaxKind.NotEqualToken:
+                    return 4;
+                case SyntaxKind.AndKeyword:
+                    return 3;
+                case SyntaxKind.OrKeyword:
+                    return 2;
+                case SyntaxKind.XorKeyword:
                     return 1;
                 default:
                     return 0;
