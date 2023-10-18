@@ -64,5 +64,11 @@ namespace compilers.CodeAnalysis
             var message = $"Cannot convert type '{type1}' to '{type2}'.";
             Report(span, message);
         }
+
+        internal void ReportVariableAlreadyDeclared(TextSpan span, string name)
+        {
+            var message = $"Variable {name} already declared.";
+            Report(span, message);
+        }
     }
 }

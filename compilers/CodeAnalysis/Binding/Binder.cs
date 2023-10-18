@@ -38,7 +38,7 @@ namespace compilers.CodeAnalysis.Binding
         {
             var parentScope = CreateParentScopes(previous);
             var binder = new Binder(parentScope);
-            var expression = binder.BindExpression(syntax.Expression);
+            var expression = binder.BindStatement(syntax.Statement);
             var variables = binder._scope.GetDeclaredVariables();
             var diagnostic = binder.Diagnostics.ToImmutableArray();
             if (previous != null)
@@ -48,6 +48,52 @@ namespace compilers.CodeAnalysis.Binding
             return new BoundGlobalScope(previous, diagnostic, variables, expression);
         }
         public DiagnosticBag Diagnostics => _diagnostics;
+        private BoundStatement BindStatement(StatementSyntax syntax)
+        {
+            switch (syntax.Kind)
+            {
+                case SyntaxKind.BlockStatement:
+                    return BindBlockStatement((BlockStatementSyntax)syntax);
+                case SyntaxKind.VariableDecleration:
+                    return BindVariableDeclaration((VariableDeclerationSyntax)syntax);
+                case SyntaxKind.ExpressionStatement:
+                    return BindExpressionStatement((ExpressionStatementSyntax)syntax);
+                default:
+                    throw new Exception($"Unexpected syntax {syntax.Kind}");
+            }
+        }
+
+        private BoundStatement BindVariableDeclaration(VariableDeclerationSyntax syntax)
+        {
+            var name = syntax.Identifier.Text;
+            var initializer = BindExpression(syntax.Initializer);
+            var variable = new VariableSymbol(name, initializer.Type);
+            if (!_scope.TryDeclare(variable))
+            {
+                _diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+            }
+            return new BoundVariableDeclaration(variable, initializer);
+        }
+
+        private BoundStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
+        {
+            var expression = BindExpression(syntax.Expression);
+            return new BoundExpressionStatement(expression);
+        }
+
+        private BoundStatement BindBlockStatement(BlockStatementSyntax syntax)
+        {
+            var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+            _scope = new BoundScope(_scope);
+            foreach (var statementSyntax in syntax.Statements)
+            {
+                var statement = BindStatement(statementSyntax);
+                statements.Add(statement);
+            }
+            _scope = _scope!.Parent!;
+            return new BoundBlockStatement(statements.ToImmutable());
+        }
+
         public BoundExpression BindExpression(ExpressionSyntax syntax)
         {
             switch (syntax.Kind)
@@ -76,8 +122,8 @@ namespace compilers.CodeAnalysis.Binding
 
             if (!_scope.TryLookup(name, out var variable))
             {
-                variable = new VariableSymbol(name, boundExpression.Type);
-                _scope.TryDeclare(variable);
+                _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+                return boundExpression;
             }
             if (boundExpression.Type != variable?.Type)
             {

@@ -64,6 +64,7 @@ namespace compilers.CodeAnalysis
         AssignmentExpression,
         CompilationUnit,
         BlockStatement,
-        ExpressionStatement
+        ExpressionStatement,
+        VariableDecleration
     }
 }

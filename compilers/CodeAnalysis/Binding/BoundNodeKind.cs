@@ -6,6 +6,9 @@ namespace compilers.CodeAnalysis.Binding
         UnaryExpression,
         BinaryExpression,
         VariableExpression,
-        AssignmentExpression
+        AssignmentExpression,
+        BlockStatement,
+        ExpressionStatement,
+        VariableDeclaration
     }
 }

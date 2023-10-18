@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using System.Text.RegularExpressions;
 using compilers.CodeAnalysis.Text;
 
 namespace compilers.CodeAnalysis
@@ -86,9 +88,53 @@ namespace compilers.CodeAnalysis
 
         public CompilationUnitSyntax ParseCompilationUnit()
         {
-            var expression = ParseExpression();
+            var statement = ParseStatement();
             var EOFToken = MatchToken(SyntaxKind.EOFToken);
-            return new CompilationUnitSyntax(expression, EOFToken);
+            return new CompilationUnitSyntax(statement, EOFToken);
+        }
+        private StatementSyntax ParseStatement()
+        {
+            switch (Current.Kind)
+            {
+                case SyntaxKind.IsKeyword:
+                case SyntaxKind.ThenKeyword:
+                case SyntaxKind.RecordKeyword:
+                case SyntaxKind.LoopKeyword:
+                    return ParseBlockStatement();
+                case SyntaxKind.VarKeyword:
+                    return ParseVariableDeclaration();
+                default:
+                    return ParseExpressionStatement();
+
+            }
+        }
+
+        private StatementSyntax ParseVariableDeclaration()
+        {
+            var varKeyword = MatchToken(SyntaxKind.VarKeyword);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var isKeyword = MatchToken(SyntaxKind.IsKeyword);
+            var initializer = ParseExpression();
+            return new VariableDeclerationSyntax(varKeyword, identifier, isKeyword, initializer);
+        }
+
+        private ExpressionStatementSyntax ParseExpressionStatement()
+        {
+            var expression = ParseExpression();
+            return new ExpressionStatementSyntax(expression);
+        }
+
+        private StatementSyntax ParseBlockStatement()
+        {
+            var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
+            var startToken = NextToken();
+            while (Current.Kind != SyntaxKind.EOFToken && Current.Kind != SyntaxKind.EndKeyword)
+            {
+                var statement = ParseStatement();
+                statements.Add(statement);
+            }
+            var endToken = MatchToken(SyntaxKind.EndKeyword);
+            return new BlockStatementSyntax(startToken, statements.ToImmutable(), endToken);
         }
 
         private ExpressionSyntax ParseAssignmentExpresion()
