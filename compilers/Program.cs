@@ -12,6 +12,7 @@ namespace compilers
 
             StreamReader reader = new StreamReader("source.txt");
             StreamWriter writer = new StreamWriter("output.txt");
+            Compilation? previous = null;
 
             List<string> errors = new List<string>();
             int LineCounter = 0;
@@ -23,7 +24,7 @@ namespace compilers
                 {
                     break;
                 }
-                LineCounter = LineCounter + 1;
+                LineCounter ++;
 
                 var syntaxTree = SyntaxTree.Parse(line!);
 
@@ -33,7 +34,8 @@ namespace compilers
 
                 Console.ResetColor();
 
-                var compilation = new Compilation(syntaxTree);
+                var compilation = previous == null ? new Compilation(syntaxTree) : previous.continueWith(syntaxTree);
+                
                 var result = compilation.Evaluate(variables);
                 var diagnostics = result.Diagnostics;
                 if (diagnostics.Any())
@@ -61,6 +63,7 @@ namespace compilers
                 }
                 else
                 {
+                    previous = compilation;
                     Console.WriteLine(result.Value);
                 }
             

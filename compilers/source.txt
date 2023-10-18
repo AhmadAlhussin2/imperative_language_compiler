@@ -1,1 +1,2 @@
-a := not true
+a := true
+a := 10

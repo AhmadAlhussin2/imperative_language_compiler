@@ -1,15 +1,17 @@
+using compilers.CodeAnalysis.Text;
+
 namespace compilers.CodeAnalysis
 {
     internal sealed class Lexer
     {
-        private readonly string _text;
+        private readonly SourceText _text;
         private int _position;
         private DiagnosticBag _diagnostics = new DiagnosticBag();
 
         public DiagnosticBag Diagnostics => _diagnostics;
 
         
-        public Lexer(string text)
+        public Lexer(SourceText text)
         {
             _text = text;
         }
@@ -35,7 +37,7 @@ namespace compilers.CodeAnalysis
             {
                 Next();
             }
-            var identifier = _text[start.._position];
+            var identifier = _text.ToString(start,_position-start);
             var kind = identifier switch
             {
                 "and" => SyntaxKind.AndKeyword,
@@ -82,7 +84,7 @@ namespace compilers.CodeAnalysis
                 Next();
             }
             var length = _position - start;
-            var number = _text[start.._position];
+            var number = _text.ToString(start,length);
             if (!int.TryParse(number, out var value))
             {
                 if(!double.TryParse(number, out var real_value))
@@ -110,7 +112,7 @@ namespace compilers.CodeAnalysis
                 {
                     Next();
                 }
-                var number = _text[start.._position];
+                var number = _text.ToString(start,_position-start);
                 return new SyntaxToken(SyntaxKind.WhiteSpace, start, number, null);
             }
             switch (Current)
@@ -164,7 +166,7 @@ namespace compilers.CodeAnalysis
                     if (Current == '_' || char.IsLetter(Current))
                         return ReadVarOrKeyword(start);
                     _diagnostics.ReportBadCharacter(_position, Current);
-                    return new SyntaxToken(SyntaxKind.UnknowToken, _position++, _text.Substring(_position - 1, 1), null);
+                    return new SyntaxToken(SyntaxKind.UnknowToken, _position++, _text.ToString(_position - 1, 1), null);
             }
         }
 

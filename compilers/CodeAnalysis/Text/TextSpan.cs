@@ -1,3 +1,4 @@
+
 namespace compilers.CodeAnalysis
 {
     public struct TextSpan
@@ -10,5 +11,10 @@ namespace compilers.CodeAnalysis
         public int Start { get; }
         public int Length { get; }
 
+        public static TextSpan FromBound(int start, int end)
+        {
+            var length = end - start;
+            return new TextSpan(start, length);
+        }
     }
 }

@@ -61,6 +61,9 @@ namespace compilers.CodeAnalysis
         NameExpression,
         ParenthesizedExpression,
         UnaryExpression,
-        AssignmentExpression
+        AssignmentExpression,
+        CompilationUnit,
+        BlockStatement,
+        ExpressionStatement
     }
 }

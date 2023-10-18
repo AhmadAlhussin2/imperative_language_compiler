@@ -4,27 +4,46 @@ namespace compilers.CodeAnalysis
 {
     public sealed class Compilation
     {
-        public Compilation(SyntaxTree syntax)
+        private BoundGlobalScope? _globalScope;
+        public Compilation(SyntaxTree syntax) : this(null, syntax)
         {
+        }
+        private Compilation(Compilation? previous, SyntaxTree syntax)
+        {
+            Previous = previous;
             Syntax = syntax;
         }
 
+        public Compilation? Previous { get; }
         public SyntaxTree Syntax { get; }
-        public EvaluationResult Evaluate(Dictionary<VariableSymbol,object> variables)
+        internal BoundGlobalScope GlobalScope
         {
-            var binder = new Binder(variables);
-            var boundExpression = binder.BindExpression(Syntax.Root);
-            var diagnostics = Syntax.Diagnostics.Concat(binder.Diagnostics).ToArray();
-            if (diagnostics.Any())    
+            get
+            {
+                if (_globalScope == null)
+                {
+                    _globalScope = Binder.BindGlobalScope(Previous?.GlobalScope,Syntax.Root);
+                }
+                return _globalScope;
+            }
+        }
+        public Compilation continueWith(SyntaxTree syntaxTree)
+        {
+            return new Compilation(this, syntaxTree);
+        }
+        public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
+        {
+            var diagnostics = Syntax.Diagnostics.Concat(GlobalScope.Diagnostics).ToArray();
+            if (diagnostics.Any())
             {
                 return new EvaluationResult(diagnostics, null);
             }
-            var evaluator = new Evaluator(boundExpression,variables);
+            var evaluator = new Evaluator(GlobalScope.Expression, variables);
             var value = evaluator.Evaluate();
             return new EvaluationResult(Array.Empty<Diagnostic>(), value);
         }
     }
 
 
-    
+
 }

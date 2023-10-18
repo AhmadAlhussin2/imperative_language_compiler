@@ -14,11 +14,6 @@ namespace compilers.CodeAnalysis
         }
         public override SyntaxKind Kind => SyntaxKind.ParenthesizedExpression;
 
-        public override IEnumerable<SyntaxNode> getChildren()
-        {
-            yield return OpenParenthesisToken;
-            yield return Expression;
-            yield return CloseParenthesisToken;
-        }
+
     }
 }

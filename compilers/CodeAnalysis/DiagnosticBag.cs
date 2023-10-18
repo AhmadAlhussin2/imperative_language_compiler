@@ -53,9 +53,15 @@ namespace compilers.CodeAnalysis
             Report(span, message);
         }
 
-        internal void ReportUndefinedBinaryOperator(TextSpan span, string operatorText, Type type1, Type type2)
+        internal void ReportUndefinedBinaryOperator(TextSpan span, string operatorText, Type type1, Type? type2)
         {
             var message = $"Binary operator '{operatorText}' is not defined for types {type1} and {type2}";
+            Report(span, message);
+        }
+
+        internal void ReportCannotConvert(TextSpan span, Type type1, Type type2)
+        {
+            var message = $"Cannot convert type '{type1}' to '{type2}'.";
             Report(span, message);
         }
     }

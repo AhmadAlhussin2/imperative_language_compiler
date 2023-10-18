@@ -13,11 +13,5 @@ namespace compilers.CodeAnalysis
         public SyntaxToken AssignmentToken { get; }
         public ExpressionSyntax Expression { get; }
 
-        public override IEnumerable<SyntaxNode> getChildren()
-        {
-            yield return IdentifierToken;
-            yield return AssignmentToken;
-            yield return Expression;
-        }
     }
 }
