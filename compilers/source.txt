@@ -1,1 +1,1 @@
-then var x is 1 while x < 10 loop x := x * 2 end  end
+then var x is 0 for i in 1 .. 10 loop x := x + 1 end end

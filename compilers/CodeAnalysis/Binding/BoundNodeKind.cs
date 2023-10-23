@@ -11,6 +11,7 @@ namespace compilers.CodeAnalysis.Binding
         ExpressionStatement,
         VariableDeclaration,
         IfStatement,
-        WhileStatement
+        WhileStatement,
+        ForStatement
     }
 }

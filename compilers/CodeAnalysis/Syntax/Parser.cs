@@ -107,10 +107,26 @@ namespace compilers.CodeAnalysis
                     return ParseIfStatement();
                 case SyntaxKind.WhileKeyword:
                     return ParseWhileStatement();
+                case SyntaxKind.ForKeyword:
+                    return ParseForStatement();
                 default:
                     return ParseExpressionStatement();
 
             }
+        }
+
+        private StatementSyntax ParseForStatement()
+        {
+            var forKeyword = MatchToken(SyntaxKind.ForKeyword);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var inKeyword = MatchToken(SyntaxKind.InKeyword);
+            var lowerBound = ParseExpression();
+            var rangeToken = MatchToken(SyntaxKind.RangeToken);
+            var upperBound = ParseExpression();
+            var loopKeyword = MatchToken(SyntaxKind.LoopKeyword);
+            var body = ParseStatement();
+            var endKeyword = MatchToken(SyntaxKind.EndKeyword);
+            return new ForStatementSyntax(forKeyword, identifier, inKeyword, lowerBound, rangeToken, upperBound, loopKeyword, body, endKeyword);
         }
 
         private StatementSyntax ParseWhileStatement()
@@ -165,8 +181,13 @@ namespace compilers.CodeAnalysis
             var startToken = NextToken();
             while (Current.Kind != SyntaxKind.EOFToken && Current.Kind != SyntaxKind.EndKeyword)
             {
+                var c = Current;
                 var statement = ParseStatement();
                 statements.Add(statement);
+                if (Current == c)
+                {
+                    NextToken();
+                }
             }
             var endToken = MatchToken(SyntaxKind.EndKeyword);
             return new BlockStatementSyntax(startToken, statements.ToImmutable(), endToken);

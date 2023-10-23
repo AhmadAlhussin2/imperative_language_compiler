@@ -68,6 +68,8 @@ namespace compilers.CodeAnalysis
         VariableDecleration,
         IfStatement,
         ElseClause,
-        WhileStatement
+        WhileStatement,
+        ForStatement,
+        InKeyword
     }
 }
