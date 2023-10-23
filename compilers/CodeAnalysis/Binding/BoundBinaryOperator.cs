@@ -36,6 +36,11 @@ namespace compilers.CodeAnalysis.Binding
             new BoundBinaryOperator(SyntaxKind.EqualToken,BoundBinaryOperatorKind.Equal,typeof(int),typeof(bool)),
             new BoundBinaryOperator(SyntaxKind.NotEqualToken,BoundBinaryOperatorKind.NotEqual,typeof(int),typeof(bool)),
 
+            new BoundBinaryOperator(SyntaxKind.LessThanToken,BoundBinaryOperatorKind.LessThan,typeof(int),typeof(bool)),
+            new BoundBinaryOperator(SyntaxKind.LessThanOrEqualToken,BoundBinaryOperatorKind.LessThanOrEqual,typeof(int),typeof(bool)),
+            new BoundBinaryOperator(SyntaxKind.GreaterThanToken,BoundBinaryOperatorKind.GreaterThan,typeof(int),typeof(bool)),
+            new BoundBinaryOperator(SyntaxKind.GreaterThanOrEqualToken,BoundBinaryOperatorKind.GreaterThanOrEqual,typeof(int),typeof(bool)),
+
             new BoundBinaryOperator(SyntaxKind.AndKeyword,BoundBinaryOperatorKind.LogicalAnd,typeof(bool)),
             new BoundBinaryOperator(SyntaxKind.OrKeyword,BoundBinaryOperatorKind.LogicalOr,typeof(bool)),
             new BoundBinaryOperator(SyntaxKind.XorKeyword,BoundBinaryOperatorKind.LogicalXor,typeof(bool)),

@@ -65,6 +65,9 @@ namespace compilers.CodeAnalysis
         CompilationUnit,
         BlockStatement,
         ExpressionStatement,
-        VariableDecleration
+        VariableDecleration,
+        IfStatement,
+        ElseClause,
+        WhileStatement
     }
 }

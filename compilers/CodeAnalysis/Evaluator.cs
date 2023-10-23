@@ -31,11 +31,36 @@ namespace compilers.CodeAnalysis
                 case BoundNodeKind.VariableDeclaration:
                     EvaluateVariableDeclaration((BoundVariableDeclaration)node);
                     break;
+                case BoundNodeKind.IfStatement:
+                    EvaluateIfStatement((BoundIfStatement)node);
+                    break;
+                case BoundNodeKind.WhileStatement:
+                    EvaluateWhileStatement((BoundWhileStatement)node);
+                    break;
                 case BoundNodeKind.ExpressionStatement:
                     EvaluateExpressionStatement((BoundExpressionStatement)node);
                     break;
                 default:
                     throw new Exception($"Unexpected node {node.Kind}");
+            }
+        }
+
+        private void EvaluateWhileStatement(BoundWhileStatement node)
+        {
+            while ((bool)EvaluateExpression(node.Condition))
+            {
+                EvaluateStatement(node.Body);
+            }
+        }
+
+        private void EvaluateIfStatement(BoundIfStatement node)
+        {
+            var condition = (bool)EvaluateExpression(node.Condition);
+            if (condition){
+                EvaluateStatement(node.ThenStatement);
+            }
+            else if (node.ElseStatement != null){
+                EvaluateStatement(node.ElseStatement);
             }
         }
 
@@ -101,6 +126,14 @@ namespace compilers.CodeAnalysis
                     return Equals(left, right);
                 case BoundBinaryOperatorKind.NotEqual:
                     return !Equals(left, right);
+                case BoundBinaryOperatorKind.LessThan:
+                    return (int)left < (int)right;
+                case BoundBinaryOperatorKind.LessThanOrEqual:
+                    return (int)left <= (int)right;
+                case BoundBinaryOperatorKind.GreaterThan:
+                    return (int)left > (int)right;
+                case BoundBinaryOperatorKind.GreaterThanOrEqual:
+                    return (int)left >= (int)right;
                 default:
                     throw new Exception($"Unexpected vinary operator {b.Op.Kind}");
             }

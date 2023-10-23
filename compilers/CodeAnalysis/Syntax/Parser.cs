@@ -103,10 +103,45 @@ namespace compilers.CodeAnalysis
                     return ParseBlockStatement();
                 case SyntaxKind.VarKeyword:
                     return ParseVariableDeclaration();
+                case SyntaxKind.IfKeyword:
+                    return ParseIfStatement();
+                case SyntaxKind.WhileKeyword:
+                    return ParseWhileStatement();
                 default:
                     return ParseExpressionStatement();
 
             }
+        }
+
+        private StatementSyntax ParseWhileStatement()
+        {
+            var whileKeyword = MatchToken(SyntaxKind.WhileKeyword);
+            var condition = ParseExpression();
+            var loopKeyword = MatchToken(SyntaxKind.LoopKeyword);
+            var body = ParseStatement();
+            var endKeyword = MatchToken(SyntaxKind.EndKeyword);
+            return new WhileStatementSyntax(whileKeyword, condition, loopKeyword, body, endKeyword);
+        }
+
+        private StatementSyntax ParseIfStatement()
+        {
+            var ifKeyword = MatchToken(SyntaxKind.IfKeyword);
+            var condition = ParseExpression();
+            var thenKeyword = MatchToken(SyntaxKind.ThenKeyword);
+            var thenStatement = ParseStatement();
+            var elseClause = ParseElseClause();
+            var endKeyword = MatchToken(SyntaxKind.EndKeyword);
+            return new IfStatementSyntax(ifKeyword, condition, thenKeyword, thenStatement, elseClause, endKeyword);
+
+        }
+
+        private ElseClauseSyntax? ParseElseClause()
+        {
+            if (Current.Kind != SyntaxKind.ElseKeyword)
+                return null;
+            var keyword = MatchToken(SyntaxKind.ElseKeyword);
+            var statement = ParseStatement();
+            return new ElseClauseSyntax(keyword, statement);
         }
 
         private StatementSyntax ParseVariableDeclaration()

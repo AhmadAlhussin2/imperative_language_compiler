@@ -7,7 +7,7 @@ namespace compilers.CodeAnalysis
         public abstract SyntaxKind Kind { get; }
         public virtual TextSpan Span
         {
-            get 
+            get
             {
                 var first = getChildren().First().Span;
                 var last = getChildren().Last().Span;
@@ -21,15 +21,19 @@ namespace compilers.CodeAnalysis
             {
                 if (typeof(SyntaxNode).IsAssignableFrom(property.PropertyType))
                 {
-                    yield return (SyntaxNode)property.GetValue(this)!;
+                    var child = property.GetValue(this);
+                    if (child != null)
+                        yield return (SyntaxNode)child;
                 }
                 else if (typeof(IEnumerable<SyntaxNode>).IsAssignableFrom(property.PropertyType))
                 {
-                    var children = (IEnumerable<SyntaxNode>)property.GetValue(this)!;
-                    foreach (var child in children)
-                    {
-                        yield return child;
-                    }
+                    var children = property.GetValue(this);
+                    if (children != null)
+                        foreach (var child in (IEnumerable<SyntaxNode>)children)
+                        {
+                            if (child != null)
+                                yield return child;
+                        }
                 }
             }
 

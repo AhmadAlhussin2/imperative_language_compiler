@@ -26,6 +26,10 @@ namespace compilers.CodeAnalysis
                     return 5;
                 case SyntaxKind.EqualToken:
                 case SyntaxKind.NotEqualToken:
+                case SyntaxKind.LessThanToken:
+                case SyntaxKind.LessThanOrEqualToken:
+                case SyntaxKind.GreaterThanToken:
+                case SyntaxKind.GreaterThanOrEqualToken:
                     return 4;
                 case SyntaxKind.AndKeyword:
                     return 3;

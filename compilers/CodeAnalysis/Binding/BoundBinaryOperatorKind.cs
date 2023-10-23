@@ -10,6 +10,10 @@ namespace compilers.CodeAnalysis.Binding
         LogicalOr,
         LogicalXor,
         Equal,
-        NotEqual
+        NotEqual,
+        LessThan,
+        LessThanOrEqual,
+        GreaterThan,
+        GreaterThanOrEqual
     }
 }
