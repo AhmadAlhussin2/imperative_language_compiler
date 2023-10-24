@@ -229,3 +229,5 @@ compilers/source.txt
 #####
 
 .fake
+AST.txt
+B_AST.txt
