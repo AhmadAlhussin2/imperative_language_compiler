@@ -33,9 +33,12 @@ namespace compilers
                     Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.WriteLine(diagnostic);
                     Console.ResetColor();
-                    // var prefix = line.Substring(0, diagnostic.Span.Start);
-                    // var error = line.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
-                    // var suffix = line.Substring(diagnostic.Span.Start + diagnostic.Span.Length);
+
+                    Console.WriteLine(text);
+                    Console.WriteLine(diagnostic.Span);
+                    // var prefix = text.Substring(0, diagnostic.Span.Start);
+                    // var error = text.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
+                    // var suffix = text.Substring(diagnostic.Span.Start + diagnostic.Span.Length);
                     Console.Write("    ");
                     // Console.Write(prefix);
 

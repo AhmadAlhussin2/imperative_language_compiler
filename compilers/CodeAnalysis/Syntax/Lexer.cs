@@ -7,7 +7,7 @@ namespace compilers.CodeAnalysis
     {
         private readonly SourceText _text;
         private int _position;
-        private DiagnosticBag _diagnostics = new DiagnosticBag();
+        private DiagnosticBag _diagnostics = new();
 
         public DiagnosticBag Diagnostics => _diagnostics;
 
