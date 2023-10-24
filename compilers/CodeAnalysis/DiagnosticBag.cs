@@ -90,5 +90,23 @@ namespace compilers.CodeAnalysis
             var message = $"Function '{name}': Prameter '{parameterName}' requires a value of type '{parameterType}' but was given a value of type'{argumentType}'.";
             Report(span, message);
         }
+
+        internal void ReportExpressionMustHaveValue(TextSpan span)
+        {
+            var message = $"Expression must have a value";
+            Report(span, message);
+        }
+
+        internal void ReportUndefinedType(TextSpan span, string text)
+        {
+            var message = $"Type {text} doesn't exist";
+            Report(span, message);
+        }
+
+        internal void ReportCannotConvertImplicitly(TextSpan span, TypeSymbol type1, TypeSymbol type2)
+        {
+            var message = $"Cannot convert type '{type1}' to '{type2}'. Implicitly";
+            Report(span, message);
+        }
     }
 }

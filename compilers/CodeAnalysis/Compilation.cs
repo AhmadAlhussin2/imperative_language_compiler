@@ -24,7 +24,7 @@ namespace compilers.CodeAnalysis
             {
                 if (_globalScope == null)
                 {
-                    _globalScope = Binder.BindGlobalScope(Previous?.GlobalScope,Syntax.Root);
+                    _globalScope = Binder.BindGlobalScope(Previous?.GlobalScope, Syntax.Root);
                 }
                 return _globalScope;
             }
@@ -59,4 +59,58 @@ namespace compilers.CodeAnalysis
         }
     }
 
+    public abstract class MemberSyntax : SyntaxNode
+    {
+
+    }
+    public sealed class GlobalStatementSyntax : MemberSyntax
+    {
+        public GlobalStatementSyntax(StatementSyntax statement)
+        {
+            Statement = statement;
+        }
+
+        public override SyntaxKind Kind => SyntaxKind.GlobalStatement;
+
+        public StatementSyntax Statement { get; }
+    }
+    public sealed class ParameterSyntax : SyntaxNode
+    {
+        public ParameterSyntax(SyntaxToken identifier, TypeClauseSyntax type)
+        {
+            Identifier = identifier;
+            Type = type;
+        }
+
+        public override SyntaxKind Kind => SyntaxKind.Parameter;
+
+        public SyntaxToken Identifier { get; }
+        public TypeClauseSyntax Type { get; }
+    }
+    public sealed class FunctionDeclerationSyntax : MemberSyntax
+    {
+        public FunctionDeclerationSyntax(
+            SyntaxToken routineKeyword, SyntaxToken identifier,
+            SyntaxToken openParenthesisToken, SeparatedSyntaxList<ParameterSyntax> parameters,
+            SyntaxToken closeParenthesisToken, TypeClauseSyntax typeClause, SyntaxToken isKeyword)
+        {
+            RoutineKeyword = routineKeyword;
+            Identifier = identifier;
+            OpenParenthesisToken = openParenthesisToken;
+            Parameters = parameters;
+            CloseParenthesisToken = closeParenthesisToken;
+            TypeClause = typeClause;
+            IsKeyword = isKeyword;
+        }
+
+        public override SyntaxKind Kind => SyntaxKind.FunctionDecleration;
+
+        public SyntaxToken RoutineKeyword { get; }
+        public SyntaxToken Identifier { get; }
+        public SyntaxToken OpenParenthesisToken { get; }
+        public SeparatedSyntaxList<ParameterSyntax> Parameters { get; }
+        public SyntaxToken CloseParenthesisToken { get; }
+        public TypeClauseSyntax TypeClause { get; }
+        public SyntaxToken IsKeyword { get; }
+    }
 }

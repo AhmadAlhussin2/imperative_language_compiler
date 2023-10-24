@@ -71,6 +71,10 @@ namespace compilers.CodeAnalysis
         WhileStatement,
         ForStatement,
         InKeyword,
-        CallExpression
+        CallExpression,
+        TypeClause,
+        GlobalStatement,
+        FunctionDecleration,
+        Parameter
     }
 }

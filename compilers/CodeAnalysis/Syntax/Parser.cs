@@ -164,9 +164,24 @@ namespace compilers.CodeAnalysis
         {
             var varKeyword = MatchToken(SyntaxKind.VarKeyword);
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var typeClause = ParseOptionalTypeClause();
             var isKeyword = MatchToken(SyntaxKind.IsKeyword);
             var initializer = ParseExpression();
-            return new VariableDeclerationSyntax(varKeyword, identifier, isKeyword, initializer);
+            return new VariableDeclerationSyntax(varKeyword, identifier, typeClause, isKeyword, initializer);
+        }
+
+        private TypeClauseSyntax? ParseOptionalTypeClause()
+        {
+            if (Current.Kind != SyntaxKind.ColonToken)
+                return null;
+            return ParseTypeClause();
+        }
+
+        private TypeClauseSyntax ParseTypeClause()
+        {
+            var colonToken = MatchToken(SyntaxKind.ColonToken);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            return new TypeClauseSyntax(colonToken, identifier);
         }
 
         private ExpressionStatementSyntax ParseExpressionStatement()
@@ -244,9 +259,9 @@ namespace compilers.CodeAnalysis
 
         private ExpressionSyntax ParseNameOrCallExpression()
         {
-            if( Peek(0).Kind == SyntaxKind.IdentifierToken && Peek(1).Kind == SyntaxKind.OpenParenthesisToken)
+            if (Peek(0).Kind == SyntaxKind.IdentifierToken && Peek(1).Kind == SyntaxKind.OpenParenthesisToken)
                 return ParseCallExpression();
-            
+
             return ParseNameExpression();
         }
         private ExpressionSyntax ParseCallExpression()
@@ -261,18 +276,18 @@ namespace compilers.CodeAnalysis
         private SeparatedSyntaxList<ExpressionSyntax> ParseArguments()
         {
             var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
-            while(Current.Kind != SyntaxKind.CloseParenthesisToken &&
+            while (Current.Kind != SyntaxKind.CloseParenthesisToken &&
                   Current.Kind != SyntaxKind.EOFToken)
             {
                 var expression = ParseExpression();
                 nodesAndSeparators.Add(expression);
-                if(Current.Kind != SyntaxKind.CloseParenthesisToken)
+                if (Current.Kind != SyntaxKind.CloseParenthesisToken)
                 {
                     var comma = MatchToken(SyntaxKind.CommaToken);
                     nodesAndSeparators.Add(comma);
                 }
             }
-            return new SeparatedSyntaxList<ExpressionSyntax> (nodesAndSeparators.ToImmutable());
+            return new SeparatedSyntaxList<ExpressionSyntax>(nodesAndSeparators.ToImmutable());
         }
         private ExpressionSyntax ParseNameExpression()
         {
