@@ -30,6 +30,14 @@ namespace compilers.CodeAnalysis
                     if (child != null)
                         yield return (SyntaxNode)child;
                 }
+                else if (typeof(SeparatedSyntaxList).IsAssignableFrom(property.PropertyType))
+                {
+                    var seperatedSyntaxList = property.GetValue(this);
+                    if(seperatedSyntaxList != null)
+                        foreach (var child in ((SeparatedSyntaxList)seperatedSyntaxList).GetWithSeparators())
+                            yield return child;
+                            
+                }
                 else if (typeof(IEnumerable<SyntaxNode>).IsAssignableFrom(property.PropertyType))
                 {
                     var children = property.GetValue(this);

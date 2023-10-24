@@ -70,6 +70,7 @@ namespace compilers.CodeAnalysis
         ElseClause,
         WhileStatement,
         ForStatement,
-        InKeyword
+        InKeyword,
+        CallExpression
     }
 }

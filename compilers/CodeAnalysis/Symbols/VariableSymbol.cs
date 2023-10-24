@@ -1,6 +1,6 @@
 namespace compilers.CodeAnalysis.Symbol
 {
-    public sealed class VariableSymbol : Symbol
+    public class VariableSymbol : Symbol
     {
         internal VariableSymbol(string name, TypeSymbol type) : base(name)
         {

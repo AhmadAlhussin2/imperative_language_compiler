@@ -16,6 +16,7 @@ namespace compilers.CodeAnalysis.Binding
         GotoStatement,
         LabelStatement,
         ConditionalGotoStatement,
-        ErrorExpression
+        ErrorExpression,
+        CallExpression
     }
 }

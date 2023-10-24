@@ -88,8 +88,24 @@ namespace compilers.CodeAnalysis
                     return EvaluateUnaryExpression((BoundUnaryExpression)node);
                 case BoundNodeKind.BinaryExpression:
                     return EvaluateBinaryExpression((BoundBinaryExpression)node);
+                case BoundNodeKind.CallExpression:
+                    return EvaluateCallExpression((BoundCallExpression)node);
                 default:
                     throw new Exception($"Unexpected node {node.Kind}");
+            }
+        }
+
+        private object EvaluateCallExpression(BoundCallExpression node)
+        {
+            if(node.Function == BuiltinFunctions.PrintInt)
+            {
+                var message = EvaluateExpression(node.Arguments[0]).ToString();
+                Console.WriteLine(message);
+                return null;
+            }
+            else 
+            {
+                throw new Exception($"Unexpected function {node.Function}");
             }
         }
 

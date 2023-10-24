@@ -71,5 +71,24 @@ namespace compilers.CodeAnalysis
             var message = $"Variable {name} already declared.";
             Report(span, message);
         }
+
+        public void ReportUndefinedFunction(TextSpan span, string name)
+        {
+            var message = $"Function {name} doesn't exist.";
+            Report(span, message);
+            
+        }
+
+        internal void ReportWrongArgumentCount(TextSpan span,string name, int length, int count)
+        {
+            var message = $"Function '{name}' requires {length} arguments but was given {count}.";
+            Report(span, message);
+        }
+
+        internal void ReportWrongArgumentType(TextSpan span, string name, string parameterName, TypeSymbol parameterType, TypeSymbol argumentType)
+        {
+            var message = $"Function '{name}': Prameter '{parameterName}' requires a value of type '{parameterType}' but was given a value of type'{argumentType}'.";
+            Report(span, message);
+        }
     }
 }

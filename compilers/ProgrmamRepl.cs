@@ -54,7 +54,11 @@ namespace compilers
             else
             {
                 _previous = compilation;
-                Console.WriteLine(result.Value);
+                if(result.Value != null)
+                {
+                    Console.WriteLine(result.Value);
+                }
+                
             }
         }
     }
