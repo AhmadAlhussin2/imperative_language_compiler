@@ -8,9 +8,9 @@ namespace compilers.CodeAnalysis.Binding
             Left = left;
             Right = right;
         }
+        public BoundExpression Left { get; }
         public BoundBinaryOperator Op { get; }
         public BoundExpression Right { get; }
-        public BoundExpression Left { get; }
 
         public override Type Type => Op.Type;
 

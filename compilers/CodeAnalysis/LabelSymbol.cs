@@ -1,15 +1,13 @@
 namespace compilers.CodeAnalysis
 {
-    public sealed class VariableSymbol
+    internal sealed class LabelSymbol
     {
-        internal VariableSymbol(string name, Type type)
+        internal LabelSymbol(string name)
         {
             Name = name;
-            Type = type;
         }
 
         public string Name { get; }
-        public Type Type { get; }
         public override string ToString()
         {
             return Name;

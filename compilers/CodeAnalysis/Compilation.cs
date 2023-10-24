@@ -1,4 +1,5 @@
 using compilers.CodeAnalysis.Binding;
+using compilers.CodeAnalysis.Lowering;
 
 namespace compilers.CodeAnalysis
 {
@@ -38,12 +39,23 @@ namespace compilers.CodeAnalysis
             {
                 return new EvaluationResult(diagnostics, null);
             }
-            var evaluator = new Evaluator(GlobalScope.Statement, variables);
+            var statement = GetStatement();
+            var evaluator = new Evaluator(statement, variables);
             var value = evaluator.Evaluate();
             return new EvaluationResult(Array.Empty<Diagnostic>(), value);
         }
+
+        internal void WriteTree(TextWriter boundSyntaxTreeWriter)
+        {
+            var statement = GetStatement();
+            statement.WriteTo(boundSyntaxTreeWriter);
+        }
+
+        private BoundBlockStatement GetStatement()
+        {
+            var result = GlobalScope.Statement;
+            return Lowerer.Lower(result);
+        }
     }
-
-
 
 }

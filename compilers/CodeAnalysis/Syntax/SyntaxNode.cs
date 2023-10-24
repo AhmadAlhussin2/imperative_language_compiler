@@ -36,7 +36,37 @@ namespace compilers.CodeAnalysis
                         }
                 }
             }
-
+        }
+        public void WriteTo(TextWriter writer)
+        {
+            printNode(writer, this);
+        }
+        private static void printNode(TextWriter writer, SyntaxNode node, string indent = "", bool isLast = false)
+        {
+            // bool isToConsole = writer == Console.Out;
+            var marker = isLast ? "└──" : "├──";
+            writer.Write(indent);
+            writer.Write(marker);
+            writer.Write(node.Kind);
+            if (node is SyntaxToken t && t.Value != null)
+            {
+                writer.Write($" {t.Value}");
+            }
+            writer.WriteLine();
+            indent += isLast ? "   " : "│  ";
+            var lastChild = node.getChildren().LastOrDefault();
+            foreach (var child in node.getChildren())
+            {
+                printNode(writer, child, indent, child == lastChild);
+            }
+        }
+        public override string ToString()
+        {
+            using (var writer = new StringWriter())
+            {
+                WriteTo(writer);
+                return writer.ToString();
+            }
         }
     }
 }

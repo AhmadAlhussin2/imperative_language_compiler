@@ -12,6 +12,9 @@ namespace compilers.CodeAnalysis.Binding
         VariableDeclaration,
         IfStatement,
         WhileStatement,
-        ForStatement
+        ForStatement,
+        GotoStatement,
+        LabelStatement,
+        ConditionalGotoStatement
     }
 }

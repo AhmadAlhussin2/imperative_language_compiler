@@ -9,10 +9,10 @@ namespace compilers.CodeAnalysis.Binding
             Expression = boundExpression;
         }
 
+        public override BoundNodeKind Kind => BoundNodeKind.AssignmentExpression;
         public override Type Type => Expression.Type;
         public VariableSymbol Variable { get; }
 
-        public override BoundNodeKind Kind => BoundNodeKind.AssignmentExpression;
         public BoundExpression Expression { get; }
     }
 }
