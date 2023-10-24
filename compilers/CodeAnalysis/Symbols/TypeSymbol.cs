@@ -6,6 +6,7 @@ namespace compilers.CodeAnalysis.Symbol
         public static readonly TypeSymbol Bool = new("bool");
         public static readonly TypeSymbol Real = new("real");
         public static readonly TypeSymbol Error = new("?");
+        public static readonly TypeSymbol Void = new("void");
         
         internal TypeSymbol(string name) : base(name)
         {
