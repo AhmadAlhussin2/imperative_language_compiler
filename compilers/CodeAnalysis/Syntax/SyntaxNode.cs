@@ -11,9 +11,14 @@ namespace compilers.CodeAnalysis
             {
                 var first = getChildren().First().Span;
                 var last = getChildren().Last().Span;
-                return TextSpan.FromBound(first.Start, last.Length);
+                return TextSpan.FromBounds(first.Start, last.Length);
             }
         }
+        public SyntaxToken GetLastToken(){
+            if (this is SyntaxToken token)
+                return token;
+            return getChildren().Last().GetLastToken();
+        } 
         public IEnumerable<SyntaxNode> getChildren()
         {
             var properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);

@@ -25,6 +25,8 @@ namespace compilers
                 EvaluateCommand(text, _reader, _writer, _syntaxTreeWriter, _boundSyntaxTreeWriter);
                 _textBuilder.Clear();
             }
+            if (!string.IsNullOrEmpty(_textBuilder.ToString()))
+                PrintErrors(_textBuilder.ToString());
             _reader.Close();
             _writer.Close();
             _syntaxTreeWriter.Close();
@@ -33,12 +35,16 @@ namespace compilers
 
         protected abstract void EvaluateCommand(string text, StreamReader reader, StreamWriter writer, StreamWriter syntaxTreeWriter, StreamWriter boundSyntaxTreeWriter);
 
+        protected void PrintErrors(string text)
+        {
+            EvaluateCommand(text, _reader, _writer, _syntaxTreeWriter, _boundSyntaxTreeWriter);
+        }
         protected bool IsCompleteInstruciton(string text)
         {
             if (string.IsNullOrEmpty(text))
                 return false;
             var syntaxTree = SyntaxTree.Parse(text);
-            return !syntaxTree.Diagnostics.Any();
+            return !syntaxTree.Root.Statement.GetLastToken().IsMissing;
         }
     }
 

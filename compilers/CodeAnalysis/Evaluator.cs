@@ -1,4 +1,5 @@
 using compilers.CodeAnalysis.Binding;
+using compilers.CodeAnalysis.Symbol;
 
 namespace compilers.CodeAnalysis
 {
@@ -17,7 +18,7 @@ namespace compilers.CodeAnalysis
 
         public object? Evaluate()
         {
-            var labelToIndex = new Dictionary<LabelSymbol, int>();
+            var labelToIndex = new Dictionary<BoundLabel, int>();
             for (var i = 0; i < _root.Statements.Length; i++)
             {
                 if (_root.Statements[i] is BoundLabelStatement l)
@@ -46,7 +47,7 @@ namespace compilers.CodeAnalysis
                     case BoundNodeKind.ConditionalGotoStatement:
                         var conditionalGotoStatement = (BoundConditionalGotoStatement)s;
                         var condition = (bool)EvaluateExpression(conditionalGotoStatement.Condition);
-                        
+
                         if (condition == conditionalGotoStatement.JumpIfTrue)
                             index = labelToIndex[conditionalGotoStatement.Label];
                         else

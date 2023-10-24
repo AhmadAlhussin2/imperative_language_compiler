@@ -1,3 +1,4 @@
+using compilers.CodeAnalysis.Symbol;
 using compilers.CodeAnalysis.Text;
 
 namespace compilers.CodeAnalysis
@@ -90,7 +91,7 @@ namespace compilers.CodeAnalysis
             {
                 if(!double.TryParse(number, out var real_value))
                 {
-                    _diagnostics.ReportInvalidNumber(new TextSpan(start, length), number, typeof(int));
+                    _diagnostics.ReportInvalidNumber(new TextSpan(start, length), number, TypeSymbol.Int);
                     return new SyntaxToken(SyntaxKind.RealNumberToken, start, number, "Nan");
                 }
                 return new SyntaxToken(SyntaxKind.RealNumberToken, start, number, real_value);

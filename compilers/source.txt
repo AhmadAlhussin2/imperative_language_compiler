@@ -1,5 +1,1 @@
-var x is 2
-for i in 1..10 loop
-    y:=x*2
-end
-x
+for

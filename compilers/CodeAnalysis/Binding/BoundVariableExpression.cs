@@ -1,3 +1,5 @@
+using compilers.CodeAnalysis.Symbol;
+
 namespace compilers.CodeAnalysis.Binding
 {
     internal sealed class BoundVariableExpression : BoundExpression
@@ -8,7 +10,7 @@ namespace compilers.CodeAnalysis.Binding
         }
 
         public VariableSymbol Variable { get; }
-        public override Type Type => Variable.Type;
+        public override TypeSymbol Type => Variable.Type;
 
         public override BoundNodeKind Kind => BoundNodeKind.VariableExpression;
     }

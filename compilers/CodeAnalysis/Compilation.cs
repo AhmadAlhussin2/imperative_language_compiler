@@ -1,5 +1,6 @@
 using compilers.CodeAnalysis.Binding;
 using compilers.CodeAnalysis.Lowering;
+using compilers.CodeAnalysis.Symbol;
 
 namespace compilers.CodeAnalysis
 {

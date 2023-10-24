@@ -1,18 +1,20 @@
+using compilers.CodeAnalysis.Symbol;
+
 namespace compilers.CodeAnalysis.Binding
 {
     internal sealed class BoundBinaryOperator
     {
-        private BoundBinaryOperator(SyntaxKind syntaxKind, BoundBinaryOperatorKind kind, Type type)
+        private BoundBinaryOperator(SyntaxKind syntaxKind, BoundBinaryOperatorKind kind, TypeSymbol type)
         : this(syntaxKind, kind, type, type, type)
         {
 
         }
-        private BoundBinaryOperator(SyntaxKind syntaxKind, BoundBinaryOperatorKind kind, Type type, Type resultType)
+        private BoundBinaryOperator(SyntaxKind syntaxKind, BoundBinaryOperatorKind kind, TypeSymbol type, TypeSymbol resultType)
         : this(syntaxKind, kind, type, type, resultType)
         {
 
         }
-        private BoundBinaryOperator(SyntaxKind syntaxKind, BoundBinaryOperatorKind kind, Type leftType, Type rightType, Type resultType)
+        private BoundBinaryOperator(SyntaxKind syntaxKind, BoundBinaryOperatorKind kind, TypeSymbol leftType, TypeSymbol rightType, TypeSymbol resultType)
         {
             SyntaxKind = syntaxKind;
             Kind = kind;
@@ -23,33 +25,33 @@ namespace compilers.CodeAnalysis.Binding
 
         public SyntaxKind SyntaxKind { get; }
         public BoundBinaryOperatorKind Kind { get; }
-        public Type LeftType { get; }
-        public Type RightType { get; }
-        public Type Type { get; }
+        public TypeSymbol LeftType { get; }
+        public TypeSymbol RightType { get; }
+        public TypeSymbol Type { get; }
 
         private static BoundBinaryOperator[] _operators = {
-            new BoundBinaryOperator(SyntaxKind.PlusToken,BoundBinaryOperatorKind.Addition,typeof(int)),
-            new BoundBinaryOperator(SyntaxKind.MinusToken,BoundBinaryOperatorKind.Subtraction,typeof(int)),
-            new BoundBinaryOperator(SyntaxKind.StarToken,BoundBinaryOperatorKind.Multiplication,typeof(int)),
-            new BoundBinaryOperator(SyntaxKind.SlashToken,BoundBinaryOperatorKind.Division,typeof(int)),
+            new BoundBinaryOperator(SyntaxKind.PlusToken,BoundBinaryOperatorKind.Addition,TypeSymbol.Int),
+            new BoundBinaryOperator(SyntaxKind.MinusToken,BoundBinaryOperatorKind.Subtraction,TypeSymbol.Int),
+            new BoundBinaryOperator(SyntaxKind.StarToken,BoundBinaryOperatorKind.Multiplication,TypeSymbol.Int),
+            new BoundBinaryOperator(SyntaxKind.SlashToken,BoundBinaryOperatorKind.Division,TypeSymbol.Int),
 
-            new BoundBinaryOperator(SyntaxKind.EqualToken,BoundBinaryOperatorKind.Equal,typeof(int),typeof(bool)),
-            new BoundBinaryOperator(SyntaxKind.NotEqualToken,BoundBinaryOperatorKind.NotEqual,typeof(int),typeof(bool)),
+            new BoundBinaryOperator(SyntaxKind.EqualToken,BoundBinaryOperatorKind.Equal,TypeSymbol.Int,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.NotEqualToken,BoundBinaryOperatorKind.NotEqual,TypeSymbol.Int,TypeSymbol.Bool),
 
-            new BoundBinaryOperator(SyntaxKind.LessThanToken,BoundBinaryOperatorKind.LessThan,typeof(int),typeof(bool)),
-            new BoundBinaryOperator(SyntaxKind.LessThanOrEqualToken,BoundBinaryOperatorKind.LessThanOrEqual,typeof(int),typeof(bool)),
-            new BoundBinaryOperator(SyntaxKind.GreaterThanToken,BoundBinaryOperatorKind.GreaterThan,typeof(int),typeof(bool)),
-            new BoundBinaryOperator(SyntaxKind.GreaterThanOrEqualToken,BoundBinaryOperatorKind.GreaterThanOrEqual,typeof(int),typeof(bool)),
+            new BoundBinaryOperator(SyntaxKind.LessThanToken,BoundBinaryOperatorKind.LessThan,TypeSymbol.Int,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.LessThanOrEqualToken,BoundBinaryOperatorKind.LessThanOrEqual,TypeSymbol.Int,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.GreaterThanToken,BoundBinaryOperatorKind.GreaterThan,TypeSymbol.Int,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.GreaterThanOrEqualToken,BoundBinaryOperatorKind.GreaterThanOrEqual,TypeSymbol.Int,TypeSymbol.Bool),
 
-            new BoundBinaryOperator(SyntaxKind.AndKeyword,BoundBinaryOperatorKind.LogicalAnd,typeof(bool)),
-            new BoundBinaryOperator(SyntaxKind.OrKeyword,BoundBinaryOperatorKind.LogicalOr,typeof(bool)),
-            new BoundBinaryOperator(SyntaxKind.XorKeyword,BoundBinaryOperatorKind.LogicalXor,typeof(bool)),
-            new BoundBinaryOperator(SyntaxKind.EqualToken,BoundBinaryOperatorKind.Equal,typeof(bool)),
-            new BoundBinaryOperator(SyntaxKind.NotEqualToken,BoundBinaryOperatorKind.NotEqual,typeof(bool)),
+            new BoundBinaryOperator(SyntaxKind.AndKeyword,BoundBinaryOperatorKind.LogicalAnd,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.OrKeyword,BoundBinaryOperatorKind.LogicalOr,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.XorKeyword,BoundBinaryOperatorKind.LogicalXor,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.EqualToken,BoundBinaryOperatorKind.Equal,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.NotEqualToken,BoundBinaryOperatorKind.NotEqual,TypeSymbol.Bool),
 
         };
 
-        public static BoundBinaryOperator? Bind(SyntaxKind syntaxKind, Type leftType, Type rightType)
+        public static BoundBinaryOperator? Bind(SyntaxKind syntaxKind, TypeSymbol leftType, TypeSymbol rightType)
         {
             foreach (var op in _operators)
             {

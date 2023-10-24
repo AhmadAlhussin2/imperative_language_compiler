@@ -1,3 +1,5 @@
+using compilers.CodeAnalysis.Symbol;
+
 namespace compilers.CodeAnalysis.Binding
 {
     internal sealed class BoundBinaryExpression : BoundExpression
@@ -12,7 +14,7 @@ namespace compilers.CodeAnalysis.Binding
         public BoundBinaryOperator Op { get; }
         public BoundExpression Right { get; }
 
-        public override Type Type => Op.Type;
+        public override TypeSymbol Type => Op.Type;
 
         public override BoundNodeKind Kind => BoundNodeKind.BinaryExpression;
     }

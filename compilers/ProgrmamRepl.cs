@@ -1,4 +1,5 @@
 using compilers.CodeAnalysis;
+using compilers.CodeAnalysis.Symbol;
 
 namespace compilers
 {
