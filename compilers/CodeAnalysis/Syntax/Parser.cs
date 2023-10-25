@@ -204,6 +204,15 @@ namespace compilers.CodeAnalysis
             }
         }
 
+        private SyntaxNode ParseArrayDeclaration()
+        {
+            var arrayKeyworld = MatchToken(SyntaxKind.ArrayKeyword);
+            var openBracket = MatchToken(SyntaxKind.OpenSquareBracketToken);
+            var size = ParseExpression();
+            var closeBracket = MatchToken(SyntaxKind.CloseSquareBracketToken);
+            return new ArrayDeclarationSyntax(arrayKeyworld, openBracket, size, closeBracket);
+        }
+
         private StatementSyntax ParseTypeDeclaration()
         {
             var typeKeyword = MatchToken(SyntaxKind.TypeKeyword);
@@ -223,6 +232,10 @@ namespace compilers.CodeAnalysis
             if(Current.Kind == SyntaxKind.RecordKeyword)
             {
                 return ParseRecordDeclaration();
+            }
+            if(Current.Kind == SyntaxKind.ArrayKeyword)
+            {
+                return ParseArrayDeclaration();
             }
             var type = MatchToken(SyntaxKind.IdentifierToken);
             return type;

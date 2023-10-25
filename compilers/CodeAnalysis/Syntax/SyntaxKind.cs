@@ -77,6 +77,7 @@ namespace compilers.CodeAnalysis
         FunctionDecleration,
         Parameter,
         TypeStatement,
-        RecordDecleration
+        RecordDecleration,
+        ArrayDeclaration
     }
 }
