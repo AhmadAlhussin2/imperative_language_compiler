@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using System.Diagnostics;
 using compilers.CodeAnalysis.Lowering;
 using compilers.CodeAnalysis.Symbol;
 
@@ -14,6 +15,13 @@ namespace compilers.CodeAnalysis.Binding
         {
             _scope = new BoundScope(parent);
             _function = function;
+
+            if( function != null )
+            {
+                foreach (var p in function.Parameters)
+                    _scope.TryDeclareVariable(p);
+                
+            }
         }
         private static BoundScope CreateParentScopes(BoundGlobalScope? previous)
         {
@@ -57,16 +65,20 @@ namespace compilers.CodeAnalysis.Binding
             var functionBodies = ImmutableDictionary.CreateBuilder<FunctionSymbol, BoundBlockStatement>();
             var diagnostics = new DiagnosticBag();
 
-            foreach (var function in globalScope.Functions)
+            var scope = globalScope;
+            while (scope != null)
             {
-                var binder = new Binder(parentScope, function);
-                var body = binder.BindStatement(function.Decleration.Body);
-                var loweredBody = Lowerer.Lower(body);
-                functionBodies.Add(function, loweredBody);
-                diagnostics.AddRange(binder.Diagnostics);
+                foreach (var function in globalScope.Functions)
+                {
+                    var binder = new Binder(parentScope, function);
+                    var body = binder.BindStatement(function.Decleration.Body);
+                    var loweredBody = Lowerer.Lower(body);
+                    functionBodies.Add(function, loweredBody);
+                    diagnostics.AddRange(binder.Diagnostics);
+                }
+                scope = scope.Previous;
             }
-            var boundProgram = new BoundProgram(globalScope, diagnostics, functionBodies.ToImmutable());
-            return boundProgram;
+            return  new BoundProgram(globalScope, diagnostics, functionBodies.ToImmutable());
         }
 
         public static BoundGlobalScope BindGlobalScope(BoundGlobalScope? previous, CompilationUnitSyntax syntax)
@@ -75,7 +87,7 @@ namespace compilers.CodeAnalysis.Binding
             var binder = new Binder(parentScope, null);
 
             foreach (var function in syntax.Members.OfType<FunctionDeclerationSyntax>())
-                binder.BindFunctionDecleratino(function);
+                binder.BindFunctionDecleration(function);
             var statementBuilder = ImmutableArray.CreateBuilder<BoundStatement>();
             foreach (var globalStatement in syntax.Members.OfType<GlobalStatementSyntax>())
             {
@@ -95,7 +107,7 @@ namespace compilers.CodeAnalysis.Binding
             return new BoundGlobalScope(previous, diagnostic, functions, variables, statement);
         }
 
-        private void BindFunctionDecleratino(FunctionDeclerationSyntax syntax)
+        private void BindFunctionDecleration(FunctionDeclerationSyntax syntax)
         {
             var parameters = ImmutableArray.CreateBuilder<ParameterSymbol>();
             var seenParameterNames = new HashSet<string>();
@@ -121,6 +133,7 @@ namespace compilers.CodeAnalysis.Binding
             {
                 _diagnostics.ReportFunctionAlreadyDeclared(syntax.Identifier.Span, function.Name);
             }
+
         }
 
         public DiagnosticBag Diagnostics => _diagnostics;
@@ -161,11 +174,14 @@ namespace compilers.CodeAnalysis.Binding
         {
             var name = identifier.Text ?? "?";
             var declare = !identifier.IsMissing;
-            var variable = new VariableSymbol(name, type);
-            if (!_scope.TryDeclareVariable(variable))
-            {
+            var variable = _function == null
+                                ? (VariableSymbol)new GlobalVariableSymbol(name, type)
+                                : (VariableSymbol)new LocalVariableSymbol(name, type);
+
+          
+            if (declare && !_scope.TryDeclareVariable(variable))
                 _diagnostics.ReportVariableAlreadyDeclared(identifier.Span, name);
-            }
+            
             return variable;
         }
 
@@ -307,7 +323,7 @@ namespace compilers.CodeAnalysis.Binding
 
                 if (argument.Type != parameter.Type)
                 {
-                    _diagnostics.ReportWrongArgumentType(syntax.Span, function.Name, parameter.Name, parameter.Type, argument.Type);
+                    _diagnostics.ReportWrongArgumentType(syntax.Arguments[i].Span, function.Name, parameter.Name, parameter.Type, argument.Type);
                     return new BoundErrorExpression();
                 }
 

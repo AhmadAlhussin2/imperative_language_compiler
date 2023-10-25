@@ -1,6 +1,6 @@
 namespace compilers.CodeAnalysis.Symbol
 {
-    public class VariableSymbol : Symbol
+    public abstract class VariableSymbol : Symbol
     {
         internal VariableSymbol(string name, TypeSymbol type) : base(name)
         {
@@ -8,7 +8,5 @@ namespace compilers.CodeAnalysis.Symbol
         }
 
         public TypeSymbol Type { get; }
-
-        public override SymbolKind Kind => SymbolKind.Variable;
     }
 }

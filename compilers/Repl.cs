@@ -10,6 +10,7 @@ namespace compilers
         private readonly StreamWriter _writer = new("output.txt");
         private readonly StreamWriter _syntaxTreeWriter = new("AST.txt");
         private readonly StreamWriter _boundSyntaxTreeWriter = new("B_AST.txt");
+        private readonly StreamWriter _errorWriter = new("Errors.txt");
 
         public void Run()
         {
@@ -22,7 +23,7 @@ namespace compilers
                 var text = _textBuilder.ToString();
                 if (!IsCompleteInstruciton(text))
                     continue;
-                EvaluateCommand(text, _reader, _writer, _syntaxTreeWriter, _boundSyntaxTreeWriter);
+                EvaluateCommand(text, _reader, _writer, _syntaxTreeWriter, _boundSyntaxTreeWriter, _errorWriter);
                 _textBuilder.Clear();
             }
             if (!string.IsNullOrEmpty(_textBuilder.ToString()))
@@ -31,13 +32,14 @@ namespace compilers
             _writer.Close();
             _syntaxTreeWriter.Close();
             _boundSyntaxTreeWriter.Close();
+            _errorWriter.Close();
         }
 
-        protected abstract void EvaluateCommand(string text, StreamReader reader, StreamWriter writer, StreamWriter syntaxTreeWriter, StreamWriter boundSyntaxTreeWriter);
+        protected abstract void EvaluateCommand(string text, StreamReader reader, StreamWriter writer, StreamWriter syntaxTreeWriter, StreamWriter boundSyntaxTreeWriter, StreamWriter errorWriter);
 
         protected void PrintErrors(string text)
         {
-            EvaluateCommand(text, _reader, _writer, _syntaxTreeWriter, _boundSyntaxTreeWriter);
+            EvaluateCommand(text, _reader, _writer, _syntaxTreeWriter, _boundSyntaxTreeWriter, _errorWriter);
         }
         protected bool IsCompleteInstruciton(string text)
         {

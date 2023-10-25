@@ -11,20 +11,16 @@ namespace compilers.CodeAnalysis
         private readonly Dictionary<VariableSymbol, object> _globals;
         private readonly Stack<Dictionary<VariableSymbol, object>> _locals = new();
         private object? _lastValue;
-
-        public Evaluator(System.Collections.Immutable.ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functionBodies, BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
+        public Evaluator(ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functionBodies, BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
         {
             _functionBodies = functionBodies;
             _root = root;
             _globals = variables;
         }
-
-
         public object? Evaluate()
         {
             return Evaluate(_root);
         }
-
         private object? Evaluate(BoundBlockStatement body)
         {
             var labelToIndex = new Dictionary<BoundLabel, int>();
@@ -71,19 +67,16 @@ namespace compilers.CodeAnalysis
             }
             return _lastValue;
         }
-
         private void EvaluateVariableDeclaration(BoundVariableDeclaration node)
         {
             var value = EvaluateExpression(node.Initializer);
-            _globals[node.Variable] = value;
             _lastValue = value;
+            Assign(node.Variable, value);
         }
-
         private void EvaluateExpressionStatement(BoundExpressionStatement node)
         {
             _lastValue = EvaluateExpression(node.Expression);
         }
-
         private object EvaluateExpression(BoundExpression node)
         {
             switch (node.Kind)
@@ -106,7 +99,6 @@ namespace compilers.CodeAnalysis
                     throw new Exception($"Unexpected node {node.Kind}");
             }
         }
-
         private object EvaluateConversionExpression(BoundConversionExpression node)
         {
             var value = EvaluateExpression(node.Expression);
@@ -119,7 +111,6 @@ namespace compilers.CodeAnalysis
             else
                 throw new Exception($"Unexpected casting");
         }
-
         private object EvaluateCallExpression(BoundCallExpression node)
         {
             if (node.Function == BuiltinFunctions.PrintInt)
@@ -139,10 +130,11 @@ namespace compilers.CodeAnalysis
                 }
                 _locals.Push(locals);
                 var statement = _functionBodies[node.Function];
-                return Evaluate(statement);
+                var result = Evaluate(statement);
+                _locals.Pop();
+                return result;
             }
         }
-
         private object EvaluateBinaryExpression(BoundBinaryExpression b)
         {
             var left = EvaluateExpression(b.Left);
@@ -179,7 +171,6 @@ namespace compilers.CodeAnalysis
                     throw new Exception($"Unexpected vinary operator {b.Op.Kind}");
             }
         }
-
         private object EvaluateUnaryExpression(BoundUnaryExpression u)
         {
             var operand = EvaluateExpression(u.Operand);
@@ -195,30 +186,40 @@ namespace compilers.CodeAnalysis
                     throw new Exception($"Unexpected unary operator {u.Op.Kind}");
             }
         }
-
+        private object EvaluateVariableExpression(BoundVariableExpression v)
+        {
+            if (v.Variable.Kind == SymbolKind.GlobalVariable)
+            {
+                return _globals[v.Variable];
+            }
+            else 
+            {
+                var locals = _locals.Peek();
+                return locals[v.Variable];
+            }
+            
+        }
         private object EvaluateAssignmentExpression(BoundAssignmentExpression a)
         {
             var value = EvaluateExpression(a.Expression);
-            _globals[a.Variable] = value;
+            Assign(a.Variable, value);
             return value;
         }
-
-        private object EvaluateVariableExpression(BoundVariableExpression v)
-        {
-            if (_locals.Count > 0)
-            {
-                var locals = _locals.Peek();
-                if (locals.TryGetValue(v.Variable, out var value))
-                {
-                    return value;
-                }
-            }
-            return _globals[v.Variable];
-        }
-
         private static object EvaluateLiteralExpression(BoundLiteralExpression n)
         {
             return n.Value;
+        }
+        private void Assign(VariableSymbol variable, object value)
+        {
+            if (variable.Kind == SymbolKind.GlobalVariable)
+            {
+                _globals[variable] = value;
+            }
+            else 
+            {
+                var locals = _locals.Peek();
+                locals[variable] = value;
+            }
         }
     }
 }

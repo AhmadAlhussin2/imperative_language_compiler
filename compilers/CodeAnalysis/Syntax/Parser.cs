@@ -57,6 +57,18 @@ namespace compilers.CodeAnalysis
         {
             return ParseAssignmentExpresion();
         }
+        
+        private ExpressionSyntax ParseAssignmentExpresion()
+        {
+            if (Peek(0).Kind == SyntaxKind.IdentifierToken && Peek(1).Kind == SyntaxKind.AssignmentToken)
+            {
+                var identifierToken = NextToken();
+                var operatorToken = NextToken();
+                var right = ParseAssignmentExpresion();
+                return new AssignmentExpressionSyntax(identifierToken, operatorToken, right);
+            }
+            return ParseBinaryExpression();
+        }
         private ExpressionSyntax ParseBinaryExpression(int parentPriority = 0)
         {
             ExpressionSyntax left;
@@ -84,8 +96,6 @@ namespace compilers.CodeAnalysis
             }
             return left;
         }
-
-
         public CompilationUnitSyntax ParseCompilationUnit()
         {
             var members = ParseMembers();
@@ -134,15 +144,21 @@ namespace compilers.CodeAnalysis
         private SeparatedSyntaxList<ParameterSyntax> ParseParametersList()
         {
             var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
-            while (Current.Kind != SyntaxKind.CloseParenthesisToken &&
-                  Current.Kind != SyntaxKind.EOFToken)
+            var parseNextParameter = true;
+            while(parseNextParameter && 
+                  Current.Kind != SyntaxKind.CloseParenthesisToken &&
+                  Current.Kind != SyntaxKind.EOFToken )
             {
                 var parameter = ParseParameter();
                 nodesAndSeparators.Add(parameter);
-                if (Current.Kind != SyntaxKind.CloseParenthesisToken)
+                if (Current.Kind == SyntaxKind.CommaToken)
                 {
                     var comma = MatchToken(SyntaxKind.CommaToken);
                     nodesAndSeparators.Add(comma);
+                }
+                else
+                {
+                    parseNextParameter = false;
                 }
             }
             return new SeparatedSyntaxList<ParameterSyntax>(nodesAndSeparators.ToImmutable());
@@ -168,7 +184,6 @@ namespace compilers.CodeAnalysis
             {
                 case SyntaxKind.IsKeyword:
                 case SyntaxKind.ThenKeyword:
-                case SyntaxKind.RecordKeyword:
                 case SyntaxKind.LoopKeyword:
                     return ParseBlockStatement();
                 case SyntaxKind.VarKeyword:
@@ -179,10 +194,39 @@ namespace compilers.CodeAnalysis
                     return ParseWhileStatement();
                 case SyntaxKind.ForKeyword:
                     return ParseForStatement();
+                case SyntaxKind.RecordKeyword:
+                    return ParseRecordStatement();
+                case SyntaxKind.TypeKeyword:
+                    return ParseTypeDeclaration();
                 default:
                     return ParseExpressionStatement();
 
             }
+        }
+
+        private StatementSyntax ParseTypeDeclaration()
+        {
+            var typeKeyword = MatchToken(SyntaxKind.TypeKeyword);
+            var name = MatchToken(SyntaxKind.IdentifierToken);
+            var isKeyword = MatchToken(SyntaxKind.IsKeyword);
+            var type = ParseTypeStatement();
+
+            return new TypeDeclarationSyntax(typeKeyword, name, isKeyword, type);
+        }
+
+        private SyntaxToken ParseTypeStatement()
+        {
+            if(Current.Kind == SyntaxKind.RealKeyword || Current.Kind == SyntaxKind.IntegerKeyword || Current.Kind ==        SyntaxKind.BooleanKeyword)
+            {
+                return NextToken();
+            }
+            var type = MatchToken(SyntaxKind.IdentifierToken);
+            return type;
+        }
+
+        private StatementSyntax ParseRecordStatement()
+        {
+            throw new NotImplementedException();
         }
 
         private StatementSyntax ParseForStatement()
@@ -194,7 +238,7 @@ namespace compilers.CodeAnalysis
             var rangeToken = MatchToken(SyntaxKind.RangeToken);
             var upperBound = ParseExpression();
             var loopKeyword = MatchToken(SyntaxKind.LoopKeyword);
-            var body = ParseStatement();
+            var body = ParseBlockStatement();
             var endKeyword = MatchToken(SyntaxKind.EndKeyword);
             return new ForStatementSyntax(forKeyword, identifier, inKeyword, lowerBound, rangeToken, upperBound, loopKeyword, body, endKeyword);
         }
@@ -204,7 +248,7 @@ namespace compilers.CodeAnalysis
             var whileKeyword = MatchToken(SyntaxKind.WhileKeyword);
             var condition = ParseExpression();
             var loopKeyword = MatchToken(SyntaxKind.LoopKeyword);
-            var body = ParseStatement();
+            var body = ParseBlockStatement();
             var endKeyword = MatchToken(SyntaxKind.EndKeyword);
             return new WhileStatementSyntax(whileKeyword, condition, loopKeyword, body, endKeyword);
         }
@@ -212,6 +256,7 @@ namespace compilers.CodeAnalysis
         private StatementSyntax ParseIfStatement()
         {
             var ifKeyword = MatchToken(SyntaxKind.IfKeyword);
+
             var condition = ParseExpression();
             var thenKeyword = MatchToken(SyntaxKind.ThenKeyword);
             var thenStatement = ParseStatement();
@@ -250,6 +295,11 @@ namespace compilers.CodeAnalysis
         private TypeClauseSyntax ParseTypeClause()
         {
             var colonToken = MatchToken(SyntaxKind.ColonToken);
+            if(Current.Kind == SyntaxKind.IntegerKeyword || Current.Kind == SyntaxKind.RealKeyword || Current.Kind == SyntaxKind.   BooleanKeyword)
+            {
+                var identifierType = NextToken();
+                return new TypeClauseSyntax(colonToken, identifierType);
+            }
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
             return new TypeClauseSyntax(colonToken, identifier);
         }
@@ -263,7 +313,7 @@ namespace compilers.CodeAnalysis
         private BlockStatementSyntax ParseBlockStatement()
         {
             var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
-            var startToken = NextToken();
+            //var startToken = NextToken();
             while (Current.Kind != SyntaxKind.EOFToken && Current.Kind != SyntaxKind.EndKeyword)
             {
                 var c = Current;
@@ -274,21 +324,10 @@ namespace compilers.CodeAnalysis
                     NextToken();
                 }
             }
-            var endToken = MatchToken(SyntaxKind.EndKeyword);
-            return new BlockStatementSyntax(startToken, statements.ToImmutable(), endToken);
+            //var endToken = MatchToken(SyntaxKind.EndKeyword);
+            return new BlockStatementSyntax(statements.ToImmutable());
         }
 
-        private ExpressionSyntax ParseAssignmentExpresion()
-        {
-            if (Peek(0).Kind == SyntaxKind.IdentifierToken && Peek(1).Kind == SyntaxKind.AssignmentToken)
-            {
-                var identifierToken = NextToken();
-                var operatorToken = NextToken();
-                var right = ParseAssignmentExpresion();
-                return new AssignmentExpressionSyntax(identifierToken, operatorToken, right);
-            }
-            return ParseBinaryExpression();
-        }
         private ExpressionSyntax ParsePrimaryExpression()
         {
             switch (Current.Kind)
@@ -299,6 +338,7 @@ namespace compilers.CodeAnalysis
                 case SyntaxKind.FalseKeyword:
                     return ParseBooleanLiteral();
                 case SyntaxKind.NumberToken:
+                case SyntaxKind.RealNumberToken:
                     return ParseNumberLiteral();
                 case SyntaxKind.IdentifierToken:
                 default:
@@ -308,6 +348,11 @@ namespace compilers.CodeAnalysis
 
         private ExpressionSyntax ParseNumberLiteral()
         {
+            if (Current.Kind == SyntaxKind.RealNumberToken)
+            {
+                var realNumberToken = NextToken();
+                return new LiteralExpressionSyntax(realNumberToken);
+            }
             var numberToken = MatchToken(SyntaxKind.NumberToken);
             return new LiteralExpressionSyntax(numberToken);
         }
@@ -362,7 +407,13 @@ namespace compilers.CodeAnalysis
         private ExpressionSyntax ParseNameExpression()
         {
             var identifierToken = MatchToken(SyntaxKind.IdentifierToken);
-            return new NameExpressionSyntax(identifierToken);
+            if(Current.Kind == SyntaxKind.DotToken)
+            {
+                var operatorToken = NextToken();
+                var right = ParseNameExpression();
+                return new NameExpressionSyntax(identifierToken, operatorToken,right);
+            }
+            return new NameExpressionSyntax(identifierToken, null, null);
         }
     }
 }

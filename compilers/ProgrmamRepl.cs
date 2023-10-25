@@ -8,21 +8,30 @@ namespace compilers
 
         private Compilation? _previous;
         private readonly Dictionary<VariableSymbol, object> _variables = new();
-        protected override void EvaluateCommand(string text, StreamReader reader, StreamWriter writer, StreamWriter syntaxTreeWriter, StreamWriter boundSyntaxTreeWriter)
+        protected override void EvaluateCommand(string text, StreamReader reader, StreamWriter writer, StreamWriter syntaxTreeWriter, StreamWriter boundSyntaxTreeWriter, StreamWriter errorWriter)
         {
             var syntaxTree = SyntaxTree.Parse(text);
+            syntaxTree.Root.WriteTo(syntaxTreeWriter);
+            if (syntaxTree.Diagnostics.Any())
+            {
+                foreach (var error in syntaxTree.Diagnostics)
+                {
+                    errorWriter.WriteLine(error);
+                }
+            }
+            /*
             var compilation = _previous == null ? new Compilation(syntaxTree) : _previous.continueWith(syntaxTree);
 
             Console.ForegroundColor = ConsoleColor.Green;
 
             // syntaxTree.Root.WriteTo(Console.Out);
             compilation.WriteTree(Console.Out);
-            syntaxTree.Root.WriteTo(syntaxTreeWriter);
+            
             compilation.WriteTree(boundSyntaxTreeWriter);
 
             Console.ResetColor();
 
-
+            
             var result = compilation.Evaluate(_variables);
             var diagnostics = result.Diagnostics;
             if (diagnostics.Any())
@@ -57,6 +66,8 @@ namespace compilers
                 }
                 
             }
+            */
+            
         }
     }
 

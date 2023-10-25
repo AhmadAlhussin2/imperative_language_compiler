@@ -75,6 +75,7 @@ namespace compilers.CodeAnalysis
         TypeClause,
         GlobalStatement,
         FunctionDecleration,
-        Parameter
+        Parameter,
+        TypeStatement
     }
 }

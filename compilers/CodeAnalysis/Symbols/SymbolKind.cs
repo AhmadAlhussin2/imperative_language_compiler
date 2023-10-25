@@ -2,9 +2,10 @@ namespace compilers.CodeAnalysis.Symbol
 {
     public enum SymbolKind
     {
-        Variable,
         Type,
         Function,
-        Parameter
+        Parameter,
+        LocalVariable,
+        GlobalVariable
     }
 }

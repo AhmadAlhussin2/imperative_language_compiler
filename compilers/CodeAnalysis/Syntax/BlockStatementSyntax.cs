@@ -4,16 +4,14 @@ namespace compilers.CodeAnalysis
 {
     public sealed class BlockStatementSyntax : StatementSyntax
     {
-        public BlockStatementSyntax(SyntaxToken startToken, ImmutableArray<StatementSyntax> statements, SyntaxToken endToken)
+        public BlockStatementSyntax(ImmutableArray<StatementSyntax> statements)
         {
-            StartToken = startToken;
+            //StartToken = startToken;
             Statements = statements;
-            EndToken = endToken;
         }
 
-        public SyntaxToken StartToken { get; }
+        //public SyntaxToken StartToken { get; }
         public ImmutableArray<StatementSyntax> Statements { get; }
-        public SyntaxToken EndToken { get; }
 
         public override SyntaxKind Kind => SyntaxKind.BlockStatement;
     }

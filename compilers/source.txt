@@ -1,1 +1,1 @@
-var x is 10
+var x : real is 1.1
