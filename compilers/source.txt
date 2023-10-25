@@ -1,1 +1,3 @@
-var x : real is 1.1
+type rectangle is record x : real, y : real end 
+var my_rectangle : rectangle 
+my_rectangle.x := 1

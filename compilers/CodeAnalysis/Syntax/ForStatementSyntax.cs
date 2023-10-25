@@ -31,7 +31,7 @@ namespace compilers.CodeAnalysis
 
     public sealed class TypeDeclarationSyntax : StatementSyntax
     {
-        public TypeDeclarationSyntax(SyntaxToken typeKeyword, SyntaxToken name, SyntaxToken isKeyword, SyntaxToken representedType)
+        public TypeDeclarationSyntax(SyntaxToken typeKeyword, SyntaxToken name, SyntaxToken isKeyword, SyntaxNode representedType)
         {
             TypeKeyword = typeKeyword;
             Name = name;
@@ -44,7 +44,7 @@ namespace compilers.CodeAnalysis
         public SyntaxToken TypeKeyword { get; }
         public SyntaxToken Name { get; }
         public SyntaxToken IsKeyword { get; }
-        public SyntaxToken RepresentedType { get; }
+        public SyntaxNode RepresentedType { get; }
     }
 
     

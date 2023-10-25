@@ -195,7 +195,7 @@ namespace compilers.CodeAnalysis
                 case SyntaxKind.ForKeyword:
                     return ParseForStatement();
                 case SyntaxKind.RecordKeyword:
-                    return ParseRecordStatement();
+                    return ParseRecordDeclaration();
                 case SyntaxKind.TypeKeyword:
                     return ParseTypeDeclaration();
                 default:
@@ -214,19 +214,26 @@ namespace compilers.CodeAnalysis
             return new TypeDeclarationSyntax(typeKeyword, name, isKeyword, type);
         }
 
-        private SyntaxToken ParseTypeStatement()
+        private SyntaxNode ParseTypeStatement()
         {
             if(Current.Kind == SyntaxKind.RealKeyword || Current.Kind == SyntaxKind.IntegerKeyword || Current.Kind ==        SyntaxKind.BooleanKeyword)
             {
                 return NextToken();
             }
+            if(Current.Kind == SyntaxKind.RecordKeyword)
+            {
+                return ParseRecordDeclaration();
+            }
             var type = MatchToken(SyntaxKind.IdentifierToken);
             return type;
         }
 
-        private StatementSyntax ParseRecordStatement()
+        private StatementSyntax ParseRecordDeclaration()
         {
-            throw new NotImplementedException();
+            var recordKeyword = MatchToken(SyntaxKind.RecordKeyword);
+            var parameters = ParseParametersList();
+            var endKeyword = MatchToken(SyntaxKind.EndKeyword);
+            return new RecordDeclerationSyntax(recordKeyword, parameters, endKeyword);
         }
 
         private StatementSyntax ParseForStatement()
@@ -280,6 +287,11 @@ namespace compilers.CodeAnalysis
             var varKeyword = MatchToken(SyntaxKind.VarKeyword);
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
             var typeClause = ParseOptionalTypeClause();
+
+            if (Current.Kind != SyntaxKind.IsKeyword)
+            {
+                 return new VariableDeclerationSyntax(varKeyword, identifier, typeClause, null, null);
+            }
             var isKeyword = MatchToken(SyntaxKind.IsKeyword);
             var initializer = ParseExpression();
             return new VariableDeclerationSyntax(varKeyword, identifier, typeClause, isKeyword, initializer);

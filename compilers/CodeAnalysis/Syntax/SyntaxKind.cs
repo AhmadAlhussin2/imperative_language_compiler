@@ -76,6 +76,7 @@ namespace compilers.CodeAnalysis
         GlobalStatement,
         FunctionDecleration,
         Parameter,
-        TypeStatement
+        TypeStatement,
+        RecordDecleration
     }
 }
