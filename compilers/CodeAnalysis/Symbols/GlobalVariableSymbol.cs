@@ -8,6 +8,6 @@ namespace compilers.CodeAnalysis.Symbol
             
         }
 
-        public override SymbolKind Kind => SymbolKind.LocalVariable;
+        public override SymbolKind Kind => SymbolKind.GlobalVariable;
     }
 }

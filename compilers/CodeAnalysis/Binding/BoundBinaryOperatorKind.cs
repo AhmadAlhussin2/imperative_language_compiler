@@ -14,6 +14,7 @@ namespace compilers.CodeAnalysis.Binding
         LessThan,
         LessThanOrEqual,
         GreaterThan,
-        GreaterThanOrEqual
+        GreaterThanOrEqual,
+        Modulo
     }
 }

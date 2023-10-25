@@ -1,3 +1,12 @@
-type rectangle is record x : real, y : real end 
-var my_rectangle : rectangle 
-my_rectangle.x := 1
+
+var x is 1
+routine f(y: integer) is
+    if ( x%2 = 0) then
+        x:=10
+    else 
+        x:=15
+    end
+end
+f(19)
+x
+
