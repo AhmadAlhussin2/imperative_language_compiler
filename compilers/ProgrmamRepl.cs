@@ -11,15 +11,15 @@ namespace compilers
         protected override void EvaluateCommand(string text, StreamReader reader, StreamWriter writer, StreamWriter syntaxTreeWriter, StreamWriter boundSyntaxTreeWriter, StreamWriter errorWriter)
         {
             var syntaxTree = SyntaxTree.Parse(text);
-            syntaxTree.Root.WriteTo(syntaxTreeWriter);
-            if (syntaxTree.Diagnostics.Any())
-            {
-                foreach (var error in syntaxTree.Diagnostics)
-                {
-                    errorWriter.WriteLine(error);
-                }
-            }
-            /*
+            // syntaxTree.Root.WriteTo(syntaxTreeWriter);
+            // if (syntaxTree.Diagnostics.Any())
+            // {
+            //     foreach (var error in syntaxTree.Diagnostics)
+            //     {
+            //         errorWriter.WriteLine(error);
+            //     }
+            // }
+            
             var compilation = _previous == null ? new Compilation(syntaxTree) : _previous.continueWith(syntaxTree);
 
             Console.ForegroundColor = ConsoleColor.Green;
@@ -66,7 +66,7 @@ namespace compilers
                 }
                 
             }
-            */
+            
             
         }
     }

@@ -142,13 +142,25 @@ namespace compilers.CodeAnalysis
             switch (b.Op.Kind)
             {
                 case BoundBinaryOperatorKind.Addition:
-                    return (int)left + (int)right;
+                    if (left is double || right is double)
+                        return (double)left + (double)right;
+                    else
+                        return (int)left + (int)right;
                 case BoundBinaryOperatorKind.Subtraction:
-                    return (int)left - (int)right;
+                    if (left is double || right is double)
+                        return (double)left - (double)right;
+                    else
+                        return (int)left - (int)right;
                 case BoundBinaryOperatorKind.Multiplication:
-                    return (int)left * (int)right;
+                    if (left is double || right is double)
+                        return (double)left * (double)right;
+                    else
+                        return (int)left * (int)right;
                 case BoundBinaryOperatorKind.Division:
-                    return (int)left / (int)right;
+                    if (left is double || right is double)
+                        return (double)left / (double)right;
+                    else
+                        return (int)left / (int)right;
                 case BoundBinaryOperatorKind.LogicalAnd:
                     return (bool)left & (bool)right;
                 case BoundBinaryOperatorKind.LogicalXor:
@@ -160,13 +172,27 @@ namespace compilers.CodeAnalysis
                 case BoundBinaryOperatorKind.NotEqual:
                     return !Equals(left, right);
                 case BoundBinaryOperatorKind.LessThan:
-                    return (int)left < (int)right;
+                    if (left is double || right is double)
+                        return (double)left < (double)right;
+                    else
+                        return (int)left < (int)right;
                 case BoundBinaryOperatorKind.LessThanOrEqual:
-                    return (int)left <= (int)right;
+                    if (left is double || right is double)
+                        return (double)left <= (double)right;
+                    else
+                        return (int)left <= (int)right;
                 case BoundBinaryOperatorKind.GreaterThan:
-                    return (int)left > (int)right;
+                    if (left is double || right is double)
+                        return (double)left > (double)right;
+                    else
+                        return (int)left > (int)right;
                 case BoundBinaryOperatorKind.GreaterThanOrEqual:
-                    return (int)left >= (int)right;
+                    if (left is double || right is double)
+                        return (double)left >= (double)right;
+                    else
+                        return (int)left >= (int)right;
+                case BoundBinaryOperatorKind.Modulo:
+                    return (int)left % (int)right;
                 default:
                     throw new Exception($"Unexpected vinary operator {b.Op.Kind}");
             }

@@ -16,11 +16,11 @@ namespace compilers.CodeAnalysis.Binding
             _scope = new BoundScope(parent);
             _function = function;
 
-            if( function != null )
+            if (function != null)
             {
                 foreach (var p in function.Parameters)
                     _scope.TryDeclareVariable(p);
-                
+                    
             }
         }
         private static BoundScope CreateParentScopes(BoundGlobalScope? previous)
@@ -68,17 +68,20 @@ namespace compilers.CodeAnalysis.Binding
             var scope = globalScope;
             while (scope != null)
             {
-                foreach (var function in globalScope.Functions)
+                foreach (var function in scope.Functions)
                 {
                     var binder = new Binder(parentScope, function);
-                    var body = binder.BindStatement(function.Decleration.Body);
-                    var loweredBody = Lowerer.Lower(body);
-                    functionBodies.Add(function, loweredBody);
-                    diagnostics.AddRange(binder.Diagnostics);
+                    if (function.Decleration != null) 
+                    {
+                        BoundStatement? body = binder.BindStatement(function.Decleration.Body);
+                        var loweredBody = Lowerer.Lower(body);
+                        functionBodies.Add(function, loweredBody);
+                        diagnostics.AddRange(binder.Diagnostics);
+                    }
                 }
                 scope = scope.Previous;
             }
-            return  new BoundProgram(globalScope, diagnostics, functionBodies.ToImmutable());
+            return new BoundProgram(globalScope, diagnostics, functionBodies.ToImmutable());
         }
 
         public static BoundGlobalScope BindGlobalScope(BoundGlobalScope? previous, CompilationUnitSyntax syntax)
@@ -176,12 +179,12 @@ namespace compilers.CodeAnalysis.Binding
             var declare = !identifier.IsMissing;
             var variable = _function == null
                                 ? (VariableSymbol)new GlobalVariableSymbol(name, type)
-                                : (VariableSymbol)new LocalVariableSymbol(name, type);
+                                : new LocalVariableSymbol(name, type);
 
-          
+
             if (declare && !_scope.TryDeclareVariable(variable))
                 _diagnostics.ReportVariableAlreadyDeclared(identifier.Span, name);
-            
+
             return variable;
         }
 
@@ -281,9 +284,9 @@ namespace compilers.CodeAnalysis.Binding
         {
             switch (name)
             {
-                case "bool":
+                case "boolean":
                     return TypeSymbol.Bool;
-                case "int":
+                case "integer":
                     return TypeSymbol.Int;
                 case "real":
                     return TypeSymbol.Real;
