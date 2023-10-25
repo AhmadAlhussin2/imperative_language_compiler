@@ -62,7 +62,7 @@ namespace compilers.CodeAnalysis.Binding
         }
         public ImmutableArray<FunctionSymbol> GetDeclaredFunctions()
         {
-            if (_variables == null)
+            if (_functions == null)
                 return ImmutableArray<FunctionSymbol>.Empty;
             return _functions!.Values.ToImmutableArray();
         }

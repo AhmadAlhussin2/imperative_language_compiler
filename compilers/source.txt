@@ -1,2 +1,1 @@
-var x : int is true
-var y is false
+var x is 10

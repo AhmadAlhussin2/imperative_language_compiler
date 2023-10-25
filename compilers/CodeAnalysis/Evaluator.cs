@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using compilers.CodeAnalysis.Binding;
 using compilers.CodeAnalysis.Symbol;
 
@@ -5,31 +6,39 @@ namespace compilers.CodeAnalysis
 {
     internal sealed class Evaluator
     {
+        private readonly ImmutableDictionary<FunctionSymbol, BoundBlockStatement> _functionBodies;
         private readonly BoundBlockStatement _root;
-        private readonly Dictionary<VariableSymbol, object> _variables;
+        private readonly Dictionary<VariableSymbol, object> _globals;
+        private readonly Stack<Dictionary<VariableSymbol, object>> _locals = new();
         private object? _lastValue;
 
-        public Evaluator(BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
+        public Evaluator(System.Collections.Immutable.ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functionBodies, BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
         {
+            _functionBodies = functionBodies;
             _root = root;
-            _variables = variables;
+            _globals = variables;
         }
 
 
         public object? Evaluate()
         {
+            return Evaluate(_root);
+        }
+
+        private object? Evaluate(BoundBlockStatement body)
+        {
             var labelToIndex = new Dictionary<BoundLabel, int>();
-            for (var i = 0; i < _root.Statements.Length; i++)
+            for (var i = 0; i < body.Statements.Length; i++)
             {
-                if (_root.Statements[i] is BoundLabelStatement l)
+                if (body.Statements[i] is BoundLabelStatement l)
                 {
                     labelToIndex.Add(l.Label, i + 1);
                 }
             }
             var index = 0;
-            while (index < _root.Statements.Length)
+            while (index < body.Statements.Length)
             {
-                var s = _root.Statements[index];
+                var s = body.Statements[index];
                 switch (s.Kind)
                 {
                     case BoundNodeKind.VariableDeclaration:
@@ -62,10 +71,11 @@ namespace compilers.CodeAnalysis
             }
             return _lastValue;
         }
+
         private void EvaluateVariableDeclaration(BoundVariableDeclaration node)
         {
             var value = EvaluateExpression(node.Initializer);
-            _variables[node.Variable] = value;
+            _globals[node.Variable] = value;
             _lastValue = value;
         }
 
@@ -112,15 +122,24 @@ namespace compilers.CodeAnalysis
 
         private object EvaluateCallExpression(BoundCallExpression node)
         {
-            if(node.Function == BuiltinFunctions.PrintInt)
+            if (node.Function == BuiltinFunctions.PrintInt)
             {
                 var message = EvaluateExpression(node.Arguments[0]).ToString();
                 Console.WriteLine(message);
                 return null;
             }
-            else 
+            else
             {
-                throw new Exception($"Unexpected function {node.Function}");
+                var locals = new Dictionary<VariableSymbol, object>();
+                for (int i = 0; i < node.Arguments.Length; i++)
+                {
+                    var parameter = node.Function.Parameters[i];
+                    var value = EvaluateExpression(node.Arguments[i]);
+                    locals.Add(parameter, value);
+                }
+                _locals.Push(locals);
+                var statement = _functionBodies[node.Function];
+                return Evaluate(statement);
             }
         }
 
@@ -180,13 +199,21 @@ namespace compilers.CodeAnalysis
         private object EvaluateAssignmentExpression(BoundAssignmentExpression a)
         {
             var value = EvaluateExpression(a.Expression);
-            _variables[a.Variable] = value;
+            _globals[a.Variable] = value;
             return value;
         }
 
         private object EvaluateVariableExpression(BoundVariableExpression v)
         {
-            return _variables[v.Variable];
+            if (_locals.Count > 0)
+            {
+                var locals = _locals.Peek();
+                if (locals.TryGetValue(v.Variable, out var value))
+                {
+                    return value;
+                }
+            }
+            return _globals[v.Variable];
         }
 
         private static object EvaluateLiteralExpression(BoundLiteralExpression n)

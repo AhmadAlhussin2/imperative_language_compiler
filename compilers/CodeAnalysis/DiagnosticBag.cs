@@ -108,5 +108,17 @@ namespace compilers.CodeAnalysis
             var message = $"Cannot convert type '{type1}' to '{type2}'. Implicitly";
             Report(span, message);
         }
+
+        internal void ReportParameterAlreadyDeclared(TextSpan span, string parameterName)
+        {
+            var message = $"Parameter with name '{parameterName}' is already declared";
+            Report(span, message);
+        }
+
+        internal void ReportFunctionAlreadyDeclared(TextSpan span, string name)
+        {
+            var message = $"function with name '{name}' is already declared";
+            Report(span, message);
+        }
     }
 }

@@ -88,10 +88,80 @@ namespace compilers.CodeAnalysis
 
         public CompilationUnitSyntax ParseCompilationUnit()
         {
-            var statement = ParseStatement();
+            var members = ParseMembers();
             var EOFToken = MatchToken(SyntaxKind.EOFToken);
-            return new CompilationUnitSyntax(statement, EOFToken);
+            return new CompilationUnitSyntax(members, EOFToken);
         }
+
+        private ImmutableArray<MemberSyntax> ParseMembers()
+        {
+            var members = ImmutableArray.CreateBuilder<MemberSyntax>();
+            while (Current.Kind != SyntaxKind.EOFToken)
+            {
+                var c = Current;
+                var member = ParseMember();
+                members.Add(member);
+                if (Current == c)
+                {
+                    NextToken();
+                }
+            }
+            return members.ToImmutable();
+        }
+
+        private MemberSyntax ParseMember()
+        {
+            if (Current.Kind == SyntaxKind.RoutineKeyword)
+                return ParseFunctionDecleration();
+            else
+                return ParseGlobalStatement();
+        }
+
+        private MemberSyntax ParseFunctionDecleration()
+        {
+            var routineKeyword = MatchToken(SyntaxKind.RoutineKeyword);
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var openParenthesisToken = MatchToken(SyntaxKind.OpenParenthesisToken);
+            var parameters = ParseParametersList();
+            var closeParenthesisToken = MatchToken(SyntaxKind.CloseParenthesisToken);
+            var typeClause = ParseOptionalTypeClause();
+            var isKeyword = MatchToken(SyntaxKind.IsKeyword);
+            var body = ParseBlockStatement();
+            var endKeyword = MatchToken(SyntaxKind.EndKeyword);
+            return new FunctionDeclerationSyntax(routineKeyword, identifier, openParenthesisToken, parameters, closeParenthesisToken, typeClause, isKeyword, body, endKeyword);
+        }
+
+        private SeparatedSyntaxList<ParameterSyntax> ParseParametersList()
+        {
+            var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
+            while (Current.Kind != SyntaxKind.CloseParenthesisToken &&
+                  Current.Kind != SyntaxKind.EOFToken)
+            {
+                var parameter = ParseParameter();
+                nodesAndSeparators.Add(parameter);
+                if (Current.Kind != SyntaxKind.CloseParenthesisToken)
+                {
+                    var comma = MatchToken(SyntaxKind.CommaToken);
+                    nodesAndSeparators.Add(comma);
+                }
+            }
+            return new SeparatedSyntaxList<ParameterSyntax>(nodesAndSeparators.ToImmutable());
+        }
+
+        private ParameterSyntax ParseParameter()
+        {
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            var type = ParseTypeClause();
+            return new ParameterSyntax(identifier, type);
+        }
+
+        private MemberSyntax ParseGlobalStatement()
+        {
+            var statement = ParseStatement();
+            return new GlobalStatementSyntax(statement);
+        }
+
+
         private StatementSyntax ParseStatement()
         {
             switch (Current.Kind)
@@ -190,7 +260,7 @@ namespace compilers.CodeAnalysis
             return new ExpressionStatementSyntax(expression);
         }
 
-        private StatementSyntax ParseBlockStatement()
+        private BlockStatementSyntax ParseBlockStatement()
         {
             var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
             var startToken = NextToken();

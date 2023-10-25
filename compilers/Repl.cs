@@ -44,7 +44,7 @@ namespace compilers
             if (string.IsNullOrEmpty(text))
                 return false;
             var syntaxTree = SyntaxTree.Parse(text);
-            return !syntaxTree.Root.Statement.GetLastToken().IsMissing;
+            return !syntaxTree.Root.Members.Last().GetLastToken().IsMissing;
         }
     }
 
