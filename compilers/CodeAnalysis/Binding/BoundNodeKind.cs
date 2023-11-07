@@ -13,11 +13,12 @@ namespace compilers.CodeAnalysis.Binding
         IfStatement,
         WhileStatement,
         ForStatement,
-        GotoStatement,
+        GoToStatement,
         LabelStatement,
         ConditionalGotoStatement,
         ErrorExpression,
         CallExpression,
-        ConversionExpression
+        ConversionExpression,
+        ReturnStatement
     }
 }

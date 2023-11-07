@@ -29,10 +29,9 @@ namespace compilers.CodeAnalysis
             Report(span, message);
         }
 
-        public void ReportBadCharacter(int position, char character)
+        public void ReportBadCharacter(TextSpan span, char character)
         {
             var message = $"Bad character input: '{character}'.";
-            var span = new TextSpan(position, 1);
             Report(span, message);
         }
 
@@ -76,10 +75,10 @@ namespace compilers.CodeAnalysis
         {
             var message = $"Function {name} doesn't exist.";
             Report(span, message);
-            
+
         }
 
-        internal void ReportWrongArgumentCount(TextSpan span,string name, int length, int count)
+        internal void ReportWrongArgumentCount(TextSpan span, string name, int length, int count)
         {
             var message = $"Function '{name}' requires {length} arguments but was given {count}.";
             Report(span, message);
@@ -118,6 +117,18 @@ namespace compilers.CodeAnalysis
         internal void ReportFunctionAlreadyDeclared(TextSpan span, string name)
         {
             var message = $"function with name '{name}' is already declared";
+            Report(span, message);
+        }
+
+        internal void ReportCannotReturnInVoidFunctions(TextSpan span)
+        {
+            var message = $"cannot return in void functions";
+            Report(span, message);
+        }
+
+        internal void ReportInvalidReturn(TextSpan span)
+        {
+            var message = $"The 'return' keyword can be only used inside functions";
             Report(span, message);
         }
     }

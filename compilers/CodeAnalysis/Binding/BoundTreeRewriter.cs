@@ -1,5 +1,6 @@
 using System.Collections.Immutable;
 using System.ComponentModel;
+using System.Linq.Expressions;
 
 namespace compilers.CodeAnalysis.Binding
 {
@@ -22,15 +23,25 @@ namespace compilers.CodeAnalysis.Binding
                     return RewriteForStatement((BoundForStatement)node);
                 case BoundNodeKind.LabelStatement:
                     return RewriteLabelStatement((BoundLabelStatement)node);
-                case BoundNodeKind.GotoStatement:
+                case BoundNodeKind.GoToStatement:
                     return RewriteGotoStatement((BoundGoToStatement)node);
                 case BoundNodeKind.ConditionalGotoStatement:
                     return RewriteConditionalGotoStatement((BoundConditionalGotoStatement)node);
+                case BoundNodeKind.ReturnStatement:
+                    return RewriteReturnStatement((BoundReturnStatement)node);
                 case BoundNodeKind.ExpressionStatement:
                     return RewriteExpressionStatement((BoundExpressionStatement)node);
                 default:
                     throw new Exception($"Unexpected node: {node.Kind}");
             }
+        }
+
+        protected virtual BoundStatement RewriteReturnStatement(BoundReturnStatement node)
+        {
+            var expression = RewriteExpression(node.Expression);
+            if (expression == node.Expression)
+                return node;
+            return new BoundReturnStatement(expression);
         }
 
         protected virtual BoundStatement RewriteConditionalGotoStatement(BoundConditionalGotoStatement node)
@@ -156,7 +167,7 @@ namespace compilers.CodeAnalysis.Binding
             var expression = RewriteExpression(node.Expression);
             if (expression == node.Expression)
                 return node;
-            return new BoundConversionExpression(node.Type,expression);
+            return new BoundConversionExpression(node.Type, expression);
         }
 
         protected virtual BoundExpression RewriteCallExpression(BoundCallExpression node)
@@ -185,7 +196,7 @@ namespace compilers.CodeAnalysis.Binding
             if (builder == null)
                 return node;
             return new BoundCallExpression(node.Function, builder.MoveToImmutable());
-            
+
         }
 
         private BoundExpression RewriteErrorExpression(BoundErrorExpression node)

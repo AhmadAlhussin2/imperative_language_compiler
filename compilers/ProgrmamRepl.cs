@@ -19,19 +19,19 @@ namespace compilers
             //         errorWriter.WriteLine(error);
             //     }
             // }
-            
-            var compilation = _previous == null ? new Compilation(syntaxTree) : _previous.continueWith(syntaxTree);
+
+            var compilation = _previous == null ? new Compilation(syntaxTree) : _previous.ContinueWith(syntaxTree);
 
             Console.ForegroundColor = ConsoleColor.Green;
 
             // syntaxTree.Root.WriteTo(Console.Out);
             compilation.WriteTree(Console.Out);
-            
+
             compilation.WriteTree(boundSyntaxTreeWriter);
 
             Console.ResetColor();
 
-            
+
             var result = compilation.Evaluate(_variables);
             var diagnostics = result.Diagnostics;
             if (diagnostics.Any())
@@ -42,17 +42,18 @@ namespace compilers
                     Console.ForegroundColor = ConsoleColor.DarkRed;
                     Console.WriteLine(diagnostic);
                     Console.ResetColor();
-                    // var prefix = text.Substring(0, diagnostic.Span.Start);
-                    // var error = text.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
-                    // var suffix = text.Substring(diagnostic.Span.Start + diagnostic.Span.Length);
+                    Console.WriteLine(text);
+                    var prefix = text.Substring(0, diagnostic.Span.Start);
+                    var error = text.Substring(diagnostic.Span.Start, diagnostic.Span.Length);
+                    var suffix = text.Substring(diagnostic.Span.Start + diagnostic.Span.Length);
                     Console.Write("    ");
-                    // Console.Write(prefix);
+                    Console.Write(prefix);
 
                     Console.ForegroundColor = ConsoleColor.DarkRed;
-                    // Console.Write(error);
+                    Console.Write(error);
                     Console.ResetColor();
 
-                    // Console.WriteLine(suffix);
+                    Console.WriteLine(suffix);
                     Console.WriteLine();
                 }
                 Console.ResetColor();
@@ -60,14 +61,14 @@ namespace compilers
             else
             {
                 _previous = compilation;
-                if(result.Value != null)
+                if (result.Value != null)
                 {
                     Console.WriteLine(result.Value);
                 }
-                
+
             }
-            
-            
+
+
         }
     }
 

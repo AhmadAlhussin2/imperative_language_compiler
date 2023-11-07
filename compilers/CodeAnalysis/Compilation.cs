@@ -30,7 +30,7 @@ namespace compilers.CodeAnalysis
                 return _globalScope;
             }
         }
-        public Compilation continueWith(SyntaxTree syntaxTree)
+        public Compilation ContinueWith(SyntaxTree syntaxTree)
         {
             return new Compilation(this, syntaxTree);
         }
@@ -62,6 +62,7 @@ namespace compilers.CodeAnalysis
 
         private BoundBlockStatement GetStatement()
         {
+            var program = Binder.BindProgram(GlobalScope);
             var result = GlobalScope.Statement;
             return Lowerer.Lower(result);
         }

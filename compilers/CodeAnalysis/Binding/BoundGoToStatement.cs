@@ -7,7 +7,7 @@ namespace compilers.CodeAnalysis.Binding
             Label = label;
         }
 
-        public override BoundNodeKind Kind => BoundNodeKind.GotoStatement;
+        public override BoundNodeKind Kind => BoundNodeKind.GoToStatement;
 
         public BoundLabel Label { get; }
     }

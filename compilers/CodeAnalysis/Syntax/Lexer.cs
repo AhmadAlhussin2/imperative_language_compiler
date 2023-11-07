@@ -167,7 +167,7 @@ namespace compilers.CodeAnalysis
                 default:
                     if (Current == '_' || char.IsLetter(Current))
                         return ReadVarOrKeyword(start);
-                    _diagnostics.ReportBadCharacter(_position, Current);
+                    _diagnostics.ReportBadCharacter(new TextSpan(start, _position), Current);
                     return new SyntaxToken(SyntaxKind.UnknowToken, _position++, _text.ToString(_position - 1, 1), null);
             }
         }

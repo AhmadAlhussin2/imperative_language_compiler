@@ -19,6 +19,11 @@ namespace compilers
                 var line = _reader.ReadLine();
                 if (line == null)
                     break;
+                bool ok = false;
+                foreach (var c in line)
+                    if (char.IsLetter(c) || char.IsAscii(c) || char.IsDigit(c))
+                        ok = true;
+                if (ok == false) continue;
                 _textBuilder.AppendLine(line);
                 var text = _textBuilder.ToString();
                 if (!IsCompleteInstruciton(text))
