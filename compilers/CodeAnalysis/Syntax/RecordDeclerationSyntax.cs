@@ -21,9 +21,10 @@ namespace compilers.CodeAnalysis
 
         public SyntaxToken EndKeyword { get; }
     }
-
+    /*
     public sealed class ArrayDeclarationSyntax : StatementSyntax
     {
+        /*
         public ArrayDeclarationSyntax(
             SyntaxToken arrayKeyword,
             SyntaxToken openBracket,
@@ -43,7 +44,9 @@ namespace compilers.CodeAnalysis
         public SyntaxToken OpenBracket { get; }
         public ExpressionSyntax Size { get; }
         public SyntaxToken CloseBracket { get; }
+        
     }
+    */
 
 
 
