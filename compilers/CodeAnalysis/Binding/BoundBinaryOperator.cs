@@ -29,35 +29,35 @@ namespace compilers.CodeAnalysis.Binding
         public TypeSymbol RightType { get; }
         public TypeSymbol Type { get; }
 
-        private static BoundBinaryOperator[] _operators = {
+        private static readonly BoundBinaryOperator[] _operators = {
             new BoundBinaryOperator(SyntaxKind.PlusToken,BoundBinaryOperatorKind.Addition,TypeSymbol.Int),
-            // new BoundBinaryOperator(SyntaxKind.PlusToken,BoundBinaryOperatorKind.Addition,TypeSymbol.Real),
+            new BoundBinaryOperator(SyntaxKind.PlusToken,BoundBinaryOperatorKind.Addition,TypeSymbol.Real),
 
             new BoundBinaryOperator(SyntaxKind.MinusToken,BoundBinaryOperatorKind.Subtraction,TypeSymbol.Int),
-            // new BoundBinaryOperator(SyntaxKind.MinusToken,BoundBinaryOperatorKind.Subtraction,TypeSymbol.Real),
+            new BoundBinaryOperator(SyntaxKind.MinusToken,BoundBinaryOperatorKind.Subtraction,TypeSymbol.Real),
 
             new BoundBinaryOperator(SyntaxKind.StarToken,BoundBinaryOperatorKind.Multiplication,TypeSymbol.Int),
-            // new BoundBinaryOperator(SyntaxKind.StarToken,BoundBinaryOperatorKind.Multiplication,TypeSymbol.Real),
+            new BoundBinaryOperator(SyntaxKind.StarToken,BoundBinaryOperatorKind.Multiplication,TypeSymbol.Real),
 
             new BoundBinaryOperator(SyntaxKind.SlashToken,BoundBinaryOperatorKind.Division,TypeSymbol.Int),
-            // new BoundBinaryOperator(SyntaxKind.SlashToken,BoundBinaryOperatorKind.Division,TypeSymbol.Real),
+            new BoundBinaryOperator(SyntaxKind.SlashToken,BoundBinaryOperatorKind.Division,TypeSymbol.Real),
 
             new BoundBinaryOperator(SyntaxKind.ModuloToken,BoundBinaryOperatorKind.Modulo,TypeSymbol.Int),
 
             new BoundBinaryOperator(SyntaxKind.EqualToken,BoundBinaryOperatorKind.Equal,TypeSymbol.Int,TypeSymbol.Bool),
-            // new BoundBinaryOperator(SyntaxKind.EqualToken,BoundBinaryOperatorKind.Equal,TypeSymbol.Real,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.EqualToken,BoundBinaryOperatorKind.Equal,TypeSymbol.Real,TypeSymbol.Bool),
 
             new BoundBinaryOperator(SyntaxKind.NotEqualToken,BoundBinaryOperatorKind.NotEqual,TypeSymbol.Int,TypeSymbol.Bool),
-            // new BoundBinaryOperator(SyntaxKind.NotEqualToken,BoundBinaryOperatorKind.NotEqual,TypeSymbol.Real,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.NotEqualToken,BoundBinaryOperatorKind.NotEqual,TypeSymbol.Real,TypeSymbol.Bool),
 
             new BoundBinaryOperator(SyntaxKind.LessThanToken,BoundBinaryOperatorKind.LessThan,TypeSymbol.Int,TypeSymbol.Bool),
-            // new BoundBinaryOperator(SyntaxKind.LessThanToken,BoundBinaryOperatorKind.LessThan,TypeSymbol.Real,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.LessThanToken,BoundBinaryOperatorKind.LessThan,TypeSymbol.Real,TypeSymbol.Bool),
             new BoundBinaryOperator(SyntaxKind.LessThanOrEqualToken,BoundBinaryOperatorKind.LessThanOrEqual,TypeSymbol.Int,TypeSymbol.Bool),
-            // new BoundBinaryOperator(SyntaxKind.LessThanOrEqualToken,BoundBinaryOperatorKind.LessThanOrEqual,TypeSymbol.Real,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.LessThanOrEqualToken,BoundBinaryOperatorKind.LessThanOrEqual,TypeSymbol.Real,TypeSymbol.Bool),
             new BoundBinaryOperator(SyntaxKind.GreaterThanToken,BoundBinaryOperatorKind.GreaterThan,TypeSymbol.Int,TypeSymbol.Bool),
-            // new BoundBinaryOperator(SyntaxKind.GreaterThanToken,BoundBinaryOperatorKind.GreaterThan,TypeSymbol.Real,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.GreaterThanToken,BoundBinaryOperatorKind.GreaterThan,TypeSymbol.Real,TypeSymbol.Bool),
             new BoundBinaryOperator(SyntaxKind.GreaterThanOrEqualToken,BoundBinaryOperatorKind.GreaterThanOrEqual,TypeSymbol.Int,TypeSymbol.Bool),
-            // new BoundBinaryOperator(SyntaxKind.GreaterThanOrEqualToken,BoundBinaryOperatorKind.GreaterThanOrEqual,TypeSymbol.Real,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.GreaterThanOrEqualToken,BoundBinaryOperatorKind.GreaterThanOrEqual,TypeSymbol.Real,TypeSymbol.Bool),
 
             new BoundBinaryOperator(SyntaxKind.AndKeyword,BoundBinaryOperatorKind.LogicalAnd,TypeSymbol.Bool),
             new BoundBinaryOperator(SyntaxKind.OrKeyword,BoundBinaryOperatorKind.LogicalOr,TypeSymbol.Bool),

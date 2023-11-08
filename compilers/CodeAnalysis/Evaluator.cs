@@ -45,7 +45,7 @@ namespace compilers.CodeAnalysis
                         EvaluateExpressionStatement((BoundExpressionStatement)s);
                         index++;
                         break;
-                    case BoundNodeKind.GotoStatement:
+                    case BoundNodeKind.GoToStatement:
                         var gotoStatement = (BoundGoToStatement)s;
                         index = labelToIndex[gotoStatement.Label];
                         break;
@@ -61,6 +61,10 @@ namespace compilers.CodeAnalysis
                     case BoundNodeKind.LabelStatement:
                         index++;
                         break;
+                    case BoundNodeKind.ReturnStatement:
+                        var rs = (BoundReturnStatement)s;
+                        _lastValue = EvaluateExpression(rs.Expression);
+                        return _lastValue;
                     default:
                         throw new Exception($"Unexpected node {s.Kind}");
                 }
@@ -111,7 +115,7 @@ namespace compilers.CodeAnalysis
             else
                 throw new Exception($"Unexpected casting");
         }
-        private object EvaluateCallExpression(BoundCallExpression node)
+        private object? EvaluateCallExpression(BoundCallExpression node)
         {
             if (node.Function == BuiltinFunctions.PrintInt)
             {
@@ -218,12 +222,12 @@ namespace compilers.CodeAnalysis
             {
                 return _globals[v.Variable];
             }
-            else 
+            else
             {
                 var locals = _locals.Peek();
                 return locals[v.Variable];
             }
-            
+
         }
         private object EvaluateAssignmentExpression(BoundAssignmentExpression a)
         {
@@ -241,7 +245,7 @@ namespace compilers.CodeAnalysis
             {
                 _globals[variable] = value;
             }
-            else 
+            else
             {
                 var locals = _locals.Peek();
                 locals[variable] = value;

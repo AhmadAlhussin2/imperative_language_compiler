@@ -3,10 +3,12 @@ namespace compilers.CodeAnalysis
     public sealed class FunctionDeclerationSyntax : MemberSyntax
     {
         public FunctionDeclerationSyntax(
+            SyntaxTree syntaxTree,
             SyntaxToken routineKeyword, SyntaxToken identifier,
             SyntaxToken openParenthesisToken, SeparatedSyntaxList<ParameterSyntax> parameters,
             SyntaxToken closeParenthesisToken, TypeClauseSyntax? typeClause, SyntaxToken isKeyword,
             BlockStatementSyntax body, SyntaxToken endKeyword)
+            : base(syntaxTree)
         {
             RoutineKeyword = routineKeyword;
             Identifier = identifier;
@@ -33,5 +35,5 @@ namespace compilers.CodeAnalysis
     }
 
 
-    
+
 }

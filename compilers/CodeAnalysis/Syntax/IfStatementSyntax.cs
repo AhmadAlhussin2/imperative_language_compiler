@@ -2,7 +2,8 @@ namespace compilers.CodeAnalysis
 {
     public sealed class IfStatementSyntax : StatementSyntax
     {
-        public IfStatementSyntax(SyntaxToken ifKeyword, ExpressionSyntax condition, SyntaxToken thenKeyword, StatementSyntax thenStatement, ElseClauseSyntax? elseClause, SyntaxToken endKeyword)
+        public IfStatementSyntax(SyntaxTree syntaxTree, SyntaxToken ifKeyword, ExpressionSyntax condition, SyntaxToken thenKeyword, StatementSyntax thenStatement, ElseClauseSyntax? elseClause, SyntaxToken endKeyword)
+        : base(syntaxTree)
         {
             IfKeyword = ifKeyword;
             Condition = condition;

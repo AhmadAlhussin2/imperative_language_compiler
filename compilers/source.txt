@@ -1,1 +1,8 @@
+
+var x is 0
+for i in 1..10 loop
+    x := x + i
+end
+x
+=======
 type my_array is array[10]

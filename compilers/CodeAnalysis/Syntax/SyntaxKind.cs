@@ -78,6 +78,8 @@ namespace compilers.CodeAnalysis
         Parameter,
         TypeStatement,
         RecordDecleration,
+        ReturnStatement,
+        BadToken,
         ArrayDeclaration
     }
 }

@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Diagnostics;
 using compilers.CodeAnalysis.Lowering;
 using compilers.CodeAnalysis.Symbol;
 
@@ -20,7 +19,7 @@ namespace compilers.CodeAnalysis.Binding
             {
                 foreach (var p in function.Parameters)
                     _scope.TryDeclareVariable(p);
-                    
+
             }
         }
         private static BoundScope CreateParentScopes(BoundGlobalScope? previous)
@@ -71,7 +70,7 @@ namespace compilers.CodeAnalysis.Binding
                 foreach (var function in scope.Functions)
                 {
                     var binder = new Binder(parentScope, function);
-                    if (function.Decleration != null) 
+                    if (function.Decleration != null)
                     {
                         BoundStatement? body = binder.BindStatement(function.Decleration.Body);
                         var loweredBody = Lowerer.Lower(body);
@@ -129,8 +128,6 @@ namespace compilers.CodeAnalysis.Binding
                 }
             }
             var type = BindTypeClause(syntax.TypeClause) ?? TypeSymbol.Void;
-            if (type != TypeSymbol.Void)
-                throw new NotImplementedException();
             var function = new FunctionSymbol(syntax.Identifier.Text, parameters.ToImmutable(), type, syntax);
             if (!_scope.TryDeclareFunction(function))
             {
@@ -156,9 +153,29 @@ namespace compilers.CodeAnalysis.Binding
                     return BindForStatement((ForStatementSyntax)syntax);
                 case SyntaxKind.ExpressionStatement:
                     return BindExpressionStatement((ExpressionStatementSyntax)syntax);
+                case SyntaxKind.ReturnStatement:
+                    return BindReturnStatement((ReturnStatementSyntax)syntax);
                 default:
                     throw new Exception($"Unexpected syntax {syntax.Kind}");
             }
+        }
+
+        private BoundStatement BindReturnStatement(ReturnStatementSyntax syntax)
+        {
+            var expression = BindExpression(syntax.Expression);
+            if (_function == null)
+            {
+                _diagnostics.ReportInvalidReturn(syntax.ReturnKeyword.Span);
+            }
+            else if (_function.Type == TypeSymbol.Void)
+            {
+                _diagnostics.ReportCannotReturnInVoidFunctions(syntax.Expression.Span);
+            }
+            else
+            {
+                expression = BindConversion(syntax.Expression.Span, expression, _function.Type);
+            }
+            return new BoundReturnStatement(expression);
         }
 
         private BoundStatement BindForStatement(ForStatementSyntax syntax)
@@ -206,9 +223,9 @@ namespace compilers.CodeAnalysis.Binding
         private BoundStatement BindVariableDeclaration(VariableDeclerationSyntax syntax)
         {
             var type = BindTypeClause(syntax.TypeClause);
-            var initializer = BindExpression(syntax.Initializer);
+            var initializer = BindExpression(syntax.Initializer!);
             var variableType = type ?? initializer.Type;
-            var convertedInitializer = BindConversion(syntax.Initializer.Span, initializer, variableType);
+            var convertedInitializer = BindConversion(syntax.Initializer!.Span, initializer, variableType);
             var variable = BindVariable(syntax.Identifier, variableType);
             return new BoundVariableDeclaration(variable, convertedInitializer);
         }

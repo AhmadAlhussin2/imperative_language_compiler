@@ -2,8 +2,9 @@ namespace compilers.CodeAnalysis
 {
     public sealed class ForStatementSyntax : StatementSyntax
     {
-        public ForStatementSyntax(SyntaxToken forKeyword, SyntaxToken identifier, SyntaxToken inKeyword, ExpressionSyntax lowerBound,
+        public ForStatementSyntax(SyntaxTree syntaxTree, SyntaxToken forKeyword, SyntaxToken identifier, SyntaxToken inKeyword, ExpressionSyntax lowerBound,
          SyntaxToken rangeToken, ExpressionSyntax upperBound, SyntaxToken loopKeyword, StatementSyntax body, SyntaxToken endKeyword)
+         : base(syntaxTree)
         {
             ForKeyword = forKeyword;
             Identifier = identifier;
@@ -29,23 +30,5 @@ namespace compilers.CodeAnalysis
         public SyntaxToken EndKeyword { get; }
     }
 
-    public sealed class TypeDeclarationSyntax : StatementSyntax
-    {
-        public TypeDeclarationSyntax(SyntaxToken typeKeyword, SyntaxToken name, SyntaxToken isKeyword, SyntaxNode representedType)
-        {
-            TypeKeyword = typeKeyword;
-            Name = name;
-            IsKeyword = isKeyword;
-            RepresentedType = representedType;
-        }
 
-        public override SyntaxKind Kind => SyntaxKind.TypeStatement;
-
-        public SyntaxToken TypeKeyword { get; }
-        public SyntaxToken Name { get; }
-        public SyntaxToken IsKeyword { get; }
-        public SyntaxNode RepresentedType { get; }
-    }
-
-    
 }
