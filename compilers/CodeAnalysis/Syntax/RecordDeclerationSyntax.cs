@@ -22,6 +22,29 @@ namespace compilers.CodeAnalysis
         public SyntaxToken EndKeyword { get; }
     }
 
+    public sealed class ArrayDeclarationSyntax : StatementSyntax
+    {
+        public ArrayDeclarationSyntax(
+            SyntaxToken arrayKeyword,
+            SyntaxToken openBracket,
+            ExpressionSyntax size,
+            SyntaxToken closeBracket
+            )
+        {
+            ArrayKeyword = arrayKeyword;
+            OpenBracket = openBracket;
+            Size = size;
+            CloseBracket = closeBracket;
+        }
+
+        public override SyntaxKind Kind => SyntaxKind.ArrayDeclaration;
+
+        public SyntaxToken ArrayKeyword { get; }
+        public SyntaxToken OpenBracket { get; }
+        public ExpressionSyntax Size { get; }
+        public SyntaxToken CloseBracket { get; }
+    }
+
 
 
 }
