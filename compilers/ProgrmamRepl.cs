@@ -13,19 +13,23 @@ namespace compilers
         {
             var syntaxTree = SyntaxTree.Parse(text);
             syntaxTree.Root.WriteTo(syntaxTreeWriter);
-            // if (syntaxTree.Diagnostics.Any())
-            // {
-            //     foreach (var error in syntaxTree.Diagnostics)
-            //     {
-            //         errorWriter.WriteLine(error);
-            //     }
-            // }
 
+            //var compilation = _previous == null ? new Compilation(syntaxTree) : _previous.ContinueWith(syntaxTree);
+
+            if (syntaxTree.Diagnostics.Any())
+            {
+                foreach (var error in syntaxTree.Diagnostics)
+                {
+                    errorWriter.WriteLine(error);
+                }
+            }
+            
             var compilation = _previous == null ? new Compilation(syntaxTree) : _previous.ContinueWith(syntaxTree);
+
 
             Console.ForegroundColor = ConsoleColor.Green;
 
-            // syntaxTree.Root.WriteTo(Console.Out);
+            //syntaxTree.Root.WriteTo(Console.Out);
             compilation.WriteTree(Console.Out);
 
             compilation.WriteTree(boundSyntaxTreeWriter);
@@ -47,6 +51,9 @@ namespace compilers
                     Console.WriteLine(result.Value);
                 }
             }
+
+            
+
         }
     }
 }

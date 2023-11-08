@@ -212,15 +212,16 @@ namespace compilers.CodeAnalysis
             var expression = ParseExpression();
             return new ReturnStatementSyntax(_syntaxTree, keyword, expression);
         }
-        private SyntaxNode ParseArrayDeclaration()
-        {
-            var arrayKeyworld = MatchToken(SyntaxKind.ArrayKeyword);
-            var openBracket = MatchToken(SyntaxKind.OpenSquareBracketToken);
-            var size = ParseExpression();
-            var closeBracket = MatchToken(SyntaxKind.CloseSquareBracketToken);
-            return new ArrayDeclarationSyntax(arrayKeyworld, openBracket, size, closeBracket);
-        }
-
+        
+        // private SyntaxNode ParseArrayDeclaration()
+        // {
+        //     var arrayKeyworld = MatchToken(SyntaxKind.ArrayKeyword);
+        //     var openBracket = MatchToken(SyntaxKind.OpenSquareBracketToken);
+        //     var size = ParseExpression();
+        //     var closeBracket = MatchToken(SyntaxKind.CloseSquareBracketToken);
+        //     return new ArrayDeclarationSyntax(arrayKeyworld, openBracket, size, closeBracket);
+        // }
+        
         private StatementSyntax ParseTypeDeclaration()
         {
             var typeKeyword = MatchToken(SyntaxKind.TypeKeyword);
@@ -240,10 +241,10 @@ namespace compilers.CodeAnalysis
             {
                 return ParseRecordDeclaration();
             }
-            if(Current.Kind == SyntaxKind.ArrayKeyword)
-            {
-                return ParseArrayDeclaration();
-            }
+            // if(Current.Kind == SyntaxKind.ArrayKeyword)
+            // {
+            //     return ParseArrayDeclaration();
+            // }
             var type = MatchToken(SyntaxKind.IdentifierToken);
             return type;
         }
@@ -307,6 +308,10 @@ namespace compilers.CodeAnalysis
             var varKeyword = MatchToken(SyntaxKind.VarKeyword);
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
             var typeClause = ParseOptionalTypeClause();
+            // if (Current.Kind != SyntaxKind.IsKeyword)
+            // {
+            //      return new VariableDeclerationSyntax(varKeyword, identifier, typeClause, null, null);
+            // }
             var isKeyword = MatchToken(SyntaxKind.IsKeyword);
             var initializer = ParseExpression();
             return new VariableDeclerationSyntax(_syntaxTree, varKeyword, identifier, typeClause, isKeyword, initializer);
