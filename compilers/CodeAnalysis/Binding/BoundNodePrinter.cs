@@ -83,7 +83,7 @@ namespace compilers.CodeAnalysis.Binding
             if (needIndent)
                 writer.Indent--;
         }
-        private static void WriteNestedExpression(this IndentedTextWriter writer,int parentPrecedence, BoundExpression expression)
+        private static void WriteNestedExpression(this IndentedTextWriter writer, int parentPrecedence, BoundExpression expression)
         {
             if (expression is BoundUnaryExpression unary)
                 writer.WriteNestedExpression(parentPrecedence, OperatorsPriority.GetUnaryOperatorPriority(unary.Op.SyntaxKind), unary);
@@ -92,7 +92,7 @@ namespace compilers.CodeAnalysis.Binding
             else
                 expression.WriteTo(writer);
         }
-        private static void WriteNestedExpression(this IndentedTextWriter writer,int parentPrecedence, int currentPrecedence, BoundExpression expression)
+        private static void WriteNestedExpression(this IndentedTextWriter writer, int parentPrecedence, int currentPrecedence, BoundExpression expression)
         {
             var needParenthesis = parentPrecedence >= currentPrecedence;
             if (needParenthesis)
@@ -104,7 +104,7 @@ namespace compilers.CodeAnalysis.Binding
 
         private static void WriteLiteralExpression(BoundLiteralExpression node, IndentedTextWriter writer)
         {
-            if (node.Type  == TypeSymbol.Bool)
+            if (node.Type == TypeSymbol.Bool)
             {
                 writer.WriteKeyword(node.Value.ToString()!);
             }
@@ -112,7 +112,7 @@ namespace compilers.CodeAnalysis.Binding
             {
                 writer.WriteNumber(node.Value.ToString()!);
             }
-            else 
+            else
             {
                 throw new Exception($"Unexpected type {node.Type}");
             }
@@ -120,7 +120,7 @@ namespace compilers.CodeAnalysis.Binding
 
         private static void WriteUnaryExpression(BoundUnaryExpression node, IndentedTextWriter writer)
         {
-            writer.WritePunctuation(OperatorsPriority.GetOperatorText(node.Op.SyntaxKind));
+            writer.WritePunctuation(OperatorsPriority.GetText(node.Op.SyntaxKind));
             var precedence = OperatorsPriority.GetUnaryOperatorPriority(node.Op.SyntaxKind);
             writer.WriteNestedExpression(precedence, node.Operand);
             node.Operand.WriteTo(writer);
@@ -130,7 +130,7 @@ namespace compilers.CodeAnalysis.Binding
         {
             var precedence = OperatorsPriority.GetBinaryOperatorPriority(node.Op.SyntaxKind);
             writer.WriteNestedExpression(precedence, node.Left);
-            writer.WritePunctuation(OperatorsPriority.GetOperatorText(node.Op.SyntaxKind));
+            writer.WritePunctuation(OperatorsPriority.GetText(node.Op.SyntaxKind));
             writer.WriteNestedExpression(precedence, node.Right);
         }
 
@@ -148,7 +148,6 @@ namespace compilers.CodeAnalysis.Binding
 
         private static void WriteBlockStatement(BoundBlockStatement node, IndentedTextWriter writer)
         {
-            writer.WritePunctuation("{");
             writer.WriteLine();
             writer.Indent++;
             foreach (var s in node.Statements)
@@ -156,7 +155,6 @@ namespace compilers.CodeAnalysis.Binding
                 s.WriteTo(writer);
             }
             writer.Indent--;
-            writer.WritePunctuation("}");
             writer.WriteLine();
         }
 
@@ -257,7 +255,8 @@ namespace compilers.CodeAnalysis.Binding
             writer.WriteIdentifier(node.Function.Name);
             writer.WritePunctuation("(");
             var isFirst = true;
-            foreach (var arg in  node.Arguments){
+            foreach (var arg in node.Arguments)
+            {
                 if (isFirst)
                     isFirst = false;
                 else

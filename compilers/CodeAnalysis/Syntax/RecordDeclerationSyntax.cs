@@ -3,9 +3,10 @@ namespace compilers.CodeAnalysis
     public sealed class RecordDeclerationSyntax : StatementSyntax
     {
         public RecordDeclerationSyntax(
+            SyntaxTree syntaxTree,
             SyntaxToken recordKeyword,
             SeparatedSyntaxList<ParameterSyntax> parameters,
-            SyntaxToken endKeyword)
+            SyntaxToken endKeyword) : base(syntaxTree)
         {
             RecordKeyword = recordKeyword;
             Parameters = parameters;
@@ -15,12 +16,12 @@ namespace compilers.CodeAnalysis
         public override SyntaxKind Kind => SyntaxKind.RecordDecleration;
 
         public SyntaxToken RecordKeyword { get; }
-        
+
         public SeparatedSyntaxList<ParameterSyntax> Parameters { get; }
-        
+
         public SyntaxToken EndKeyword { get; }
     }
 
 
-    
+
 }

@@ -2,7 +2,8 @@ namespace compilers.CodeAnalysis
 {
     public class ElseClauseSyntax : SyntaxNode
     {
-        public ElseClauseSyntax(SyntaxToken elseKeyWord, StatementSyntax elseStatement)
+        public ElseClauseSyntax(SyntaxTree syntaxTree, SyntaxToken elseKeyWord, StatementSyntax elseStatement)
+        : base(syntaxTree)
         {
             ElseKeyWord = elseKeyWord;
             ElseStatement = elseStatement;

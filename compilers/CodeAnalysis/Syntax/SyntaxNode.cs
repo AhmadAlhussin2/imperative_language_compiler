@@ -4,6 +4,11 @@ namespace compilers.CodeAnalysis
 {
     public abstract class SyntaxNode
     {
+        protected SyntaxNode(SyntaxTree syntaxTree)
+        {
+            SyntaxTree = syntaxTree;
+        }
+        public SyntaxTree SyntaxTree { get; }
         public abstract SyntaxKind Kind { get; }
         public virtual TextSpan Span
         {
@@ -14,11 +19,12 @@ namespace compilers.CodeAnalysis
                 return TextSpan.FromBounds(first.Start, last.Length);
             }
         }
-        public SyntaxToken GetLastToken(){
+        public SyntaxToken GetLastToken()
+        {
             if (this is SyntaxToken token)
                 return token;
             return getChildren().Last().GetLastToken();
-        } 
+        }
         public IEnumerable<SyntaxNode> getChildren()
         {
             var properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
@@ -33,10 +39,10 @@ namespace compilers.CodeAnalysis
                 else if (typeof(SeparatedSyntaxList).IsAssignableFrom(property.PropertyType))
                 {
                     var seperatedSyntaxList = property.GetValue(this);
-                    if(seperatedSyntaxList != null)
+                    if (seperatedSyntaxList != null)
                         foreach (var child in ((SeparatedSyntaxList)seperatedSyntaxList).GetWithSeparators())
                             yield return child;
-                            
+
                 }
                 else if (typeof(IEnumerable<SyntaxNode>).IsAssignableFrom(property.PropertyType))
                 {

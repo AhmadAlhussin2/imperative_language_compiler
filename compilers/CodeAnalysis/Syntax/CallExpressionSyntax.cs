@@ -4,7 +4,8 @@ namespace compilers.CodeAnalysis
 {
     public sealed class CallExpressionSyntax : ExpressionSyntax
     {
-        public CallExpressionSyntax(SyntaxToken identifier, SyntaxToken openParenthesisToken, SeparatedSyntaxList<ExpressionSyntax> arguments, SyntaxToken closeParanthesisToken)
+        public CallExpressionSyntax(SyntaxTree syntaxTree, SyntaxToken identifier, SyntaxToken openParenthesisToken, SeparatedSyntaxList<ExpressionSyntax> arguments, SyntaxToken closeParanthesisToken)
+        : base(syntaxTree)
         {
             Identifier = identifier;
             OpenParenthesisToken = openParenthesisToken;

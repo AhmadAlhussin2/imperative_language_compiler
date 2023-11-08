@@ -5,7 +5,8 @@ namespace compilers.CodeAnalysis
     public sealed class CompilationUnitSyntax : SyntaxNode
     {
 
-        public CompilationUnitSyntax(ImmutableArray<MemberSyntax> members, SyntaxToken endOfFileToken)
+        public CompilationUnitSyntax(SyntaxTree syntaxTree, ImmutableArray<MemberSyntax> members, SyntaxToken endOfFileToken)
+        : base(syntaxTree)
         {
             EndOfFileToken = endOfFileToken;
             Members = members;

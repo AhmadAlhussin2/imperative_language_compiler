@@ -4,7 +4,8 @@ namespace compilers.CodeAnalysis
 {
     public sealed class BlockStatementSyntax : StatementSyntax
     {
-        public BlockStatementSyntax(ImmutableArray<StatementSyntax> statements)
+        public BlockStatementSyntax(SyntaxTree syntaxTree, ImmutableArray<StatementSyntax> statements)
+        : base(syntaxTree)
         {
             //StartToken = startToken;
             Statements = statements;

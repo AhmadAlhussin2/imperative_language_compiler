@@ -2,12 +2,12 @@ namespace compilers.CodeAnalysis
 {
     public class SyntaxToken : SyntaxNode
     {
-        public SyntaxToken(SyntaxKind kind, int position, string text, object? value)
+        public SyntaxToken(SyntaxTree syntaxTree, SyntaxKind kind, int position, string text, object? value) : base(syntaxTree)
         {
             Kind = kind;
             Position = position;
             IsMissing = string.IsNullOrEmpty(text);
-            Text = text;
+            Text = IsMissing ? string.Empty : text;
             Value = value;
         }
 

@@ -3,7 +3,8 @@ namespace compilers.CodeAnalysis
     public sealed class WhileStatementSyntax : StatementSyntax
     {
 
-        public WhileStatementSyntax(SyntaxToken whileKeyword, ExpressionSyntax condition, SyntaxToken loopKeyword, StatementSyntax body, SyntaxToken endKeyword)
+        public WhileStatementSyntax(SyntaxTree syntaxTree, SyntaxToken whileKeyword, ExpressionSyntax condition, SyntaxToken loopKeyword, StatementSyntax body, SyntaxToken endKeyword)
+        : base(syntaxTree)
         {
             WhileKeyword = whileKeyword;
             Condition = condition;

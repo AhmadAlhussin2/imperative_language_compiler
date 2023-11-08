@@ -2,7 +2,8 @@ namespace compilers.CodeAnalysis
 {
     public sealed class NameExpressionSyntax : ExpressionSyntax
     {
-        public NameExpressionSyntax(SyntaxToken identifierToken, SyntaxToken? dotToken, ExpressionSyntax? nxt)
+        public NameExpressionSyntax(SyntaxTree syntaxTree, SyntaxToken identifierToken, SyntaxToken? dotToken, ExpressionSyntax? nxt)
+        : base(syntaxTree)
         {
             IdentifierToken = identifierToken;
             DotToken = dotToken;

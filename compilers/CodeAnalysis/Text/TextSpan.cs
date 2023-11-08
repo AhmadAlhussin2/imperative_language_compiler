@@ -1,4 +1,3 @@
-
 namespace compilers.CodeAnalysis
 {
     public struct TextSpan

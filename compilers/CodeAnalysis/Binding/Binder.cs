@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using System.Diagnostics;
 using compilers.CodeAnalysis.Lowering;
 using compilers.CodeAnalysis.Symbol;
 

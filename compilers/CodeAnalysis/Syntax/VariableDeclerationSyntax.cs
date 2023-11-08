@@ -2,7 +2,8 @@ namespace compilers.CodeAnalysis
 {
     public sealed class VariableDeclerationSyntax : StatementSyntax
     {
-        public VariableDeclerationSyntax(SyntaxToken varKeyword, SyntaxToken identifier,TypeClauseSyntax? typeClause, SyntaxToken isToken, ExpressionSyntax initializer)
+        public VariableDeclerationSyntax(SyntaxTree syntaxTree, SyntaxToken varKeyword, SyntaxToken identifier, TypeClauseSyntax? typeClause, SyntaxToken isToken, ExpressionSyntax initializer)
+        : base(syntaxTree)
         {
             VarKeyword = varKeyword;
             Identifier = identifier;

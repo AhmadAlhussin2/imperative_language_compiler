@@ -2,7 +2,8 @@ namespace compilers.CodeAnalysis
 {
     public sealed class TypeDeclarationSyntax : StatementSyntax
     {
-        public TypeDeclarationSyntax(SyntaxToken typeKeyword, SyntaxToken name, SyntaxToken isKeyword, SyntaxNode representedType)
+        public TypeDeclarationSyntax(SyntaxTree syntaxTree,SyntaxToken typeKeyword, SyntaxToken name, SyntaxToken isKeyword, SyntaxNode representedType)
+        :base(syntaxTree)
         {
             TypeKeyword = typeKeyword;
             Name = name;

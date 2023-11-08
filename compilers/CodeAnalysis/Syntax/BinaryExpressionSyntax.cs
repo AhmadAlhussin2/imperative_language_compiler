@@ -5,7 +5,8 @@ namespace compilers.CodeAnalysis
 {
     public sealed class BinaryExpressionSyntax : ExpressionSyntax
     {
-        public BinaryExpressionSyntax(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
+        public BinaryExpressionSyntax(SyntaxTree syntaxTree, ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
+        : base(syntaxTree)
         {
             Right = right;
             OperatorToken = operatorToken;

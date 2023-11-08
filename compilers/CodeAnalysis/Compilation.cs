@@ -43,6 +43,7 @@ namespace compilers.CodeAnalysis
             }
 
             var program = Binder.BindProgram(GlobalScope);
+
             if (program.Diagnostics.Any())
             {
                 return new EvaluationResult(program.Diagnostics.ToImmutableArray(), null);
@@ -62,7 +63,6 @@ namespace compilers.CodeAnalysis
 
         private BoundBlockStatement GetStatement()
         {
-            var program = Binder.BindProgram(GlobalScope);
             var result = GlobalScope.Statement;
             return Lowerer.Lower(result);
         }

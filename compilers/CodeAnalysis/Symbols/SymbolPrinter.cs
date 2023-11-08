@@ -12,16 +12,16 @@ namespace compilers.CodeAnalysis.Symbol
                     WriteFunction((FunctionSymbol)symbol, writer);
                     break;
                 case SymbolKind.GlobalVariable:
-                    WriteGlobalVariable((FunctionSymbol)symbol, writer);
+                    WriteGlobalVariable((GlobalVariableSymbol)symbol, writer);
                     break;
                 case SymbolKind.LocalVariable:
-                    WriteLocalVariable((FunctionSymbol)symbol, writer);
+                    WriteLocalVariable((LocalVariableSymbol)symbol, writer);
                     break;
                 case SymbolKind.Parameter:
-                    WriteParameter((FunctionSymbol)symbol, writer);
+                    WriteParameter((ParameterSymbol)symbol, writer);
                     break;
                 case SymbolKind.Type:
-                    WriteType((FunctionSymbol)symbol, writer);
+                    WriteType((TypeSymbol)symbol, writer);
                     break;
                 default:
                     throw new Exception($"Unexpected symbol {symbol.Kind}");
@@ -43,7 +43,7 @@ namespace compilers.CodeAnalysis.Symbol
             writer.WriteLine();
         }
 
-        private static void WriteGlobalVariable(FunctionSymbol symbol, TextWriter writer)
+        private static void WriteGlobalVariable(GlobalVariableSymbol symbol, TextWriter writer)
         {
             writer.WriteKeyword("var ");
             writer.WriteIdentifier(symbol.Name);
@@ -51,7 +51,7 @@ namespace compilers.CodeAnalysis.Symbol
             symbol.Type.WriteTo(writer);
         }
 
-        private static void WriteLocalVariable(FunctionSymbol symbol, TextWriter writer)
+        private static void WriteLocalVariable(LocalVariableSymbol symbol, TextWriter writer)
         {
             writer.WriteKeyword("var ");
             writer.WriteIdentifier(symbol.Name);
@@ -59,14 +59,14 @@ namespace compilers.CodeAnalysis.Symbol
             symbol.Type.WriteTo(writer);
         }
 
-        private static void WriteParameter(FunctionSymbol symbol, TextWriter writer)
+        private static void WriteParameter(ParameterSymbol symbol, TextWriter writer)
         {
             writer.WriteIdentifier(symbol.Name);
             writer.WriteKeyword(": ");
             symbol.Type.WriteTo(writer);
         }
 
-        private static void WriteType(FunctionSymbol symbol, TextWriter writer)
+        private static void WriteType(TypeSymbol symbol, TextWriter writer)
         {
             writer.WriteIdentifier(symbol.Name);
         }

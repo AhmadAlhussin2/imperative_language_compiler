@@ -11,7 +11,7 @@ namespace compilers.CodeAnalysis.Text
             _text = text;
             Lines = ParseLines(this, text);
         }
-        public char this [int index] => _text[index];
+        public char this[int index] => _text[index];
         public int Length => _text.Length;
         public int GetLineIndex(int position)
         {
@@ -19,13 +19,8 @@ namespace compilers.CodeAnalysis.Text
             var hi = Lines.Length - 1;
             while (lo <= hi)
             {
-                var mid = lo +  (hi-lo) / 2;
+                var mid = lo + (hi - lo) / 2;
                 var start = Lines[mid].Start;
-                Console.WriteLine(lo);
-                Console.WriteLine(hi);
-                Console.WriteLine(mid);
-                Console.WriteLine(position);
-                Console.WriteLine(start);
                 if (start == position)
                 {
                     return mid;
@@ -49,7 +44,7 @@ namespace compilers.CodeAnalysis.Text
             var position = 0;
             while (position < text.Length)
             {
-                var lineBreakWidth = GetLineBreakWith(text, position);
+                var lineBreakWidth = GetLineBreakWidth(text, position);
                 if (lineBreakWidth == 0)
                 {
                     position++;
@@ -77,7 +72,7 @@ namespace compilers.CodeAnalysis.Text
             result.Add(line);
         }
 
-        private static int GetLineBreakWith(string text, int position)
+        private static int GetLineBreakWidth(string text, int position)
         {
             char c = text[position];
             var l = position + 1 >= text.Length ? '\0' : text[position + 1];
@@ -97,6 +92,10 @@ namespace compilers.CodeAnalysis.Text
             return _text;
         }
         public string ToString(int start, int length) => _text.Substring(start, length);
-        public string ToString(TextSpan span) => _text.Substring(span.Start, span.Length);
+        public string ToString(TextSpan span)
+        {
+            return _text.Substring(span.Start, span.Length);
+
+        }
     }
 }

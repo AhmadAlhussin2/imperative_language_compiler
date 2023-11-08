@@ -1,4 +1,6 @@
 using System.CodeDom.Compiler;
+using System.Collections.Immutable;
+using compilers.CodeAnalysis;
 
 namespace compilers.IO
 {
@@ -45,6 +47,41 @@ namespace compilers.IO
             writer.SetForeground(ConsoleColor.DarkGray);
             writer.Write(text);
             writer.ResetColor();
+        }
+        public static void WriteDiagnostics(this TextWriter writer, IEnumerable<Diagnostic> diagnostics, SyntaxTree syntaxTree)
+        {
+            foreach (var diagnostic in diagnostics)
+            {
+                var lineIndex = syntaxTree.Text.GetLineIndex(diagnostic.Span.Start);
+                var line = syntaxTree.Text.Lines[lineIndex];
+                var lineNumber = lineIndex + 1;
+                var character = diagnostic.Span.Start - line.Start + 1;
+
+                Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.DarkRed;
+
+                Console.WriteLine($"({lineNumber},{character})");
+                Console.WriteLine(diagnostic);
+
+                // var prefixSpan = TextSpan.FromBounds(line.Span.Start, diagnostic.Span.Start);
+                // var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
+
+                // var prefix = syntaxTree.Text.ToString(prefixSpan);
+                // var error = syntaxTree.Text.ToString(diagnostic.Span);
+                // var suffix = syntaxTree.Text.ToString(suffixSpan);
+
+                // Console.Write("    ");
+                // Console.Write(prefix);
+
+                // Console.ForegroundColor = ConsoleColor.DarkRed;
+                // Console.Write(error);
+                Console.ResetColor();
+
+                // Console.WriteLine(suffix);
+
+                Console.WriteLine();
+            }
         }
     }
 }

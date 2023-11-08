@@ -2,8 +2,9 @@ namespace compilers.CodeAnalysis
 {
     public sealed class ForStatementSyntax : StatementSyntax
     {
-        public ForStatementSyntax(SyntaxToken forKeyword, SyntaxToken identifier, SyntaxToken inKeyword, ExpressionSyntax lowerBound,
+        public ForStatementSyntax(SyntaxTree syntaxTree, SyntaxToken forKeyword, SyntaxToken identifier, SyntaxToken inKeyword, ExpressionSyntax lowerBound,
          SyntaxToken rangeToken, ExpressionSyntax upperBound, SyntaxToken loopKeyword, StatementSyntax body, SyntaxToken endKeyword)
+         : base(syntaxTree)
         {
             ForKeyword = forKeyword;
             Identifier = identifier;
