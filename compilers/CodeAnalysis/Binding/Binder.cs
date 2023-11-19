@@ -6,7 +6,7 @@ namespace compilers.CodeAnalysis.Binding
 {
     internal sealed class Binder
     {
-        private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
+        private readonly DiagnosticBag _diagnostics = new();
         private readonly FunctionSymbol? _function;
         private BoundScope _scope;
 

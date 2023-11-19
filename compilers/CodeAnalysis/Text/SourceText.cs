@@ -51,7 +51,7 @@ namespace compilers.CodeAnalysis.Text
                 }
                 else
                 {
-                    AddLine(result, sourceText, lineStart, position, lineBreakWidth);
+                    AddLine(result, sourceText, position, lineStart, lineBreakWidth);
 
                     position += lineBreakWidth;
                     lineStart = position;
@@ -64,7 +64,7 @@ namespace compilers.CodeAnalysis.Text
             return result.ToImmutable();
         }
 
-        private static void AddLine(ImmutableArray<TextLine>.Builder result, SourceText sourceText, int lineStart, int position, int lineBreakWidth)
+        private static void AddLine(ImmutableArray<TextLine>.Builder result, SourceText sourceText, int position, int lineStart, int lineBreakWidth)
         {
             var lineLength = position - lineStart;
             var lineLengthIncludingLineBreaks = lineLength + lineBreakWidth;
@@ -74,11 +74,11 @@ namespace compilers.CodeAnalysis.Text
 
         private static int GetLineBreakWidth(string text, int position)
         {
-            char c = text[position];
+            var c = text[position];
             var l = position + 1 >= text.Length ? '\0' : text[position + 1];
             if (c == '\r' && l == '\n')
                 return 2;
-            if (c == 'r' || l == '\n')
+            if (c == '\r' || c == '\n')
                 return 1;
             return 0;
         }
@@ -94,7 +94,7 @@ namespace compilers.CodeAnalysis.Text
         public string ToString(int start, int length) => _text.Substring(start, length);
         public string ToString(TextSpan span)
         {
-            return _text.Substring(span.Start, span.Length);
+            return ToString(span.Start, span.Length);
 
         }
     }

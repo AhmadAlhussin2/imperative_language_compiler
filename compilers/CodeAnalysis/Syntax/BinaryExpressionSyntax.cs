@@ -1,6 +1,3 @@
-using System.Data.Common;
-using System.Linq.Expressions;
-
 namespace compilers.CodeAnalysis
 {
     public sealed class BinaryExpressionSyntax : ExpressionSyntax

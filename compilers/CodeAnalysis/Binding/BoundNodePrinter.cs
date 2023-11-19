@@ -120,7 +120,7 @@ namespace compilers.CodeAnalysis.Binding
 
         private static void WriteUnaryExpression(BoundUnaryExpression node, IndentedTextWriter writer)
         {
-            writer.WritePunctuation(OperatorsPriority.GetText(node.Op.SyntaxKind));
+            writer.WritePunctuation(OperatorsPriority.GetText(node.Op.SyntaxKind)!);
             var precedence = OperatorsPriority.GetUnaryOperatorPriority(node.Op.SyntaxKind);
             writer.WriteNestedExpression(precedence, node.Operand);
             node.Operand.WriteTo(writer);
@@ -130,7 +130,7 @@ namespace compilers.CodeAnalysis.Binding
         {
             var precedence = OperatorsPriority.GetBinaryOperatorPriority(node.Op.SyntaxKind);
             writer.WriteNestedExpression(precedence, node.Left);
-            writer.WritePunctuation(OperatorsPriority.GetText(node.Op.SyntaxKind));
+            writer.WritePunctuation(OperatorsPriority.GetText(node.Op.SyntaxKind)!);
             writer.WriteNestedExpression(precedence, node.Right);
         }
 
@@ -247,7 +247,6 @@ namespace compilers.CodeAnalysis.Binding
         private static void WriteErrorExpression(BoundErrorExpression node, IndentedTextWriter writer)
         {
             writer.WriteKeyword("?");
-            writer.WriteLine();
         }
 
         private static void WriteCallExpression(BoundCallExpression node, IndentedTextWriter writer)
@@ -278,6 +277,7 @@ namespace compilers.CodeAnalysis.Binding
         {
             writer.WriteKeyword("return ");
             node.Expression.WriteTo(writer);
+            writer.WriteLine();
         }
     }
 }

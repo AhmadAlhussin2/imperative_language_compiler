@@ -23,7 +23,7 @@ namespace compilers.CodeAnalysis
                 case SyntaxKind.MinusToken:
                     return "-";
                 case SyntaxKind.NegationToken:
-                    return "not ";
+                    return "not";
                 case SyntaxKind.StarToken:
                     return "*";
                 case SyntaxKind.SlashToken:

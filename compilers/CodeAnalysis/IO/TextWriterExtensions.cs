@@ -4,7 +4,7 @@ using compilers.CodeAnalysis;
 
 namespace compilers.IO
 {
-    internal static class TextWriterExtensions
+    public static class TextWriterExtensions
     {
         public static bool IsConsoleOut(this TextWriter writer)
         {
@@ -59,26 +59,24 @@ namespace compilers.IO
 
                 Console.WriteLine();
 
-                Console.ForegroundColor = ConsoleColor.DarkRed;
 
                 Console.WriteLine($"({lineNumber},{character})");
                 Console.WriteLine(diagnostic);
 
-                // var prefixSpan = TextSpan.FromBounds(line.Span.Start, diagnostic.Span.Start);
-                // var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
+                var prefixSpan = TextSpan.FromBounds(line.Span.Start, diagnostic.Span.Start);
+                var suffixSpan = TextSpan.FromBounds(diagnostic.Span.End, line.End);
+                var prefix = syntaxTree.Text.ToString(prefixSpan);
+                var error = syntaxTree.Text.ToString(diagnostic.Span);
+                var suffix = syntaxTree.Text.ToString(suffixSpan);
 
-                // var prefix = syntaxTree.Text.ToString(prefixSpan);
-                // var error = syntaxTree.Text.ToString(diagnostic.Span);
-                // var suffix = syntaxTree.Text.ToString(suffixSpan);
+                Console.Write("    ");
+                Console.Write(prefix);
+                Console.ForegroundColor = ConsoleColor.DarkRed;
 
-                // Console.Write("    ");
-                // Console.Write(prefix);
-
-                // Console.ForegroundColor = ConsoleColor.DarkRed;
-                // Console.Write(error);
+                Console.Write(error);
                 Console.ResetColor();
 
-                // Console.WriteLine(suffix);
+                Console.WriteLine(suffix);
 
                 Console.WriteLine();
             }

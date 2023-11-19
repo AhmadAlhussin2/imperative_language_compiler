@@ -16,7 +16,7 @@ namespace compilers.CodeAnalysis
             {
                 var first = getChildren().First().Span;
                 var last = getChildren().Last().Span;
-                return TextSpan.FromBounds(first.Start, last.Length);
+                return TextSpan.FromBounds(first.Start, last.End);
             }
         }
         public SyntaxToken GetLastToken()

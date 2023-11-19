@@ -12,13 +12,5 @@ namespace compilers.CodeAnalysis.Symbol
         {
             SymbolPrinter.WriteTo(this, writer);
         }
-        public override string ToString()
-        {
-           using (var writer = new StringWriter())
-           {
-                WriteTo(writer);
-                return writer.ToString();
-           }
-        }
     }
 }

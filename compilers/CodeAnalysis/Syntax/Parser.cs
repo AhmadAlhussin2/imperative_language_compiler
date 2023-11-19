@@ -51,7 +51,7 @@ namespace compilers.CodeAnalysis
             if (Current.Kind == kind)
                 return NextToken();
             _diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, kind);
-            return new SyntaxToken(_syntaxTree, kind, Current.Position, "", null);
+            return new SyntaxToken(_syntaxTree, kind, Current.Position, null, null);
         }
         private ExpressionSyntax ParseExpression()
         {
@@ -212,7 +212,7 @@ namespace compilers.CodeAnalysis
             var expression = ParseExpression();
             return new ReturnStatementSyntax(_syntaxTree, keyword, expression);
         }
-        
+
         // private SyntaxNode ParseArrayDeclaration()
         // {
         //     var arrayKeyworld = MatchToken(SyntaxKind.ArrayKeyword);
@@ -221,7 +221,7 @@ namespace compilers.CodeAnalysis
         //     var closeBracket = MatchToken(SyntaxKind.CloseSquareBracketToken);
         //     return new ArrayDeclarationSyntax(arrayKeyworld, openBracket, size, closeBracket);
         // }
-        
+
         private StatementSyntax ParseTypeDeclaration()
         {
             var typeKeyword = MatchToken(SyntaxKind.TypeKeyword);
@@ -287,7 +287,7 @@ namespace compilers.CodeAnalysis
 
             var condition = ParseExpression();
             var thenKeyword = MatchToken(SyntaxKind.ThenKeyword);
-            var thenStatement = ParseStatement();
+            var thenStatement = ParseBlockStatement(true);
             var elseClause = ParseElseClause();
             var endKeyword = MatchToken(SyntaxKind.EndKeyword);
             return new IfStatementSyntax(_syntaxTree, ifKeyword, condition, thenKeyword, thenStatement, elseClause, endKeyword);
@@ -299,7 +299,7 @@ namespace compilers.CodeAnalysis
             if (Current.Kind != SyntaxKind.ElseKeyword)
                 return null;
             var keyword = MatchToken(SyntaxKind.ElseKeyword);
-            var statement = ParseStatement();
+            var statement = ParseBlockStatement();
             return new ElseClauseSyntax(_syntaxTree, keyword, statement);
         }
 
@@ -341,11 +341,11 @@ namespace compilers.CodeAnalysis
             return new ExpressionStatementSyntax(_syntaxTree, expression);
         }
 
-        private BlockStatementSyntax ParseBlockStatement()
+        private BlockStatementSyntax ParseBlockStatement(bool waitForElse = false)
         {
             var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
             //var startToken = NextToken();
-            while (Current.Kind != SyntaxKind.EOFToken && Current.Kind != SyntaxKind.EndKeyword)
+            while (Current.Kind != SyntaxKind.EOFToken && Current.Kind != SyntaxKind.EndKeyword && (Current.Kind != SyntaxKind.ElseKeyword || !waitForElse))
             {
                 var c = Current;
                 var statement = ParseStatement();

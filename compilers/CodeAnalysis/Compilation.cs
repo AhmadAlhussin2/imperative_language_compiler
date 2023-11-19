@@ -36,7 +36,7 @@ namespace compilers.CodeAnalysis
         }
         public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
         {
-            var diagnostics = Syntax.Diagnostics.Concat(GlobalScope.Diagnostics).ToArray();
+            var diagnostics = Syntax.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
             if (diagnostics.Any())
             {
                 return new EvaluationResult(diagnostics, null);
@@ -52,7 +52,7 @@ namespace compilers.CodeAnalysis
             var statement = GetStatement();
             var evaluator = new Evaluator(program.FunctionBodies, statement, variables);
             var value = evaluator.Evaluate();
-            return new EvaluationResult(Array.Empty<Diagnostic>(), value);
+            return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
         }
 
         internal void WriteTree(TextWriter boundSyntaxTreeWriter)

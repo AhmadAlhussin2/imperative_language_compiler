@@ -7,10 +7,7 @@ namespace compilers.CodeAnalysis
     {
         private readonly SyntaxTree _syntaxTree;
         private readonly SourceText _text;
-        private int _start;
-        private SyntaxKind _kind;
         private int _position;
-        private object? _value;
         private DiagnosticBag _diagnostics = new();
 
         public DiagnosticBag Diagnostics => _diagnostics;
