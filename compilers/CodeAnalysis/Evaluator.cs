@@ -12,11 +12,12 @@ namespace compilers.CodeAnalysis
         private readonly ImmutableDictionary<FunctionSymbol, BoundBlockStatement> _functionBodies;
         private readonly BoundBlockStatement _root;
         private readonly Dictionary<VariableSymbol, object> _globals;
+        private Dictionary<VariableSymbol, LLVMValueRef> _LLVMglobals = new Dictionary<VariableSymbol, LLVMValueRef>();
         private readonly Stack<Dictionary<VariableSymbol, object>> _locals = new();
+        private Stack<Dictionary<VariableSymbol, LLVMValueRef>> _LLVMlocals = new();
         private object? _lastValue;
         private LLVMBuilderRef _builder;
         private Stack<LLVMValueRef> _valueStack = new Stack<LLVMValueRef>();
-        private Dictionary<string, LLVMValueRef> _namedValues = new Dictionary<string, LLVMValueRef>();
         public Evaluator(LLVMBuilderRef builder, ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functionBodies, BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
         {
             _functionBodies = functionBodies;
@@ -95,28 +96,28 @@ namespace compilers.CodeAnalysis
         private void EvaluateVariableDeclaration(BoundVariableDeclaration node)
         {
             var value = EvaluateExpression(node.Initializer);
+            var lst = _valueStack.Pop();
+            if (node.Initializer.Type == TypeSymbol.Int) unsafe 
+            {
+                var n = LLVM.BuildAlloca(_builder, LLVM.Int32Type(), StringToSBytePtr(node.Variable.Name));
+                LLVM.BuildStore(_builder, lst, n);
+                _valueStack.Push(n);
+            }
+            else if (node.Initializer.Type == TypeSymbol.Real) unsafe
+            {
+                var n = LLVM.BuildAlloca(_builder, LLVM.DoubleType(), StringToSBytePtr(node.Variable.Name));
+                LLVM.BuildStore(_builder, LLVM.ConstReal(LLVM.DoubleType(), Convert.ToDouble(value)), n);
+                _valueStack.Push(n);
+            }
+            else if (node.Initializer.Type == TypeSymbol.Bool) unsafe
+            {
+                var n = LLVM.BuildAlloca(_builder, LLVM.Int1Type(), StringToSBytePtr(node.Variable.Name));
+                LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int1Type(), Convert.ToUInt32(value), 0), n);
+                _valueStack.Push(n);
+            }
+
             _lastValue = value;
             Assign(node.Variable, value);
-
-            var lst = _valueStack.Pop();
-            if (node.Initializer.Type == TypeSymbol.Int) unsafe
-                {
-                    LLVMValueRef n = LLVM.BuildAlloca(_builder, LLVM.Int32Type(), StringToSBytePtr(node.Variable.Name));
-                    LLVM.BuildStore(_builder, lst, n);
-                    
-                }
-               
-            else if (node.Initializer.Type == TypeSymbol.Real) unsafe
-                {
-                    LLVMValueRef d = LLVM.BuildAlloca(_builder, LLVM.DoubleType(), StringToSBytePtr(node.Variable.Name));
-                    LLVM.BuildStore(_builder, LLVM.ConstReal(LLVM.DoubleType(), Convert.ToDouble(value)), d);
-                }
-            else if (node.Initializer.Type == TypeSymbol.Bool) unsafe
-                {
-                    LLVMValueRef b = LLVM.BuildAlloca(_builder, LLVM.Int1Type(), StringToSBytePtr(node.Variable.Name));
-                    LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int1Type(), Convert.ToUInt32(value), 0), b);
-                }
-               
         }
         private void EvaluateExpressionStatement(BoundExpressionStatement node)
         {
@@ -275,13 +276,47 @@ namespace compilers.CodeAnalysis
         }
         private object EvaluateVariableExpression(BoundVariableExpression v)
         {
+            
             if (v.Variable.Kind == SymbolKind.GlobalVariable)
             {
+                var myVar = _LLVMglobals[v.Variable];
+                if(v.Variable.Type == TypeSymbol.Int) unsafe 
+                {
+                    var d = LLVM.BuildLoad2(_builder, LLVM.Int32Type(), myVar, StringToSBytePtr("load"));
+                    _valueStack.Push(d);
+                }
+                else if(v.Variable.Type == TypeSymbol.Real) unsafe
+                {
+                    var d = LLVM.BuildLoad2(_builder, LLVM.DoubleType(), myVar, StringToSBytePtr("load"));
+                    _valueStack.Push(d);
+                }
+                else if(v.Variable.Type == TypeSymbol.Bool) unsafe 
+                {
+                    var d = LLVM.BuildLoad2(_builder, LLVM.Int1Type(), myVar, StringToSBytePtr("load"));
+                    _valueStack.Push(d);
+                }
                 return _globals[v.Variable];
             }
             else
             {
                 var locals = _locals.Peek();
+                var LLVMlocals = _LLVMlocals.Peek();
+                var myVar = LLVMlocals[v.Variable];
+                if(v.Variable.Type == TypeSymbol.Int) unsafe 
+                {
+                    var d = LLVM.BuildLoad2(_builder, LLVM.Int32Type(), myVar, StringToSBytePtr("load"));
+                    _valueStack.Push(d);
+                }
+                else if(v.Variable.Type == TypeSymbol.Real) unsafe
+                {
+                    var d = LLVM.BuildLoad2(_builder, LLVM.DoubleType(), myVar, StringToSBytePtr("load"));
+                    _valueStack.Push(d);
+                }
+                else if(v.Variable.Type == TypeSymbol.Bool) unsafe 
+                {
+                    var d = LLVM.BuildLoad2(_builder, LLVM.Int1Type(), myVar, StringToSBytePtr("load"));
+                    _valueStack.Push(d);
+                }
                 return locals[v.Variable];
             }
 
@@ -318,14 +353,18 @@ namespace compilers.CodeAnalysis
         }
         private void Assign(VariableSymbol variable, object value)
         {
+            
             if (variable.Kind == SymbolKind.GlobalVariable)
             {
                 _globals[variable] = value;
+                _LLVMglobals[variable] = _valueStack.Pop();
             }
             else
             {
                 var locals = _locals.Peek();
                 locals[variable] = value;
+                var LLVMlocals = _LLVMlocals.Peek();
+                LLVMlocals[variable] = _valueStack.Pop();
             }
         }
     }
