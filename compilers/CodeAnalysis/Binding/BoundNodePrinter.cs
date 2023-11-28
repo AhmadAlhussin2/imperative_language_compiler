@@ -123,7 +123,6 @@ namespace compilers.CodeAnalysis.Binding
             writer.WritePunctuation(OperatorsPriority.GetText(node.Op.SyntaxKind)!);
             var precedence = OperatorsPriority.GetUnaryOperatorPriority(node.Op.SyntaxKind);
             writer.WriteNestedExpression(precedence, node.Operand);
-            node.Operand.WriteTo(writer);
         }
 
         private static void WriteBinaryExpression(BoundBinaryExpression node, IndentedTextWriter writer)

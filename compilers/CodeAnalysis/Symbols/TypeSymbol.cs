@@ -14,5 +14,9 @@ namespace compilers.CodeAnalysis.Symbol
         }
 
         public override SymbolKind Kind => SymbolKind.Type;
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 }
