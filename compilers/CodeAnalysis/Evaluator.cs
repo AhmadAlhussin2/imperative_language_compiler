@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using compilers.CodeAnalysis.Binding;
 using compilers.CodeAnalysis.Symbol;
+using LLVMSharp.Interop;
 
 namespace compilers.CodeAnalysis
 {
@@ -11,11 +12,13 @@ namespace compilers.CodeAnalysis
         private readonly Dictionary<VariableSymbol, object> _globals;
         private readonly Stack<Dictionary<VariableSymbol, object>> _locals = new();
         private object? _lastValue;
-        public Evaluator(ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functionBodies, BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
+        private LLVMBuilderRef _builder;
+        public Evaluator(LLVMBuilderRef builder, ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functionBodies, BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
         {
             _functionBodies = functionBodies;
             _root = root;
             _globals = variables;
+            _builder = builder;
         }
         public object? Evaluate()
         {

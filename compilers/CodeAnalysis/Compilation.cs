@@ -2,6 +2,7 @@ using System.Collections.Immutable;
 using compilers.CodeAnalysis.Binding;
 using compilers.CodeAnalysis.Lowering;
 using compilers.CodeAnalysis.Symbol;
+using LLVMSharp.Interop;
 
 namespace compilers.CodeAnalysis
 {
@@ -34,7 +35,7 @@ namespace compilers.CodeAnalysis
         {
             return new Compilation(this, syntaxTree);
         }
-        public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
+        public EvaluationResult Evaluate(LLVMBuilderRef builder, Dictionary<VariableSymbol, object> variables)
         {
             var diagnostics = Syntax.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
             if (diagnostics.Any())
@@ -50,7 +51,7 @@ namespace compilers.CodeAnalysis
             }
 
             var statement = GetStatement();
-            var evaluator = new Evaluator(program.FunctionBodies, statement, variables);
+            var evaluator = new Evaluator(builder, program.FunctionBodies, statement, variables);
             var value = evaluator.Evaluate();
             return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
         }
