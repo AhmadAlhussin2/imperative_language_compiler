@@ -35,7 +35,7 @@ namespace compilers.CodeAnalysis
         {
             return new Compilation(this, syntaxTree);
         }
-        public EvaluationResult Evaluate(LLVMBuilderRef builder, Dictionary<VariableSymbol, object> variables)
+        public EvaluationResult Evaluate(LLVMBuilderRef builder, LLVMValueRef function)
         {
             var diagnostics = Syntax.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
             if (diagnostics.Any())
@@ -51,8 +51,8 @@ namespace compilers.CodeAnalysis
             }
 
             var statement = GetStatement();
-            var evaluator = new Evaluator(builder, program.FunctionBodies, statement, variables);
-            var value = evaluator.Evaluate();
+            var evaluator = new Evaluator(builder, program.FunctionBodies, statement);
+            var value = evaluator.Evaluate(function);
             return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
         }
 

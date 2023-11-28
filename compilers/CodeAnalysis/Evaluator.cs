@@ -11,18 +11,17 @@ namespace compilers.CodeAnalysis
     {
         private readonly ImmutableDictionary<FunctionSymbol, BoundBlockStatement> _functionBodies;
         private readonly BoundBlockStatement _root;
-        private readonly Dictionary<VariableSymbol, object> _globals;
+        private readonly Dictionary<VariableSymbol, object> _globals = new();
         private Dictionary<VariableSymbol, LLVMValueRef> _LLVMglobals = new Dictionary<VariableSymbol, LLVMValueRef>();
         private readonly Stack<Dictionary<VariableSymbol, object>> _locals = new();
         private Stack<Dictionary<VariableSymbol, LLVMValueRef>> _LLVMlocals = new();
         private object? _lastValue;
         private LLVMBuilderRef _builder;
         private Stack<LLVMValueRef> _valueStack = new Stack<LLVMValueRef>();
-        public Evaluator(LLVMBuilderRef builder, ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functionBodies, BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
+        public Evaluator(LLVMBuilderRef builder, ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functionBodies, BoundBlockStatement root)
         {
             _functionBodies = functionBodies;
             _root = root;
-            _globals = variables;
             _builder = builder;
         }
         static unsafe sbyte* StringToSBytePtr(string str)
@@ -39,19 +38,22 @@ namespace compilers.CodeAnalysis
             // Return a pointer to the allocated memory
             return (sbyte*)ptr;
         }
-        public object? Evaluate()
+        public object? Evaluate(LLVMValueRef function)
         {
-            return Evaluate(_root);
+            return Evaluate(_root, function);
         }
-        private object? Evaluate(BoundBlockStatement body)
+        private object? Evaluate(BoundBlockStatement body, LLVMValueRef function)
         {
             var labelToIndex = new Dictionary<BoundLabel, int>();
+            var labelToLLVM = new Dictionary<BoundLabel, LLVMBasicBlockRef>();
             for (var i = 0; i < body.Statements.Length; i++)
             {
-                if (body.Statements[i] is BoundLabelStatement l)
-                {
-                    labelToIndex.Add(l.Label, i + 1);
-                }
+                if (body.Statements[i] is BoundLabelStatement l) unsafe
+                    {
+                        labelToIndex.Add(l.Label, i + 1);
+                        LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr($"label{i + 1}"));
+                        labelToLLVM.Add(l.Label, block);
+                    }
             }
             var index = 0;
             while (index < body.Statements.Length)
@@ -69,6 +71,10 @@ namespace compilers.CodeAnalysis
                         break;
                     case BoundNodeKind.GoToStatement:
                         var gotoStatement = (BoundGoToStatement)s;
+                        unsafe
+                        {
+                            var ret = LLVM.BuildBr(_builder, labelToLLVM[gotoStatement.Label]);
+                        }
                         index = labelToIndex[gotoStatement.Label];
                         break;
                     case BoundNodeKind.ConditionalGotoStatement:
@@ -176,7 +182,8 @@ namespace compilers.CodeAnalysis
                 }
                 _locals.Push(locals);
                 var statement = _functionBodies[node.Function];
-                var result = Evaluate(statement);
+                // var result = Evaluate(statement);
+                var result = Evaluate(statement, null);
                 _locals.Pop();
                 return result;
             }

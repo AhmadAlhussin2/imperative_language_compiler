@@ -50,7 +50,7 @@ namespace compilers
                     syntaxTree.Root.WriteTo(_syntaxTreeWriter);
                     var compilation = new Compilation(syntaxTree);
                     compilation.WriteTree(_boundSyntaxTreeWriter);
-                    var result = compilation.Evaluate(builder,new Dictionary<VariableSymbol, object>());
+                    var result = compilation.Evaluate(builder, mainFunction);
                     if (result.Diagnostics.Any())
                     {
                         Console.Error.WriteDiagnostics(result.Diagnostics, syntaxTree);
@@ -63,9 +63,9 @@ namespace compilers
                         }
                         compilation.WriteTree(Console.Out);
                         var error = StringToSBytePtr("");
+                        LLVM.BuildRetVoid(builder);
                         LLVM.PrintModuleToFile(module, StringToSBytePtr("output.ll"), &error);
 
-                        LLVM.BuildRetVoid(builder);
                         LLVM.DisposeBuilder(builder);
                         LLVM.DisposeModule(module);
                     }
