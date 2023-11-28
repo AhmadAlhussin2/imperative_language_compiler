@@ -45,17 +45,91 @@ namespace compilers.CodeAnalysis
         private object? Evaluate(BoundBlockStatement body, LLVMValueRef function)
         {
             var labelToIndex = new Dictionary<BoundLabel, int>();
-            var labelToLLVM = new Dictionary<BoundLabel, LLVMBasicBlockRef>();
+            var LLVMLabel = new Dictionary<BoundLabel, LLVMBasicBlockRef>();
+            var labelToBuilder = new Dictionary<BoundLabel, LLVMBuilderRef>();
             for (var i = 0; i < body.Statements.Length; i++)
             {
                 if (body.Statements[i] is BoundLabelStatement l) unsafe
                     {
                         labelToIndex.Add(l.Label, i + 1);
-                        LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr($"label{i + 1}"));
-                        labelToLLVM.Add(l.Label, block);
+                        //LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr($"label{i + 1}"));
+                        //LLVMLabel.Add(l.Label, block);
+                        var newBuilder = LLVM.CreateBuilder();
+                        //LLVM.PositionBuilderAtEnd(newBuilder, block);
+                        ///labelToBuilder.Add(l.Label, newBuilder);
                     }
             }
             var index = 0;
+
+            while(index < body.Statements.Length){
+                var s = body.Statements[index];
+                switch(s.Kind)
+                {
+                    case BoundNodeKind.VariableDeclaration:
+                         EvaluateVariableDeclaration((BoundVariableDeclaration)s);
+                        index++;
+                        break;
+                    case BoundNodeKind.ExpressionStatement:
+                        EvaluateExpressionStatement((BoundExpressionStatement)s);
+                        index++;
+                        break;
+                    case BoundNodeKind.GoToStatement:
+                        var gotoStatement = (BoundGoToStatement)s;
+                        unsafe
+                        {
+                            if(!LLVMLabel.ContainsKey(gotoStatement.Label)){
+                                LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
+                                LLVMLabel.Add(gotoStatement.Label, block);
+                            }
+                            
+                            var rr = LLVM.BuildBr(_builder, LLVMLabel[gotoStatement.Label]);
+                        }
+                        index++;
+                        break;
+                    case BoundNodeKind.ConditionalGotoStatement:
+                        var conditionalGotoStatement = (BoundConditionalGotoStatement)s;
+                        var condition = (bool)EvaluateExpression(conditionalGotoStatement.Condition);
+        
+                        if (!conditionalGotoStatement.JumpIfTrue) unsafe
+                        {   
+                            LLVMBasicBlockRef falseblock = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
+                            if(!LLVMLabel.ContainsKey(conditionalGotoStatement.Label)) unsafe 
+                            {
+                                LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
+                                LLVMLabel.Add(conditionalGotoStatement.Label, block);
+                            }
+                            LLVM.BuildCondBr(_builder, _valueStack.Pop(), LLVMLabel[conditionalGotoStatement.Label], falseblock);
+                            LLVM.PositionBuilderAtEnd(_builder, falseblock);
+                        
+                        }
+                        index++;
+                        break;
+
+                    case BoundNodeKind.LabelStatement:
+                        if (s is BoundLabelStatement l) unsafe
+                        {
+                            if (!LLVMLabel.ContainsKey(l.Label))
+                            {
+                                LLVMBasicBlockRef block2 = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
+                                LLVMLabel.Add(l.Label, block2);
+                            }
+                            var block = LLVMLabel[l.Label];
+                            LLVM.PositionBuilderAtEnd(_builder, block);
+                            
+                        }
+                        index++;
+                        break;
+                    case BoundNodeKind.ReturnStatement:
+                        var rs = (BoundReturnStatement)s;
+                        _lastValue = EvaluateExpression(rs.Expression);
+                        return _lastValue;
+                    default:
+                        throw new Exception($"Unexpected node {s.Kind}");
+                    
+                }
+            }
+            /*
+            index = 0;
             while (index < body.Statements.Length)
             {
                 var s = body.Statements[index];
@@ -71,16 +145,12 @@ namespace compilers.CodeAnalysis
                         break;
                     case BoundNodeKind.GoToStatement:
                         var gotoStatement = (BoundGoToStatement)s;
-                        unsafe
-                        {
-                            var ret = LLVM.BuildBr(_builder, labelToLLVM[gotoStatement.Label]);
-                        }
                         index = labelToIndex[gotoStatement.Label];
                         break;
                     case BoundNodeKind.ConditionalGotoStatement:
                         var conditionalGotoStatement = (BoundConditionalGotoStatement)s;
                         var condition = (bool)EvaluateExpression(conditionalGotoStatement.Condition);
-
+                        
                         if (condition == conditionalGotoStatement.JumpIfTrue)
                             index = labelToIndex[conditionalGotoStatement.Label];
                         else
@@ -98,6 +168,8 @@ namespace compilers.CodeAnalysis
                 }
             }
             return _lastValue;
+            */
+            return 0;
         }
         private void EvaluateVariableDeclaration(BoundVariableDeclaration node)
         {
@@ -461,6 +533,7 @@ namespace compilers.CodeAnalysis
         {
             var value = EvaluateExpression(a.Expression);
             LLVMValueRef ret;
+            Console.WriteLine(a.Variable.Kind);
             if (a.Variable.Kind == SymbolKind.GlobalVariable)
             {
 
@@ -475,7 +548,7 @@ namespace compilers.CodeAnalysis
             unsafe
             {
                 var res = LLVM.BuildStore(_builder, last, ret);
-                _valueStack.Push(res);
+                _valueStack.Push(ret);
             }
             Assign(a.Variable, value);
             return value;
