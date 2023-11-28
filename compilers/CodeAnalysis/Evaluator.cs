@@ -114,6 +114,8 @@ namespace compilers.CodeAnalysis
                     LLVMValueRef b = LLVM.BuildAlloca(_builder, LLVM.Int1Type(), StringToSBytePtr(node.Variable.Name));
                     LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int1Type(), Convert.ToUInt32(value), 0), b);
                 }
+            _lastValue = value;
+            Assign(node.Variable, value);
                
         }
         private void EvaluateExpressionStatement(BoundExpressionStatement node)
