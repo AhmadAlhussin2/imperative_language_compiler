@@ -98,21 +98,14 @@ namespace compilers.CodeAnalysis
             _lastValue = value;
             Assign(node.Variable, value);
 
+            var lst = _valueStack.Pop();
             if (node.Initializer.Type == TypeSymbol.Int) unsafe
                 {
-                    int sign = (int)value < 0 ? 1 : 0;
-                    int value2 = (int)value;
                     LLVMValueRef n = LLVM.BuildAlloca(_builder, LLVM.Int32Type(), StringToSBytePtr(node.Variable.Name));
-                    if (sign==1) 
-                    {
-                        value2 = (int)value2 * -1;
-                        LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int32Type(), (ulong)-Convert.ToUInt32(value2), sign), n);
-                    }
-                    else
-                    {
-                        LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int32Type(), Convert.ToUInt32(value2), sign), n);
-                    }
+                    LLVM.BuildStore(_builder, lst, n);
+                    
                 }
+               
             else if (node.Initializer.Type == TypeSymbol.Real) unsafe
                 {
                     LLVMValueRef d = LLVM.BuildAlloca(_builder, LLVM.DoubleType(), StringToSBytePtr(node.Variable.Name));
@@ -123,6 +116,7 @@ namespace compilers.CodeAnalysis
                     LLVMValueRef b = LLVM.BuildAlloca(_builder, LLVM.Int1Type(), StringToSBytePtr(node.Variable.Name));
                     LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int1Type(), Convert.ToUInt32(value), 0), b);
                 }
+               
         }
         private void EvaluateExpressionStatement(BoundExpressionStatement node)
         {
@@ -190,13 +184,25 @@ namespace compilers.CodeAnalysis
         {
             var left = EvaluateExpression(b.Left);
             var right = EvaluateExpression(b.Right);
-            switch (b.Op.Kind)
+
+            var leftLLVM = _valueStack.Pop();
+            var rightLLVM = _valueStack.Pop();
+            
+            switch (b.Op.Kind) 
             {
                 case BoundBinaryOperatorKind.Addition:
-                    if (left is double || right is double)
+                    if (left is double || right is double) unsafe
+                    {
+                        var ret = LLVM.BuildFAdd(_builder, leftLLVM, rightLLVM, StringToSBytePtr("tempAdd"));
+                        _valueStack.Push(ret);
                         return (double)left + (double)right;
-                    else
+                    }
+                    else unsafe 
+                    {
+                        var ret = LLVM.BuildAdd(_builder, leftLLVM, rightLLVM, StringToSBytePtr("tempAdd"));
+                        _valueStack.Push(ret);
                         return (int)left + (int)right;
+                    }
                 case BoundBinaryOperatorKind.Subtraction:
                     if (left is double || right is double)
                         return (double)left - (double)right;
