@@ -361,17 +361,43 @@ namespace compilers.CodeAnalysis
         private object EvaluateUnaryExpression(BoundUnaryExpression u)
         {
             var operand = EvaluateExpression(u.Operand);
+            var operandLLVM = _valueStack.Pop();
             switch (u.Op.Kind)
             {
                 case BoundUnaryOperatorKind.Negation:
-                    if (u.Operand.Type == TypeSymbol.Int)
-                        return -(int)operand;
-                    else if (u.Operand.Type == TypeSymbol.Real)
-                        return -(double)operand;
+                    if (u.Operand.Type == TypeSymbol.Int) unsafe
+                        {
+                            var ret = LLVM.BuildSub(_builder, LLVM.ConstInt(LLVM.Int32Type(), 0, 0), operandLLVM, StringToSBytePtr("tempNegation"));
+                            _valueStack.Push(ret);
+                            return -(int)operand;
+                        }
+                    else if (u.Operand.Type == TypeSymbol.Real) unsafe
+                        {
+                            var ret = LLVM.BuildFSub(_builder, LLVM.ConstReal(LLVM.DoubleType(), 0), operandLLVM, StringToSBytePtr("tempNegation"));
+                            _valueStack.Push(ret);
+                            return -(double)operand;
+                        }
                     throw new Exception($"Operator - is not defined for {u.Op.ToString()}");
                 case BoundUnaryOperatorKind.Identity:
+                    if (u.Operand.Type == TypeSymbol.Int) unsafe
+                        {
+                            var ret = LLVM.BuildFAdd(_builder, LLVM.ConstInt(LLVM.Int32Type(), 0, 0), operandLLVM, StringToSBytePtr("tempNegation"));
+                            _valueStack.Push(ret);
+                            return -(int)operand;
+                        }
+                    else if (u.Operand.Type == TypeSymbol.Real) unsafe
+                        {
+                            var ret = LLVM.BuildAdd(_builder, LLVM.ConstReal(LLVM.DoubleType(), 0), operandLLVM, StringToSBytePtr("tempNegation"));
+                            _valueStack.Push(ret);
+                            return -(double)operand;
+                        }
                     return (int)operand;
                 case BoundUnaryOperatorKind.LogicalNegation:
+                    unsafe
+                    {
+                        var ret = LLVM.BuildXor(_builder, LLVM.ConstInt(LLVM.Int1Type(), 0, 0), operandLLVM, StringToSBytePtr("tempNegation"));
+                        _valueStack.Push(ret);
+                    }
                     return !(bool)operand;
                 default:
                     throw new Exception($"Unexpected unary operator {u.Op.Kind}");
@@ -427,6 +453,23 @@ namespace compilers.CodeAnalysis
         private object EvaluateAssignmentExpression(BoundAssignmentExpression a)
         {
             var value = EvaluateExpression(a.Expression);
+            LLVMValueRef ret;
+            if (a.Variable.Kind == SymbolKind.GlobalVariable)
+            {
+
+                ret = _LLVMglobals[a.Variable];
+            }
+            else
+            {
+                var LLVMlocals = _LLVMlocals.Peek();
+                ret = LLVMlocals[a.Variable];
+            }
+            var last = _valueStack.Pop();
+            unsafe
+            {
+                var res = LLVM.BuildStore(_builder, last, ret);
+                _valueStack.Push(res);
+            }
             Assign(a.Variable, value);
             return value;
         }
