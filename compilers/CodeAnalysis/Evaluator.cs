@@ -1,4 +1,6 @@
 using System.Collections.Immutable;
+using System.Runtime.InteropServices;
+using System.Text;
 using compilers.CodeAnalysis.Binding;
 using compilers.CodeAnalysis.Symbol;
 using LLVMSharp.Interop;
@@ -13,12 +15,28 @@ namespace compilers.CodeAnalysis
         private readonly Stack<Dictionary<VariableSymbol, object>> _locals = new();
         private object? _lastValue;
         private LLVMBuilderRef _builder;
+        private Stack<LLVMValueRef> _valueStack = new Stack<LLVMValueRef>();
+        private Dictionary<string, LLVMValueRef> _namedValues = new Dictionary<string, LLVMValueRef>();
         public Evaluator(LLVMBuilderRef builder, ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functionBodies, BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
         {
             _functionBodies = functionBodies;
             _root = root;
             _globals = variables;
             _builder = builder;
+        }
+        static unsafe sbyte* StringToSBytePtr(string str)
+        {
+            // Convert the string to a byte array using UTF-8 encoding
+            byte[] bytes = Encoding.UTF8.GetBytes(str + '\0');
+
+            // Allocate unmanaged memory to hold the null-terminated string
+            IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
+
+            // Copy the byte array to the allocated memory
+            Marshal.Copy(bytes, 0, ptr, bytes.Length);
+
+            // Return a pointer to the allocated memory
+            return (sbyte*)ptr;
         }
         public object? Evaluate()
         {
@@ -79,6 +97,26 @@ namespace compilers.CodeAnalysis
             var value = EvaluateExpression(node.Initializer);
             _lastValue = value;
             Assign(node.Variable, value);
+
+            if (node.Initializer.Type == TypeSymbol.Int) unsafe
+                {
+                    int sign = (int)value < 0 ? 1 : 0;
+                    int value2 = (int)value;
+                    if (sign==1) 
+                        value2 = (int)value2 * -1;
+                    LLVMValueRef n = LLVM.BuildAlloca(_builder, LLVM.Int32Type(), StringToSBytePtr(node.Variable.Name));
+                    LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int32Type(), Convert.ToUInt32(value2), sign), n);
+                }
+            else if (node.Initializer.Type == TypeSymbol.Real) unsafe
+                {
+                    LLVMValueRef d = LLVM.BuildAlloca(_builder, LLVM.DoubleType(), StringToSBytePtr(node.Variable.Name));
+                    LLVM.BuildStore(_builder, LLVM.ConstReal(LLVM.DoubleType(), Convert.ToDouble(value)), d);
+                }
+            else if (node.Initializer.Type == TypeSymbol.Bool) unsafe
+                {
+                    LLVMValueRef b = LLVM.BuildAlloca(_builder, LLVM.Int1Type(), StringToSBytePtr(node.Variable.Name));
+                    LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int1Type(), Convert.ToUInt32(value), 0), b);
+                }
         }
         private void EvaluateExpressionStatement(BoundExpressionStatement node)
         {
@@ -238,8 +276,25 @@ namespace compilers.CodeAnalysis
             Assign(a.Variable, value);
             return value;
         }
-        private static object EvaluateLiteralExpression(BoundLiteralExpression n)
+        private object EvaluateLiteralExpression(BoundLiteralExpression n)
         {
+            if (n.Type == TypeSymbol.Int) unsafe
+                {
+                    int sign = (int)n.Value < 0 ? 1 : 0;
+                    int value = (int)n.Value;
+                    if (sign == 1){
+                        value *= -1;
+                    }
+                    _valueStack.Push(LLVM.ConstInt(LLVM.Int32Type(), Convert.ToUInt32(value), sign));
+                }
+            else if (n.Type == TypeSymbol.Real) unsafe
+                {
+                    _valueStack.Push(LLVM.ConstReal(LLVM.DoubleType(), Convert.ToDouble(n.Value)));
+                }
+            else if (n.Type == TypeSymbol.Bool) unsafe
+                {
+                    _valueStack.Push(LLVM.ConstInt(LLVM.Int1Type(), Convert.ToUInt32(n.Value), 0));
+                }
             return n.Value;
         }
         private void Assign(VariableSymbol variable, object value)
