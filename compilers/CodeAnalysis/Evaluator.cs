@@ -102,10 +102,16 @@ namespace compilers.CodeAnalysis
                 {
                     int sign = (int)value < 0 ? 1 : 0;
                     int value2 = (int)value;
-                    if (sign==1) 
-                        value2 = (int)value2 * -1;
                     LLVMValueRef n = LLVM.BuildAlloca(_builder, LLVM.Int32Type(), StringToSBytePtr(node.Variable.Name));
-                    LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int32Type(), Convert.ToUInt32(value2), sign), n);
+                    if (sign==1) 
+                    {
+                        value2 = (int)value2 * -1;
+                        LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int32Type(), (ulong)-Convert.ToUInt32(value2), sign), n);
+                    }
+                    else
+                    {
+                        LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int32Type(), Convert.ToUInt32(value2), sign), n);
+                    }
                 }
             else if (node.Initializer.Type == TypeSymbol.Real) unsafe
                 {
@@ -248,7 +254,11 @@ namespace compilers.CodeAnalysis
             switch (u.Op.Kind)
             {
                 case BoundUnaryOperatorKind.Negation:
-                    return -(int)operand;
+                    if (u.Operand.Type == TypeSymbol.Int)
+                        return -(int)operand;
+                    else if (u.Operand.Type == TypeSymbol.Real)
+                        return -(double)operand;
+                    throw new Exception($"Operator - is not defined for {u.Op.ToString()}");
                 case BoundUnaryOperatorKind.Identity:
                     return (int)operand;
                 case BoundUnaryOperatorKind.LogicalNegation:
@@ -284,8 +294,11 @@ namespace compilers.CodeAnalysis
                     int value = (int)n.Value;
                     if (sign == 1){
                         value *= -1;
+                        _valueStack.Push(LLVM.ConstInt(LLVM.Int32Type(), (ulong)-Convert.ToUInt32(value), sign));
                     }
-                    _valueStack.Push(LLVM.ConstInt(LLVM.Int32Type(), Convert.ToUInt32(value), sign));
+                    else {
+                        _valueStack.Push(LLVM.ConstInt(LLVM.Int32Type(), Convert.ToUInt32(value), sign));
+                    }
                 }
             else if (n.Type == TypeSymbol.Real) unsafe
                 {

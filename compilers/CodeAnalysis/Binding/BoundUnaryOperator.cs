@@ -25,6 +25,7 @@ namespace compilers.CodeAnalysis.Binding
             new BoundUnaryOperator(SyntaxKind.NegationToken,BoundUnaryOperatorKind.LogicalNegation,TypeSymbol.Bool),
             new BoundUnaryOperator(SyntaxKind.PlusToken,BoundUnaryOperatorKind.Identity,TypeSymbol.Int),
             new BoundUnaryOperator(SyntaxKind.MinusToken,BoundUnaryOperatorKind.Negation,TypeSymbol.Int),
+            new BoundUnaryOperator(SyntaxKind.MinusToken,BoundUnaryOperatorKind.Negation,TypeSymbol.Real),
 
         };
         public static BoundUnaryOperator? Bind(SyntaxKind syntaxKind, TypeSymbol operandType)
