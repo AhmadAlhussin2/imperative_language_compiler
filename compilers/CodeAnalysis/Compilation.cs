@@ -98,6 +98,8 @@ namespace compilers.CodeAnalysis
                 }_boundSyntaxTreeWriter.WriteLine(") : "+ funco.Key.Type + " is");
                 funco.Value.WriteTo(_boundSyntaxTreeWriter);
             }
+            Dictionary<FunctionSymbol, LLVMValueRef> LLVMfunctions = new();
+            Dictionary<FunctionSymbol, LLVMTypeRef> LLVMfunctiontypes = new();
             foreach (var funco in program.FunctionBodies) unsafe 
             {
                 var len = funco.Key.Parameters.Length;
@@ -115,7 +117,7 @@ namespace compilers.CodeAnalysis
                 var thisEntry = LLVM.AppendBasicBlock(thisfunction, StringToSBytePtr("entry"));
                 var thisbuilder = LLVM.CreateBuilder();
                 LLVM.PositionBuilderAtEnd(thisbuilder, thisEntry);
-                var evalulator = new Evaluator(thisbuilder, program.FunctionBodies, funco.Value);
+                var evalulator = new Evaluator(thisbuilder, program.FunctionBodies, LLVMfunctions, LLVMfunctiontypes, funco.Value);
                 var locals = new Dictionary<VariableSymbol, object>();
                 var LLVMlocals = new Dictionary<VariableSymbol, LLVMValueRef>();
                 for (int i = 0; i < len; i++)
@@ -132,9 +134,11 @@ namespace compilers.CodeAnalysis
                 var result = evalulator.Evaluate(thisfunction);
                 evalulator._locals.Pop();
                 evalulator._LLVMlocals.Pop();
+                LLVMfunctions.Add(funco.Key, thisfunction);
+                LLVMfunctiontypes.Add(funco.Key, funcType);
             }
             var statement = GetStatement();
-            var evaluator = new Evaluator(builder, program.FunctionBodies, statement);
+            var evaluator = new Evaluator(builder, program.FunctionBodies, LLVMfunctions, LLVMfunctiontypes, statement);
             var value = evaluator.Evaluate(function);
             _boundSyntaxTreeWriter.Close();
             return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);

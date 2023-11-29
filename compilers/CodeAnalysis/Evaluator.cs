@@ -10,7 +10,8 @@ namespace compilers.CodeAnalysis
     internal sealed class Evaluator
     {
         private readonly ImmutableDictionary<FunctionSymbol, BoundBlockStatement> _functionBodies;
-        private readonly ImmutableDictionary<FunctionSymbol, LLVMValueRef> _LLVMfunctions;
+        private readonly Dictionary<FunctionSymbol, LLVMValueRef> _LLVMfunctions;
+        private readonly Dictionary<FunctionSymbol, LLVMTypeRef> _LLVMfunctiontypes;
         private readonly BoundBlockStatement _root;
         private readonly Dictionary<VariableSymbol, object> _globals = new();
         private Dictionary<VariableSymbol, LLVMValueRef> _LLVMglobals = new Dictionary<VariableSymbol, LLVMValueRef>();
@@ -19,11 +20,20 @@ namespace compilers.CodeAnalysis
         private object? _lastValue;
         private LLVMBuilderRef _builder;
         private Stack<LLVMValueRef> _valueStack = new Stack<LLVMValueRef>();
-        public Evaluator(LLVMBuilderRef builder, ImmutableDictionary<FunctionSymbol, BoundBlockStatement> functionBodies, BoundBlockStatement root)
+        public Evaluator
+            (
+                LLVMBuilderRef builder, ImmutableDictionary<FunctionSymbol,
+                BoundBlockStatement> functionBodies, 
+                Dictionary<FunctionSymbol,LLVMValueRef> LLVMfunctions,
+                Dictionary<FunctionSymbol,LLVMTypeRef> LLVMfunctiontypes,
+                BoundBlockStatement root
+            )
         {
             _functionBodies = functionBodies;
             _root = root;
             _builder = builder;
+            _LLVMfunctions = LLVMfunctions;
+            _LLVMfunctiontypes = LLVMfunctiontypes;
         }
         static unsafe sbyte* StringToSBytePtr(string str)
         {
@@ -41,9 +51,9 @@ namespace compilers.CodeAnalysis
         }
         public object? Evaluate(LLVMValueRef function)
         {
-            return Evaluate(_root, function);
+            return Evaluate(_root, function, true);
         }
-        private object? Evaluate(BoundBlockStatement body, LLVMValueRef function)
+        private object? Evaluate(BoundBlockStatement body, LLVMValueRef function, bool genCode)
         {
             var labelToIndex = new Dictionary<BoundLabel, int>();
             var LLVMLabel = new Dictionary<BoundLabel, LLVMBasicBlockRef>();
@@ -54,92 +64,95 @@ namespace compilers.CodeAnalysis
                         labelToIndex.Add(l.Label, i + 1);
                     }
             var index = 0;
-
-            while (index < body.Statements.Length)
+            if (genCode)
             {
-                var s = body.Statements[index];
-                switch (s.Kind)
+                while (index < body.Statements.Length)
                 {
-                    case BoundNodeKind.VariableDeclaration:
-                        EvaluateVariableDeclaration((BoundVariableDeclaration)s, true);
-                        index++;
-                        break;
-                    case BoundNodeKind.ExpressionStatement:
-                        EvaluateExpressionStatement((BoundExpressionStatement)s, true);
-                        index++;
-                        break;
-                    case BoundNodeKind.GoToStatement:
-                        var gotoStatement = (BoundGoToStatement)s;
-                        unsafe
-                        {
-                            if (!LLVMLabel.ContainsKey(gotoStatement.Label))
+                    var s = body.Statements[index];
+                    switch (s.Kind)
+                    {
+                        case BoundNodeKind.VariableDeclaration:
+                            EvaluateVariableDeclaration((BoundVariableDeclaration)s, true);
+                            index++;
+                            break;
+                        case BoundNodeKind.ExpressionStatement:
+                            EvaluateExpressionStatement((BoundExpressionStatement)s, true);
+                            index++;
+                            break;
+                        case BoundNodeKind.GoToStatement:
+                            var gotoStatement = (BoundGoToStatement)s;
+                            unsafe
                             {
-                                LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
-                                LLVMLabel.Add(gotoStatement.Label, block);
-                            }
-
-                            var rr = LLVM.BuildBr(_builder, LLVMLabel[gotoStatement.Label]);
-                        }
-                        index++;
-                        break;
-                    case BoundNodeKind.ConditionalGotoStatement:
-                        var conditionalGotoStatement = (BoundConditionalGotoStatement)s;
-                        var condition = (bool)EvaluateExpression(conditionalGotoStatement.Condition, true);
-
-                        if (conditionalGotoStatement.JumpIfTrue) unsafe
-                            {
-                                LLVMBasicBlockRef falseblock = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
-                                if (!LLVMLabel.ContainsKey(conditionalGotoStatement.Label)) unsafe
-                                    {
-                                        LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
-                                        LLVMLabel.Add(conditionalGotoStatement.Label, block);
-                                    }
-                                LLVM.BuildCondBr(_builder, _valueStack.Pop(), LLVMLabel[conditionalGotoStatement.Label], falseblock);
-                                LLVM.PositionBuilderAtEnd(_builder, falseblock);
-
-                            }
-                        else unsafe
-                            {
-                                LLVMBasicBlockRef trueblock = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
-                                if (!LLVMLabel.ContainsKey(conditionalGotoStatement.Label)) unsafe
-                                    {
-                                        LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
-                                        LLVMLabel.Add(conditionalGotoStatement.Label, block);
-                                    }
-                                LLVM.BuildCondBr(_builder, _valueStack.Pop(), trueblock, LLVMLabel[conditionalGotoStatement.Label]);
-                                LLVM.PositionBuilderAtEnd(_builder, trueblock);
-                            }
-                        index++;
-                        break;
-
-                    case BoundNodeKind.LabelStatement:
-                        if (s is BoundLabelStatement l) unsafe
-                            {
-                                if (!LLVMLabel.ContainsKey(l.Label))
+                                if (!LLVMLabel.ContainsKey(gotoStatement.Label))
                                 {
-                                    LLVMBasicBlockRef block2 = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
-                                    LLVMLabel.Add(l.Label, block2);
+                                    LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
+                                    LLVMLabel.Add(gotoStatement.Label, block);
                                 }
-                                var block = LLVMLabel[l.Label];
-                                LLVM.BuildBr(_builder, block);
-                                LLVM.PositionBuilderAtEnd(_builder, block);
 
+                                var rr = LLVM.BuildBr(_builder, LLVMLabel[gotoStatement.Label]);
                             }
-                        index++;
-                        break;
-                    case BoundNodeKind.ReturnStatement:
-                        var rs = (BoundReturnStatement)s;
-                        _lastValue = EvaluateExpression(rs.Expression, true);
-                        unsafe 
-                        {
-                            LLVM.BuildRet(_builder, _valueStack.Pop());
-                        }
-                        return _lastValue;
-                    default:
-                        throw new Exception($"Unexpected node {s.Kind}");
+                            index++;
+                            break;
+                        case BoundNodeKind.ConditionalGotoStatement:
+                            var conditionalGotoStatement = (BoundConditionalGotoStatement)s;
+                            var condition = (bool)EvaluateExpression(conditionalGotoStatement.Condition, true);
 
+                            if (conditionalGotoStatement.JumpIfTrue) unsafe
+                                {
+                                    LLVMBasicBlockRef falseblock = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
+                                    if (!LLVMLabel.ContainsKey(conditionalGotoStatement.Label)) unsafe
+                                        {
+                                            LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
+                                            LLVMLabel.Add(conditionalGotoStatement.Label, block);
+                                        }
+                                    LLVM.BuildCondBr(_builder, _valueStack.Pop(), LLVMLabel[conditionalGotoStatement.Label], falseblock);
+                                    LLVM.PositionBuilderAtEnd(_builder, falseblock);
+
+                                }
+                            else unsafe
+                                {
+                                    LLVMBasicBlockRef trueblock = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
+                                    if (!LLVMLabel.ContainsKey(conditionalGotoStatement.Label)) unsafe
+                                        {
+                                            LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
+                                            LLVMLabel.Add(conditionalGotoStatement.Label, block);
+                                        }
+                                    LLVM.BuildCondBr(_builder, _valueStack.Pop(), trueblock, LLVMLabel[conditionalGotoStatement.Label]);
+                                    LLVM.PositionBuilderAtEnd(_builder, trueblock);
+                                }
+                            index++;
+                            break;
+
+                        case BoundNodeKind.LabelStatement:
+                            if (s is BoundLabelStatement l) unsafe
+                                {
+                                    if (!LLVMLabel.ContainsKey(l.Label))
+                                    {
+                                        LLVMBasicBlockRef block2 = LLVM.AppendBasicBlock(function, StringToSBytePtr("label"));
+                                        LLVMLabel.Add(l.Label, block2);
+                                    }
+                                    var block = LLVMLabel[l.Label];
+                                    LLVM.BuildBr(_builder, block);
+                                    LLVM.PositionBuilderAtEnd(_builder, block);
+
+                                }
+                            index++;
+                            break;
+                        case BoundNodeKind.ReturnStatement:
+                            var rs = (BoundReturnStatement)s;
+                            _lastValue = EvaluateExpression(rs.Expression, true);
+                            unsafe 
+                            {
+                                LLVM.BuildRet(_builder, _valueStack.Pop());
+                            }
+                            return _lastValue;
+                        default:
+                            throw new Exception($"Unexpected node {s.Kind}");
+
+                    }
                 }
             }
+            
             index = 0;
             while (index < body.Statements.Length)
             {
@@ -258,21 +271,51 @@ namespace compilers.CodeAnalysis
                 Console.WriteLine(message);
                 return null;
             }
-            else
+            else unsafe
             {
-                var locals = new Dictionary<VariableSymbol, object>();
-                for (int i = 0; i < node.Arguments.Length; i++)
-                {
-                    var parameter = node.Function.Parameters[i];
-                    var value = EvaluateExpression(node.Arguments[i], generateCode);
-                    locals.Add(parameter, value);
+                if (generateCode){
+                    var locals = new Dictionary<VariableSymbol, object>();
+                    LLVMOpaqueValue*[] paramValues = new LLVMOpaqueValue*[node.Arguments.Length];
+                    for (int i = 0; i < node.Arguments.Length; i++)
+                    {
+                        var parameter = node.Function.Parameters[i];
+                        var value = EvaluateExpression(node.Arguments[i], generateCode);
+                        
+                        paramValues[i] = _valueStack.Pop();
+                        locals.Add(parameter, value);
+                    }
+                    LLVMValueRef callFunction;
+                    fixed (LLVMOpaqueValue** ptr = paramValues)
+                    {
+                        callFunction = LLVM.BuildCall2(_builder, _LLVMfunctiontypes[node.Function], _LLVMfunctions[node.Function], ptr, 1, StringToSBytePtr("call"));
+                    }
+                    _valueStack.Push(callFunction);
+                    
+                    _locals.Push(locals);
+                    var statement = _functionBodies[node.Function];
+                    // var result = Evaluate(statement);
+                    var result = Evaluate(statement, _LLVMfunctions[node.Function], false);
+                    _locals.Pop();
+                    return result;
                 }
-                _locals.Push(locals);
-                var statement = _functionBodies[node.Function];
-                // var result = Evaluate(statement);
-                var result = Evaluate(statement, null);
-                _locals.Pop();
-                return result;
+                else {
+                    var locals = new Dictionary<VariableSymbol, object>();
+                    for (int i = 0; i < node.Arguments.Length; i++)
+                    {
+                        var parameter = node.Function.Parameters[i];
+                        var value = EvaluateExpression(node.Arguments[i], generateCode);
+                        locals.Add(parameter, value);
+                    }
+                    
+                    _locals.Push(locals);
+                    var statement = _functionBodies[node.Function];
+                    // var result = Evaluate(statement);
+                    var result = Evaluate(statement, null, false);
+                    _locals.Pop();
+                    return result;
+                }
+                
+                
             }
         }
         private object EvaluateBinaryExpression(BoundBinaryExpression b, bool generateCode)
