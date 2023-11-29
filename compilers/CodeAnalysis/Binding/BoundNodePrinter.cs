@@ -72,6 +72,9 @@ namespace compilers.CodeAnalysis.Binding
                 case BoundNodeKind.ReturnStatement:
                     WriteReturnStatement((BoundReturnStatement)node, writer);
                     break;
+                default:
+                    writer.WriteLine("routine func");
+                    break;
             }
         }
         private static void WriterNestedStatement(this IndentedTextWriter writer, BoundStatement node)

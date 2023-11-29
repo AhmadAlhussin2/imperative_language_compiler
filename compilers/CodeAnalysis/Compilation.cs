@@ -8,6 +8,7 @@ namespace compilers.CodeAnalysis
 {
     public sealed class Compilation
     {
+        static private readonly StreamWriter _boundSyntaxTreeWriter = new("B_AST(functions).txt");
         private BoundGlobalScope? _globalScope;
         public Compilation(SyntaxTree syntax) : this(null, syntax)
         {
@@ -49,10 +50,21 @@ namespace compilers.CodeAnalysis
             {
                 return new EvaluationResult(program.Diagnostics.ToImmutableArray(), null);
             }
+            foreach (var funco in program.FunctionBodies){
+                _boundSyntaxTreeWriter.Write("routine " + funco.Key.Name + " (");
+                int cntC = 0;
+                foreach (var parameter in funco.Key.Parameters){
+                    if (cntC >0)_boundSyntaxTreeWriter.Write(", ");
+                    _boundSyntaxTreeWriter.Write(parameter.Name + " : " + parameter.Type);
+                    cntC++;
 
+                }_boundSyntaxTreeWriter.WriteLine(") : "+ funco.Key.Type + " is");
+                funco.Value.WriteTo(_boundSyntaxTreeWriter);
+            }
             var statement = GetStatement();
             var evaluator = new Evaluator(builder, program.FunctionBodies, statement);
             var value = evaluator.Evaluate(function);
+            _boundSyntaxTreeWriter.Close();
             return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
         }
 
