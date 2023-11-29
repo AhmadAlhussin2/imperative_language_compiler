@@ -113,7 +113,7 @@ namespace compilers.CodeAnalysis
                 {
                     funcType = LLVM.FunctionType(TypeConverter(funco.Key.Type),ptr, 1,0);
                 }
-                var thisfunction = LLVM.AddFunction(module, StringToSBytePtr("func"), funcType);
+                var thisfunction = LLVM.AddFunction(module, StringToSBytePtr(funco.Key.Name), funcType);
                 var thisEntry = LLVM.AppendBasicBlock(thisfunction, StringToSBytePtr("entry"));
                 var thisbuilder = LLVM.CreateBuilder();
                 LLVM.PositionBuilderAtEnd(thisbuilder, thisEntry);

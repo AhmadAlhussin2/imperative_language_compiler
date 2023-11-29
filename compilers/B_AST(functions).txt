@@ -1,4 +1,16 @@
-routine func (x : integer) : integer is
+routine CountDivisors (x : integer) : integer is
 
-    return x
+    var count is 0
+    var y is 1
+    var upperBound is x
+    goto Label2
+Label1:
+    goto Label4 unless x%y=0
+    count := count+1
+Label4:
+    y := y+1
+Label2:
+    goto Label1 if y<=upperBound
+Label3:
+    return count
 
