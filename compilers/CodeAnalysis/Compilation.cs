@@ -3,7 +3,10 @@ using compilers.CodeAnalysis.Binding;
 using compilers.CodeAnalysis.Lowering;
 using compilers.CodeAnalysis.Symbol;
 using LLVMSharp.Interop;
-
+using LLVMSharp;
+using System.Text;
+using System.Runtime.InteropServices;
+using System.ComponentModel;
 namespace compilers.CodeAnalysis
 {
     public sealed class Compilation
@@ -17,6 +20,20 @@ namespace compilers.CodeAnalysis
         {
             Previous = previous;
             Syntax = syntax;
+        }
+        static unsafe sbyte* StringToSBytePtr(string str)
+        {
+            // Convert the string to a byte array using UTF-8 encoding
+            byte[] bytes = Encoding.UTF8.GetBytes(str + '\0');
+
+            // Allocate unmanaged memory to hold the null-terminated string
+            IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
+
+            // Copy the byte array to the allocated memory
+            Marshal.Copy(bytes, 0, ptr, bytes.Length);
+
+            // Return a pointer to the allocated memory
+            return (sbyte*)ptr;
         }
 
         public Compilation? Previous { get; }
@@ -36,7 +53,27 @@ namespace compilers.CodeAnalysis
         {
             return new Compilation(this, syntaxTree);
         }
-        public EvaluationResult Evaluate(LLVMBuilderRef builder, LLVMValueRef function)
+        public LLVMTypeRef TypeConverter(TypeSymbol type)
+        {   unsafe 
+            {
+                if (type == TypeSymbol.Int)
+                {
+                    return LLVM.Int32Type();
+                }
+                else if (type == TypeSymbol.Real)
+                {
+                    return LLVM.DoubleType();
+                } 
+                else if (type == TypeSymbol.Bool)
+                {
+                    return LLVM.Int1Type();
+                }
+                else {
+                    throw new Exception("Type Erorr");
+                }
+            }
+        }
+        public EvaluationResult Evaluate(LLVMBuilderRef builder, LLVMModuleRef module, LLVMValueRef function)
         {
             var diagnostics = Syntax.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
             if (diagnostics.Any())
@@ -60,6 +97,41 @@ namespace compilers.CodeAnalysis
 
                 }_boundSyntaxTreeWriter.WriteLine(") : "+ funco.Key.Type + " is");
                 funco.Value.WriteTo(_boundSyntaxTreeWriter);
+            }
+            foreach (var funco in program.FunctionBodies) unsafe 
+            {
+                var len = funco.Key.Parameters.Length;
+                LLVMOpaqueType*[] paramTypes = new LLVMOpaqueType*[len];
+                for (int i = 0 ; i < len ; i++)
+                {
+                    paramTypes[i] = TypeConverter(funco.Key.Parameters[i].Type);
+                }
+                LLVMTypeRef funcType;
+                fixed (LLVMOpaqueType** ptr = paramTypes)
+                {
+                    funcType = LLVM.FunctionType(TypeConverter(funco.Key.Type),ptr, 1,0);
+                }
+                var thisfunction = LLVM.AddFunction(module, StringToSBytePtr("func"), funcType);
+                var thisEntry = LLVM.AppendBasicBlock(thisfunction, StringToSBytePtr("entry"));
+                var thisbuilder = LLVM.CreateBuilder();
+                LLVM.PositionBuilderAtEnd(thisbuilder, thisEntry);
+                var evalulator = new Evaluator(thisbuilder, program.FunctionBodies, funco.Value);
+                var locals = new Dictionary<VariableSymbol, object>();
+                var LLVMlocals = new Dictionary<VariableSymbol, LLVMValueRef>();
+                for (int i = 0; i < len; i++)
+                {
+                    var parameter = funco.Key.Parameters[i];
+                    if( parameter.Type == TypeSymbol.Int || parameter.Type == TypeSymbol.Real)locals.Add(parameter, 0);
+                    else locals.Add(parameter, false);
+
+                    var LLVMparameter = LLVM.GetParam(thisfunction, Convert.ToUInt32(i));
+                    LLVMlocals.Add(parameter, LLVMparameter);
+                }
+                evalulator._LLVMlocals.Push(LLVMlocals);
+                evalulator._locals.Push(locals);
+                var result = evalulator.Evaluate(thisfunction);
+                evalulator._locals.Pop();
+                evalulator._LLVMlocals.Pop();
             }
             var statement = GetStatement();
             var evaluator = new Evaluator(builder, program.FunctionBodies, statement);

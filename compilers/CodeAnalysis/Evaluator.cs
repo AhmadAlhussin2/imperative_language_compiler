@@ -10,11 +10,12 @@ namespace compilers.CodeAnalysis
     internal sealed class Evaluator
     {
         private readonly ImmutableDictionary<FunctionSymbol, BoundBlockStatement> _functionBodies;
+        private readonly ImmutableDictionary<FunctionSymbol, LLVMValueRef> _LLVMfunctions;
         private readonly BoundBlockStatement _root;
         private readonly Dictionary<VariableSymbol, object> _globals = new();
         private Dictionary<VariableSymbol, LLVMValueRef> _LLVMglobals = new Dictionary<VariableSymbol, LLVMValueRef>();
-        private readonly Stack<Dictionary<VariableSymbol, object>> _locals = new();
-        private Stack<Dictionary<VariableSymbol, LLVMValueRef>> _LLVMlocals = new();
+        public readonly Stack<Dictionary<VariableSymbol, object>> _locals = new();
+        public Stack<Dictionary<VariableSymbol, LLVMValueRef>> _LLVMlocals = new();
         private object? _lastValue;
         private LLVMBuilderRef _builder;
         private Stack<LLVMValueRef> _valueStack = new Stack<LLVMValueRef>();
@@ -48,17 +49,10 @@ namespace compilers.CodeAnalysis
             var LLVMLabel = new Dictionary<BoundLabel, LLVMBasicBlockRef>();
             var labelToBuilder = new Dictionary<BoundLabel, LLVMBuilderRef>();
             for (var i = 0; i < body.Statements.Length; i++)
-            {
                 if (body.Statements[i] is BoundLabelStatement l) unsafe
                     {
                         labelToIndex.Add(l.Label, i + 1);
-                        //LLVMBasicBlockRef block = LLVM.AppendBasicBlock(function, StringToSBytePtr($"label{i + 1}"));
-                        //LLVMLabel.Add(l.Label, block);
-                        var newBuilder = LLVM.CreateBuilder();
-                        //LLVM.PositionBuilderAtEnd(newBuilder, block);
-                        ///labelToBuilder.Add(l.Label, newBuilder);
                     }
-            }
             var index = 0;
 
             while (index < body.Statements.Length)
@@ -136,6 +130,10 @@ namespace compilers.CodeAnalysis
                     case BoundNodeKind.ReturnStatement:
                         var rs = (BoundReturnStatement)s;
                         _lastValue = EvaluateExpression(rs.Expression, true);
+                        unsafe 
+                        {
+                            LLVM.BuildRet(_builder, _valueStack.Pop());
+                        }
                         return _lastValue;
                     default:
                         throw new Exception($"Unexpected node {s.Kind}");
@@ -596,6 +594,8 @@ namespace compilers.CodeAnalysis
                     {
                         var LLVMlocals = _LLVMlocals.Peek();
                         var myVar = LLVMlocals[v.Variable];
+                        _valueStack.Push(myVar);
+                        /*
                         if (v.Variable.Type == TypeSymbol.Int)
                         {
                             var d = LLVM.BuildLoad2(_builder, LLVM.Int32Type(), myVar, StringToSBytePtr("load"));
@@ -611,6 +611,7 @@ namespace compilers.CodeAnalysis
                             var d = LLVM.BuildLoad2(_builder, LLVM.Int1Type(), myVar, StringToSBytePtr("load"));
                             _valueStack.Push(d);
                         }
+                        */
                     }
                 return locals[v.Variable];
             }
@@ -654,6 +655,7 @@ namespace compilers.CodeAnalysis
                         }
                         else
                         {
+                            var node = LLVM.ConstInt(LLVM.Int32Type(), Convert.ToUInt32(value), 0);
                             _valueStack.Push(LLVM.ConstInt(LLVM.Int32Type(), Convert.ToUInt32(value), sign));
                         }
                     }
