@@ -7,16 +7,25 @@ namespace compilers.CodeAnalysis.Symbol
         public static readonly TypeSymbol Real = new("real");
         public static readonly TypeSymbol Error = new("?");
         public static readonly TypeSymbol Void = new("void");
-        
-        internal TypeSymbol(string name) : base(name)
-        {
+        public static readonly TypeSymbol Array = new("array");
 
+        internal TypeSymbol(string name, ExpressionSyntax? size = null, TypeSymbol? type = null) : base(name)
+        {
+            Size = size;
+            Type = type;
         }
 
         public override SymbolKind Kind => SymbolKind.Type;
+
+        public ExpressionSyntax? Size { get; }
+        public TypeSymbol? Type { get; }
+
         public override string ToString()
         {
-            return Name;
+            int size = 0;
+            if (Size is LiteralExpressionSyntax s)
+                size = (int)s.Value;
+            return Name + (Size != null ? $"[{size}] " : "") + (Type != null ? Type.ToString() : "");
         }
     }
 }

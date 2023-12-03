@@ -80,6 +80,9 @@ namespace compilers.CodeAnalysis
         RecordDecleration,
         ReturnStatement,
         BadToken,
-        ArrayDeclaration
+        ArrayDeclaration,
+        TypeSyntax,
+        PrimativeType,
+        ArrayType
     }
 }

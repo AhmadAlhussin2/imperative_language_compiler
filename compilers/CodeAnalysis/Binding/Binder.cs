@@ -222,22 +222,27 @@ namespace compilers.CodeAnalysis.Binding
 
         private BoundStatement BindVariableDeclaration(VariableDeclerationSyntax syntax)
         {
+            // Console.WriteLine(syntax.TypeClause);
             var type = BindTypeClause(syntax.TypeClause);
+            // Console.WriteLine(type);
             var initializer = BindExpression(syntax.Initializer!);
             var variableType = type ?? initializer.Type;
             var convertedInitializer = BindConversion(syntax.Initializer!.Span, initializer, variableType);
             var variable = BindVariable(syntax.Identifier, variableType);
-            return new BoundVariableDeclaration(variable, convertedInitializer);
+            return new BoundVariableDeclaration(variable, convertedInitializer, type);
         }
 
-        private TypeSymbol? BindTypeClause(TypeClauseSyntax? syntaxt)
+        private TypeSymbol? BindTypeClause(TypeSyntax? syntax)
         {
-            if (syntaxt == null)
+            if (syntax == null)
                 return null;
-            var type = LookupType(syntaxt.Identifier.Text);
+            var type = LookupType(syntax.Identifier.Text);
             if (type == null)
-                _diagnostics.ReportUndefinedType(syntaxt.Identifier.Span, syntaxt.Identifier.Text);
-
+                _diagnostics.ReportUndefinedType(syntax.Identifier.Span, syntax.Identifier.Text);
+            if (syntax is ArrayType a)
+            {
+                return new TypeSymbol("array", a.Size, BindTypeClause(a.Type));
+            }
             return type;
         }
 
@@ -307,6 +312,8 @@ namespace compilers.CodeAnalysis.Binding
                     return TypeSymbol.Int;
                 case "real":
                     return TypeSymbol.Real;
+                case "array":
+                    return TypeSymbol.Array;
                 default:
                     return null;
             }
@@ -346,9 +353,7 @@ namespace compilers.CodeAnalysis.Binding
                     _diagnostics.ReportWrongArgumentType(syntax.Arguments[i].Span, function.Name, parameter.Name, parameter.Type, argument.Type);
                     return new BoundErrorExpression();
                 }
-
             }
-
             return new BoundCallExpression(function, boundArguments.ToImmutable());
         }
 

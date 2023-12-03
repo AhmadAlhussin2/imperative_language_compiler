@@ -6,7 +6,7 @@ namespace compilers.CodeAnalysis
             SyntaxTree syntaxTree,
             SyntaxToken routineKeyword, SyntaxToken identifier,
             SyntaxToken openParenthesisToken, SeparatedSyntaxList<ParameterSyntax> parameters,
-            SyntaxToken closeParenthesisToken, TypeClauseSyntax? typeClause, SyntaxToken isKeyword,
+            SyntaxToken closeParenthesisToken, TypeSyntax? typeClause, SyntaxToken isKeyword,
             BlockStatementSyntax body, SyntaxToken endKeyword)
             : base(syntaxTree)
         {
@@ -28,7 +28,7 @@ namespace compilers.CodeAnalysis
         public SyntaxToken OpenParenthesisToken { get; }
         public SeparatedSyntaxList<ParameterSyntax> Parameters { get; }
         public SyntaxToken CloseParenthesisToken { get; }
-        public TypeClauseSyntax? TypeClause { get; }
+        public TypeSyntax? TypeClause { get; }
         public SyntaxToken IsKeyword { get; }
         public BlockStatementSyntax Body { get; }
         public SyntaxToken EndKeyword { get; }

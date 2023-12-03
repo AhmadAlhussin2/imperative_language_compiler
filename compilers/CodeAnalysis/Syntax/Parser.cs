@@ -1,4 +1,5 @@
 using System.Collections.Immutable;
+using compilers.CodeAnalysis.Symbol;
 using compilers.CodeAnalysis.Text;
 
 namespace compilers.CodeAnalysis
@@ -134,7 +135,7 @@ namespace compilers.CodeAnalysis
             var openParenthesisToken = MatchToken(SyntaxKind.OpenParenthesisToken);
             var parameters = ParseParametersList();
             var closeParenthesisToken = MatchToken(SyntaxKind.CloseParenthesisToken);
-            var typeClause = ParseOptionalTypeClause();
+            var typeClause = ParseOptionalType();
             var isKeyword = MatchToken(SyntaxKind.IsKeyword);
             var body = ParseBlockStatement();
             var endKeyword = MatchToken(SyntaxKind.EndKeyword);
@@ -167,7 +168,7 @@ namespace compilers.CodeAnalysis
         private ParameterSyntax ParseParameter()
         {
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
-            var type = ParseTypeClause();
+            var type = ParseType();
             return new ParameterSyntax(_syntaxTree, identifier, type);
         }
 
@@ -307,7 +308,7 @@ namespace compilers.CodeAnalysis
         {
             var varKeyword = MatchToken(SyntaxKind.VarKeyword);
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
-            var typeClause = ParseOptionalTypeClause();
+            var typeClause = ParseOptionalType();
             // if (Current.Kind != SyntaxKind.IsKeyword)
             // {
             //      return new VariableDeclerationSyntax(varKeyword, identifier, typeClause, null, null);
@@ -317,23 +318,58 @@ namespace compilers.CodeAnalysis
             return new VariableDeclerationSyntax(_syntaxTree, varKeyword, identifier, typeClause, isKeyword, initializer);
         }
 
-        private TypeClauseSyntax? ParseOptionalTypeClause()
+        // private TypeClauseSyntax? ParseOptionalTypeClause()
+        // {
+        //     if (Current.Kind != SyntaxKind.ColonToken)
+        //         return null;
+        //     return ParseTypeClause();
+        // }
+        private TypeSyntax? ParseOptionalType()
         {
             if (Current.Kind != SyntaxKind.ColonToken)
                 return null;
-            return ParseTypeClause();
-        }
-        private TypeClauseSyntax ParseTypeClause()
-        {
             var colonToken = MatchToken(SyntaxKind.ColonToken);
-            if (Current.Kind == SyntaxKind.IntegerKeyword || Current.Kind == SyntaxKind.RealKeyword || Current.Kind == SyntaxKind.BooleanKeyword)
-            {
-                var identifierType = NextToken();
-                return new TypeClauseSyntax(_syntaxTree, colonToken, identifierType);
-            }
-            var identifier = MatchToken(SyntaxKind.IdentifierToken);
-            return new TypeClauseSyntax(_syntaxTree, colonToken, identifier);
+            return ParseType();
         }
+        private TypeSyntax ParseType()
+        {
+            if (Current.Kind == SyntaxKind.IntegerKeyword)
+            {
+                var keyword = MatchToken(SyntaxKind.IntegerKeyword);
+                return new PrimativeType(_syntaxTree, keyword);
+            }
+            else if (Current.Kind == SyntaxKind.RealKeyword)
+            {
+                var keyword = MatchToken(SyntaxKind.RealKeyword);
+                return new PrimativeType(_syntaxTree, keyword);
+            }
+            else if (Current.Kind == SyntaxKind.BooleanKeyword)
+            {
+                var keyword = MatchToken(SyntaxKind.BooleanKeyword);
+                return new PrimativeType(_syntaxTree, keyword);
+            }
+            else if (Current.Kind == SyntaxKind.ArrayKeyword)
+            {
+                var arrayKeyword = MatchToken(SyntaxKind.ArrayKeyword);
+                var openSquare = MatchToken(SyntaxKind.OpenSquareBracketToken);
+                var size = ParseExpression();
+                var closeSquare = MatchToken(SyntaxKind.CloseSquareBracketToken);
+                var type = ParseType();
+                return new ArrayType(_syntaxTree, arrayKeyword, openSquare, size, closeSquare, type);
+            }
+            throw new Exception("Unknown type");
+        }
+        // private TypeClauseSyntax ParseTypeClause()
+        // {
+        //     var colonToken = MatchToken(SyntaxKind.ColonToken);
+        //     if (Current.Kind == SyntaxKind.IntegerKeyword || Current.Kind == SyntaxKind.RealKeyword || Current.Kind == SyntaxKind.BooleanKeyword)
+        //     {
+        //         var identifierType = NextToken();
+        //         return new TypeClauseSyntax(_syntaxTree, colonToken, identifierType);
+        //     }
+        //     var identifier = MatchToken(SyntaxKind.IdentifierToken);
+        //     return new TypeClauseSyntax(_syntaxTree, colonToken, identifier);
+        // }
 
         private ExpressionStatementSyntax ParseExpressionStatement()
         {

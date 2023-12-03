@@ -2,7 +2,7 @@ namespace compilers.CodeAnalysis
 {
     public sealed class ParameterSyntax : SyntaxNode
     {
-        public ParameterSyntax(SyntaxTree syntaxTree, SyntaxToken identifier, TypeClauseSyntax type)
+        public ParameterSyntax(SyntaxTree syntaxTree, SyntaxToken identifier, TypeSyntax type)
         : base(syntaxTree)
         {
             Identifier = identifier;
@@ -12,6 +12,6 @@ namespace compilers.CodeAnalysis
         public override SyntaxKind Kind => SyntaxKind.Parameter;
 
         public SyntaxToken Identifier { get; }
-        public TypeClauseSyntax Type { get; }
+        public TypeSyntax Type { get; }
     }
 }

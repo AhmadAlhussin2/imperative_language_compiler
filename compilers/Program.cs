@@ -80,25 +80,25 @@ namespace compilers
                     syntaxTree.Root.WriteTo(_syntaxTreeWriter);
                     var compilation = new Compilation(syntaxTree);
                     compilation.WriteTree(_boundSyntaxTreeWriter);
-                    var result = compilation.Evaluate(builder, module, mainFunction);
-                    if (result.Diagnostics.Any())
-                    {
-                        Console.Error.WriteDiagnostics(result.Diagnostics, syntaxTree);
-                    }
-                    else
-                    {
-                        if (result.Value != null)
-                        {
-                            Console.WriteLine(result.Value);
-                        }
-                        compilation.WriteTree(Console.Out);
-                        var error = StringToSBytePtr("");
-                        LLVM.BuildRetVoid(builder);
-                        LLVM.PrintModuleToFile(module, StringToSBytePtr("output.ll"), &error);
+                    // var result = compilation.Evaluate(builder, module, mainFunction);
+                    // if (result.Diagnostics.Any())
+                    // {
+                    //     Console.Error.WriteDiagnostics(result.Diagnostics, syntaxTree);
+                    // }
+                    // else
+                    // {
+                    //     if (result.Value != null)
+                    //     {
+                    //         Console.WriteLine(result.Value);
+                    //     }
+                    //     compilation.WriteTree(Console.Out);
+                    //     var error = StringToSBytePtr("");
+                    //     LLVM.BuildRetVoid(builder);
+                    //     LLVM.PrintModuleToFile(module, StringToSBytePtr("output.ll"), &error);
 
                         LLVM.DisposeBuilder(builder);
                         LLVM.DisposeModule(module);
-                    }
+                    // }
                 }
                 catch (ArgumentOutOfRangeException)
                 {

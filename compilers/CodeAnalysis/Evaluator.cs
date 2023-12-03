@@ -23,9 +23,9 @@ namespace compilers.CodeAnalysis
         public Evaluator
             (
                 LLVMBuilderRef builder, ImmutableDictionary<FunctionSymbol,
-                BoundBlockStatement> functionBodies, 
-                Dictionary<FunctionSymbol,LLVMValueRef> LLVMfunctions,
-                Dictionary<FunctionSymbol,LLVMTypeRef> LLVMfunctiontypes,
+                BoundBlockStatement> functionBodies,
+                Dictionary<FunctionSymbol, LLVMValueRef> LLVMfunctions,
+                Dictionary<FunctionSymbol, LLVMTypeRef> LLVMfunctiontypes,
                 BoundBlockStatement root
             )
         {
@@ -141,7 +141,7 @@ namespace compilers.CodeAnalysis
                         case BoundNodeKind.ReturnStatement:
                             var rs = (BoundReturnStatement)s;
                             _lastValue = EvaluateExpression(rs.Expression, true);
-                            unsafe 
+                            unsafe
                             {
                                 LLVM.BuildRet(_builder, _valueStack.Pop());
                             }
@@ -152,7 +152,7 @@ namespace compilers.CodeAnalysis
                     }
                 }
             }
-            
+
             index = 0;
             while (index < body.Statements.Length)
             {
@@ -244,7 +244,7 @@ namespace compilers.CodeAnalysis
                 case BoundNodeKind.BinaryExpression:
                     return EvaluateBinaryExpression((BoundBinaryExpression)node, generateCode);
                 case BoundNodeKind.CallExpression:
-                    return EvaluateCallExpression((BoundCallExpression)node, generateCode);
+                    return EvaluateCallExpression((BoundCallExpression)node, generateCode) ?? 0;
                 case BoundNodeKind.ConversionExpression:
                     return EvaluateConversionExpression((BoundConversionExpression)node, generateCode);
                 default:
@@ -272,51 +272,53 @@ namespace compilers.CodeAnalysis
                 return null;
             }
             else unsafe
-            {
-                if (generateCode){
-                    var locals = new Dictionary<VariableSymbol, object>();
-                    LLVMOpaqueValue*[] paramValues = new LLVMOpaqueValue*[node.Arguments.Length];
-                    for (int i = 0; i < node.Arguments.Length; i++)
+                {
+                    if (generateCode)
                     {
-                        var parameter = node.Function.Parameters[i];
-                        var value = EvaluateExpression(node.Arguments[i], generateCode);
-                        
-                        paramValues[i] = _valueStack.Pop();
-                        locals.Add(parameter, value);
+                        var locals = new Dictionary<VariableSymbol, object>();
+                        LLVMOpaqueValue*[] paramValues = new LLVMOpaqueValue*[node.Arguments.Length];
+                        for (int i = 0; i < node.Arguments.Length; i++)
+                        {
+                            var parameter = node.Function.Parameters[i];
+                            var value = EvaluateExpression(node.Arguments[i], generateCode);
+
+                            paramValues[i] = _valueStack.Pop();
+                            locals.Add(parameter, value);
+                        }
+                        LLVMValueRef callFunction;
+                        fixed (LLVMOpaqueValue** ptr = paramValues)
+                        {
+                            callFunction = LLVM.BuildCall2(_builder, _LLVMfunctiontypes[node.Function], _LLVMfunctions[node.Function], ptr, 1, StringToSBytePtr("call"));
+                        }
+                        _valueStack.Push(callFunction);
+
+                        _locals.Push(locals);
+                        var statement = _functionBodies[node.Function];
+                        // var result = Evaluate(statement);
+                        var result = Evaluate(statement, _LLVMfunctions[node.Function], false);
+                        _locals.Pop();
+                        return result;
                     }
-                    LLVMValueRef callFunction;
-                    fixed (LLVMOpaqueValue** ptr = paramValues)
+                    else
                     {
-                        callFunction = LLVM.BuildCall2(_builder, _LLVMfunctiontypes[node.Function], _LLVMfunctions[node.Function], ptr, 1, StringToSBytePtr("call"));
+                        var locals = new Dictionary<VariableSymbol, object>();
+                        for (int i = 0; i < node.Arguments.Length; i++)
+                        {
+                            var parameter = node.Function.Parameters[i];
+                            var value = EvaluateExpression(node.Arguments[i], generateCode);
+                            locals.Add(parameter, value);
+                        }
+
+                        _locals.Push(locals);
+                        var statement = _functionBodies[node.Function];
+                        // var result = Evaluate(statement);
+                        var result = Evaluate(statement, null, false);
+                        _locals.Pop();
+                        return result;
                     }
-                    _valueStack.Push(callFunction);
-                    
-                    _locals.Push(locals);
-                    var statement = _functionBodies[node.Function];
-                    // var result = Evaluate(statement);
-                    var result = Evaluate(statement, _LLVMfunctions[node.Function], false);
-                    _locals.Pop();
-                    return result;
+
+
                 }
-                else {
-                    var locals = new Dictionary<VariableSymbol, object>();
-                    for (int i = 0; i < node.Arguments.Length; i++)
-                    {
-                        var parameter = node.Function.Parameters[i];
-                        var value = EvaluateExpression(node.Arguments[i], generateCode);
-                        locals.Add(parameter, value);
-                    }
-                    
-                    _locals.Push(locals);
-                    var statement = _functionBodies[node.Function];
-                    // var result = Evaluate(statement);
-                    var result = Evaluate(statement, null, false);
-                    _locals.Pop();
-                    return result;
-                }
-                
-                
-            }
         }
         private object EvaluateBinaryExpression(BoundBinaryExpression b, bool generateCode)
         {

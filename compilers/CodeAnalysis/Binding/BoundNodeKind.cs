@@ -19,6 +19,7 @@ namespace compilers.CodeAnalysis.Binding
         ErrorExpression,
         CallExpression,
         ConversionExpression,
-        ReturnStatement
+        ReturnStatement,
+        BoundType
     }
 }

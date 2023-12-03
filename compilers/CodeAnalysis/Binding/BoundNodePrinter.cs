@@ -170,6 +170,10 @@ namespace compilers.CodeAnalysis.Binding
         {
             writer.WriteKeyword("var ");
             writer.WriteIdentifier(node.Variable.Name);
+            if (node.Type != null){
+                writer.WritePunctuation(" : ");
+                writer.WriteIdentifier(node.Type.ToString());
+            }
             writer.WriteKeyword(" is ");
             node.Initializer.WriteTo(writer);
             writer.WriteLine();
