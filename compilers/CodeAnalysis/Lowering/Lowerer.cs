@@ -103,8 +103,8 @@ namespace compilers.CodeAnalysis.Lowering
         }
         protected override BoundStatement RewriteForStatement(BoundForStatement node)
         {
-            var variableDecleration = new BoundVariableDeclaration(node.Variable, node.LowerBound);
-            var variableExpression = new BoundVariableExpression(node.Variable);
+            var variableDecleration = new BoundVariableDeclaration(node.Variable.Variable, node.LowerBound);
+            var variableExpression = new BoundVariableExpression(node.Variable.Variable);
             var upperBoundSymbol = new LocalVariableSymbol("upperBound", TypeSymbol.Int);
             var upperBoundDecleration = new BoundVariableDeclaration(upperBoundSymbol, node.UpperBound);
             var condition = new BoundBinaryExpression(

@@ -61,15 +61,36 @@ namespace compilers.CodeAnalysis
 
         private ExpressionSyntax ParseAssignmentExpresion()
         {
-            if (Peek(0).Kind == SyntaxKind.IdentifierToken && Peek(1).Kind == SyntaxKind.AssignmentToken)
+            if (Peek(0).Kind != SyntaxKind.IdentifierToken)
             {
-                var identifierToken = NextToken();
+                return ParseBinaryExpression();
+            }
+            var pos = _position;
+            var variable = ParseVariableExpression();
+            if (Peek(0).Kind == SyntaxKind.AssignmentToken)
+            {
                 var operatorToken = NextToken();
                 var right = ParseAssignmentExpresion();
-                return new AssignmentExpressionSyntax(_syntaxTree, identifierToken, operatorToken, right);
+                return new AssignmentExpressionSyntax(_syntaxTree, variable, operatorToken, right);
             }
+            _position = pos;
             return ParseBinaryExpression();
         }
+
+        private Variable ParseVariableExpression()
+        {
+            var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            List<ExpressionSyntax> indices = new();
+            while (Current.Kind == SyntaxKind.OpenSquareBracketToken)
+            {
+                MatchToken(SyntaxKind.OpenSquareBracketToken);
+                var expression = ParseExpression();
+                indices.Add(expression);
+                MatchToken(SyntaxKind.CloseSquareBracketToken);
+            }
+            return new Variable(_syntaxTree, identifier, indices);
+        }
+
         private ExpressionSyntax ParseBinaryExpression(int parentPriority = 0)
         {
             ExpressionSyntax left;
@@ -478,14 +499,8 @@ namespace compilers.CodeAnalysis
         }
         private ExpressionSyntax ParseNameExpression()
         {
-            var identifierToken = MatchToken(SyntaxKind.IdentifierToken);
-            if (Current.Kind == SyntaxKind.DotToken)
-            {
-                var operatorToken = NextToken();
-                var right = ParseNameExpression();
-                return new NameExpressionSyntax(_syntaxTree, identifierToken, operatorToken, right);
-            }
-            return new NameExpressionSyntax(_syntaxTree, identifierToken, null, null);
+            var variable = ParseVariableExpression();
+            return new NameExpressionSyntax(_syntaxTree, variable);
         }
     }
 }

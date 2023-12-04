@@ -5,7 +5,7 @@ namespace compilers.CodeAnalysis.Binding
 {
     internal sealed class BoundScope
     {
-        private Dictionary<string, VariableSymbol>? _variables;
+        private Dictionary<string, BoundVariableExpression>? _variables;
         private Dictionary<string, FunctionSymbol>? _functions;
 
         public BoundScope(BoundScope? parent)
@@ -13,16 +13,16 @@ namespace compilers.CodeAnalysis.Binding
             Parent = parent;
         }
         public BoundScope? Parent { get; }
-        public bool TryDeclareVariable(VariableSymbol variable)
+        public bool TryDeclareVariable(BoundVariableExpression variable)
         {
             if (_variables == null)
-                _variables = new Dictionary<string, VariableSymbol>();
-            if (_variables.ContainsKey(variable.Name))
+                _variables = new Dictionary<string, BoundVariableExpression>();
+            if (_variables.ContainsKey(variable.Variable.Name))
                 return false;
-            _variables.Add(variable.Name, variable);
+            _variables.Add(variable.Variable.Name, variable);
             return true;
         }
-        public bool TryLookupVariable(string name, out VariableSymbol? variable)
+        public bool TryLookupVariable(string name, out BoundVariableExpression? variable)
         {
 
             if (_variables != null && _variables.TryGetValue(name, out variable))
@@ -54,10 +54,10 @@ namespace compilers.CodeAnalysis.Binding
             }
             return Parent.TryLookupFunction(name, out function);
         }
-        public ImmutableArray<VariableSymbol> GetDeclaredVariables()
+        public ImmutableArray<BoundVariableExpression> GetDeclaredVariables()
         {
             if (_variables == null)
-                return ImmutableArray<VariableSymbol>.Empty;
+                return ImmutableArray<BoundVariableExpression>.Empty;
             return _variables.Values.ToImmutableArray();
         }
         public ImmutableArray<FunctionSymbol> GetDeclaredFunctions()

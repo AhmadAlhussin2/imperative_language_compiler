@@ -2,18 +2,14 @@ namespace compilers.CodeAnalysis
 {
     public sealed class NameExpressionSyntax : ExpressionSyntax
     {
-        public NameExpressionSyntax(SyntaxTree syntaxTree, SyntaxToken identifierToken, SyntaxToken? dotToken, ExpressionSyntax? nxt)
+        public NameExpressionSyntax(SyntaxTree syntaxTree, Variable variable)
         : base(syntaxTree)
         {
-            IdentifierToken = identifierToken;
-            DotToken = dotToken;
-            Nxt = nxt;
+            Variable = variable;
         }
         public override SyntaxKind Kind => SyntaxKind.NameExpression;
 
-        public SyntaxToken IdentifierToken { get; }
-        public SyntaxToken? DotToken { get; }
-        public ExpressionSyntax? Nxt { get; }
+        public Variable Variable { get; }
 
     }
 }

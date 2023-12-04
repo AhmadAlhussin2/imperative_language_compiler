@@ -382,11 +382,11 @@ namespace compilers.CodeAnalysis.Binding
 
         private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
         {
-            var name = syntax.IdentifierToken.Text;
+            var name = syntax.Variable.Identifier.Text;
             var boundExpression = BindExpression(syntax.Expression);
             if (!_scope.TryLookupVariable(name, out var variable))
             {
-                _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+                _diagnostics.ReportUndefinedName(syntax.Variable.Span, name);
                 return boundExpression;
             }
             var convertedExpression = BindConversion(syntax.Expression.Span, boundExpression, variable!.Type);
@@ -395,17 +395,27 @@ namespace compilers.CodeAnalysis.Binding
 
         private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
         {
-            var name = syntax.IdentifierToken.Text;
-            if (syntax.IdentifierToken.IsMissing)
+            var name = syntax.Variable.Identifier.Text;
+            var indices = syntax.Variable.Indices;
+            List<BoundExpression> boundIndices = new();
+            if (indices != null)
+            {
+                foreach (var index in indices)
+                {
+                    boundIndices.Add(BindExpression(index));
+                }
+
+            }
+            if (syntax.Variable.Identifier.IsMissing)
             {
                 return new BoundErrorExpression();
             }
             if (!_scope.TryLookupVariable(name, out var variable))
             {
-                _diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+                _diagnostics.ReportUndefinedName(syntax.Variable.Span, name);
                 return new BoundErrorExpression();
             }
-            return new BoundVariableExpression(variable!);
+            return new BoundVariableExpression(variable!, boundIndices);
         }
 
         private BoundExpression BindParenthesizedExpression(ParenthesizedExpressionSyntax syntax)

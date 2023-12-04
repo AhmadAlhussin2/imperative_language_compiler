@@ -83,6 +83,7 @@ namespace compilers.CodeAnalysis
         ArrayDeclaration,
         TypeSyntax,
         PrimativeType,
-        ArrayType
+        ArrayType,
+        Variable
     }
 }
