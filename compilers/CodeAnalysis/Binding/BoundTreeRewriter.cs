@@ -5,8 +5,11 @@ namespace compilers.CodeAnalysis.Binding
     internal abstract class BoundTreeRewriter
     {
 
-        public virtual BoundStatement RewriteStatement(BoundStatement node)
+        public virtual BoundStatement RewriteStatement(BoundStatement? node)
         {
+            if (node == null){
+                return null;
+            }
             switch (node.Kind)
             {
                 case BoundNodeKind.BlockStatement:
@@ -77,7 +80,7 @@ namespace compilers.CodeAnalysis.Binding
             var body = RewriteStatement(node.Body);
             if (lowerBound == node.LowerBound && upperBound == node.UpperBound && body == node.Body)
                 return node;
-            return new BoundForStatement(node.Variable, lowerBound, upperBound, body);
+            return new BoundForStatement(node.Variable, lowerBound, upperBound, body,node.Reverse);
         }
 
         protected virtual BoundStatement RewriteWhileStatement(BoundWhileStatement node)

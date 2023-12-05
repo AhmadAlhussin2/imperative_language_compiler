@@ -14,8 +14,9 @@ namespace compilers.CodeAnalysis.Binding
             else
                 WriteTo(node, new IndentedTextWriter(writer));
         }
-        public static void WriteTo(this BoundNode node, IndentedTextWriter writer)
+        public static void WriteTo(this BoundNode? node, IndentedTextWriter writer)
         {
+            if (node == null) return;
             switch (node.Kind)
             {
                 case BoundNodeKind.LiteralExpression:

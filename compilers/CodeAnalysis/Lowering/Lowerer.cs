@@ -107,9 +107,10 @@ namespace compilers.CodeAnalysis.Lowering
             var variableExpression = new BoundVariableExpression(node.Variable);
             var upperBoundSymbol = new LocalVariableSymbol("upperBound", TypeSymbol.Int);
             var upperBoundDecleration = new BoundVariableDeclaration(upperBoundSymbol, node.UpperBound);
+            var conditionOperator = node.Reverse ? SyntaxKind.GreaterThanOrEqualToken: SyntaxKind.LessThanOrEqualToken;
             var condition = new BoundBinaryExpression(
                     variableExpression,
-                    BoundBinaryOperator.Bind(SyntaxKind.LessThanOrEqualToken, TypeSymbol.Int, TypeSymbol.Int)!,
+                    BoundBinaryOperator.Bind(conditionOperator, TypeSymbol.Int, TypeSymbol.Int)!,
                     new BoundVariableExpression(upperBoundSymbol)
                 );
             var increment = new BoundExpressionStatement(
@@ -117,7 +118,7 @@ namespace compilers.CodeAnalysis.Lowering
                     node.Variable,
                     new BoundBinaryExpression(
                         variableExpression,
-                        BoundBinaryOperator.Bind(SyntaxKind.PlusToken, TypeSymbol.Int, TypeSymbol.Int)!,
+                        BoundBinaryOperator.Bind(conditionOperator, TypeSymbol.Int, TypeSymbol.Int)!,
                         new BoundLiteralExpression(1)
                     )
                 )

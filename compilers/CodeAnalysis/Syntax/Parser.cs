@@ -11,6 +11,7 @@ namespace compilers.CodeAnalysis
         private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
         private readonly SourceText _text;
         private int _position;
+        private Dictionary<string, TypeSyntax> _typesMap = new();
 
 
         public Parser(SyntaxTree syntaxTree)
@@ -249,26 +250,9 @@ namespace compilers.CodeAnalysis
             var typeKeyword = MatchToken(SyntaxKind.TypeKeyword);
             var name = MatchToken(SyntaxKind.IdentifierToken);
             var isKeyword = MatchToken(SyntaxKind.IsKeyword);
-            var type = ParseTypeStatement();
+            var type = ParseType();
+            _typesMap[name.Text] = type;
             return new TypeDeclarationSyntax(_syntaxTree, typeKeyword, name, isKeyword, type);
-        }
-
-        private SyntaxNode ParseTypeStatement()
-        {
-            if (Current.Kind == SyntaxKind.RealKeyword || Current.Kind == SyntaxKind.IntegerKeyword || Current.Kind == SyntaxKind.BooleanKeyword)
-            {
-                return NextToken();
-            }
-            if (Current.Kind == SyntaxKind.RecordKeyword)
-            {
-                return ParseRecordDeclaration();
-            }
-            // if(Current.Kind == SyntaxKind.ArrayKeyword)
-            // {
-            //     return ParseArrayDeclaration();
-            // }
-            var type = MatchToken(SyntaxKind.IdentifierToken);
-            return type;
         }
 
         private StatementSyntax ParseRecordDeclaration()
@@ -284,13 +268,18 @@ namespace compilers.CodeAnalysis
             var forKeyword = MatchToken(SyntaxKind.ForKeyword);
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
             var inKeyword = MatchToken(SyntaxKind.InKeyword);
+            SyntaxToken? reverseKeyword = null;
+            if (Current.Kind == SyntaxKind.ReverseKeyword)
+            {
+                reverseKeyword = MatchToken(SyntaxKind.ReverseKeyword);
+            }
             var lowerBound = ParseExpression();
             var rangeToken = MatchToken(SyntaxKind.RangeToken);
             var upperBound = ParseExpression();
             var loopKeyword = MatchToken(SyntaxKind.LoopKeyword);
             var body = ParseBlockStatement();
             var endKeyword = MatchToken(SyntaxKind.EndKeyword);
-            return new ForStatementSyntax(_syntaxTree, forKeyword, identifier, inKeyword, lowerBound, rangeToken, upperBound, loopKeyword, body, endKeyword);
+            return new ForStatementSyntax(_syntaxTree, forKeyword, identifier, inKeyword, reverseKeyword, lowerBound, rangeToken, upperBound, loopKeyword, body, endKeyword);
         }
 
         private StatementSyntax ParseWhileStatement()
@@ -354,22 +343,31 @@ namespace compilers.CodeAnalysis
         }
         private TypeSyntax ParseType()
         {
-            if (Current.Kind == SyntaxKind.IntegerKeyword)
+            var tmp = Current.Kind;
+            if (tmp == SyntaxKind.IdentifierToken){
+                if (_typesMap.TryGetValue(Current.Text,out var type)){
+                    if (type != null){
+                        NextToken();
+                        return type;
+                    }
+                }
+            }
+            if (tmp == SyntaxKind.IntegerKeyword)
             {
                 var keyword = MatchToken(SyntaxKind.IntegerKeyword);
                 return new PrimativeType(_syntaxTree, keyword);
             }
-            else if (Current.Kind == SyntaxKind.RealKeyword)
+            else if (tmp == SyntaxKind.RealKeyword)
             {
                 var keyword = MatchToken(SyntaxKind.RealKeyword);
                 return new PrimativeType(_syntaxTree, keyword);
             }
-            else if (Current.Kind == SyntaxKind.BooleanKeyword)
+            else if (tmp == SyntaxKind.BooleanKeyword)
             {
                 var keyword = MatchToken(SyntaxKind.BooleanKeyword);
                 return new PrimativeType(_syntaxTree, keyword);
             }
-            else if (Current.Kind == SyntaxKind.ArrayKeyword)
+            else if (tmp == SyntaxKind.ArrayKeyword)
             {
                 var arrayKeyword = MatchToken(SyntaxKind.ArrayKeyword);
                 var openSquare = MatchToken(SyntaxKind.OpenSquareBracketToken);

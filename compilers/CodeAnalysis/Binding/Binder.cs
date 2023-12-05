@@ -155,6 +155,8 @@ namespace compilers.CodeAnalysis.Binding
                     return BindExpressionStatement((ExpressionStatementSyntax)syntax);
                 case SyntaxKind.ReturnStatement:
                     return BindReturnStatement((ReturnStatementSyntax)syntax);
+                case SyntaxKind.TypeStatement:
+                    return null;
                 default:
                     throw new Exception($"Unexpected syntax {syntax.Kind}");
             }
@@ -182,13 +184,14 @@ namespace compilers.CodeAnalysis.Binding
         {
             var lowerBound = BindExpression(syntax.LowerBound, TypeSymbol.Int);
             var upperBound = BindExpression(syntax.UpperBound, TypeSymbol.Int);
-
+            bool reverse = syntax.ReverseKeyword != null;
             _scope = new BoundScope(_scope);
             var variable = BindVariable(syntax.Identifier, TypeSymbol.Int);
             var body = BindStatement(syntax.Body);
             _scope = _scope.Parent!;
-            return new BoundForStatement(variable, lowerBound, upperBound, body);
+            return new BoundForStatement(variable, lowerBound, upperBound, body, reverse);
         }
+
 
         private VariableSymbol BindVariable(SyntaxToken identifier, TypeSymbol type)
         {
