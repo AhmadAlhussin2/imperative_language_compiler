@@ -390,6 +390,15 @@ namespace compilers.CodeAnalysis.Binding
                 return boundExpression;
             }
             var convertedExpression = BindConversion(syntax.Expression.Span, boundExpression, variable!.Type);
+            if(syntax.Variable.Indices != null)
+            {
+                List<BoundExpression>? indicies=new();
+                foreach(var expr in syntax.Variable.Indices)
+                {
+                    indicies.Add(BindExpression(expr));
+                }
+                return new BoundAssignmentExpression(variable, convertedExpression, new BoundVariableExpression(variable, indicies));
+            }
             return new BoundAssignmentExpression(variable, convertedExpression);
         }
 

@@ -6,7 +6,7 @@ namespace compilers.CodeAnalysis.Binding
     {
 
 
-        public BoundForStatement(BoundVariableExpression variable, BoundExpression lowerBound, BoundExpression upperBound, BoundStatement body)
+        public BoundForStatement(VariableSymbol variable, BoundExpression lowerBound, BoundExpression upperBound, BoundStatement body)
         {
             Variable = variable;
             LowerBound = lowerBound;
@@ -16,7 +16,7 @@ namespace compilers.CodeAnalysis.Binding
 
         public override BoundNodeKind Kind => BoundNodeKind.ForStatement;
 
-        public BoundVariableExpression Variable { get; }
+        public VariableSymbol Variable { get; }
         public BoundExpression LowerBound { get; }
         public BoundExpression UpperBound { get; }
         public BoundStatement Body { get; }

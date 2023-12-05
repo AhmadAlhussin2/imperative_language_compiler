@@ -139,11 +139,25 @@ namespace compilers.CodeAnalysis.Binding
         private static void WriteVariableExpression(BoundVariableExpression node, IndentedTextWriter writer)
         {
             writer.WriteIdentifier(node.Variable.Name);
+            if (node.Indicies != null)
+            {
+                foreach(var Bexpr in node.Indicies)
+                {
+                    writer.WritePunctuation(" [ ");
+                    Bexpr.WriteTo(writer);
+                    writer.WritePunctuation(" ] ");
+                }
+            }
         }
 
         private static void WriteAssignmentExpression(BoundAssignmentExpression node, IndentedTextWriter writer)
         {
-            writer.WriteIdentifier(node.Variable.Variable.Name);
+            
+            if(node.ExactVar!=null)
+            {
+                WriteVariableExpression(node.ExactVar, writer);
+            }
+            else writer.Write(node.Variable.Name);
             writer.WritePunctuation(" := ");
             node.Expression.WriteTo(writer);
         }
@@ -210,7 +224,7 @@ namespace compilers.CodeAnalysis.Binding
         private static void WriteForStatement(BoundForStatement node, IndentedTextWriter writer)
         {
             writer.WriteKeyword("for ");
-            writer.WriteIdentifier(node.Variable.Variable.Name);
+            writer.WriteIdentifier(node.Variable.Name);
             writer.WritePunctuation(" = ");
             node.LowerBound.WriteTo(writer);
             writer.WriteKeyword(" to ");
