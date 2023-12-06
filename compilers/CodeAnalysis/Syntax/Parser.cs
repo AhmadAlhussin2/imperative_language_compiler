@@ -281,15 +281,20 @@ namespace compilers.CodeAnalysis
             var forKeyword = MatchToken(SyntaxKind.ForKeyword);
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
             var inKeyword = MatchToken(SyntaxKind.InKeyword);
+            SyntaxToken? reverseKeyword = null;
+            if (Current.Kind == SyntaxKind.ReverseKeyword)
+            {
+                reverseKeyword = MatchToken(SyntaxKind.ReverseKeyword);
+            }
             var lowerBound = ParseExpression();
             var rangeToken = MatchToken(SyntaxKind.RangeToken);
             var upperBound = ParseExpression();
             var loopKeyword = MatchToken(SyntaxKind.LoopKeyword);
             var body = ParseBlockStatement();
             var endKeyword = MatchToken(SyntaxKind.EndKeyword);
-            return new ForStatementSyntax(_syntaxTree, forKeyword, identifier, inKeyword, lowerBound, rangeToken, upperBound, loopKeyword, body, endKeyword);
+            return new ForStatementSyntax(_syntaxTree, forKeyword, identifier, inKeyword, reverseKeyword, lowerBound, rangeToken, upperBound, loopKeyword, body, endKeyword);
         }
-
+        
         private StatementSyntax ParseWhileStatement()
         {
             var whileKeyword = MatchToken(SyntaxKind.WhileKeyword);

@@ -2,13 +2,15 @@ namespace compilers.CodeAnalysis
 {
     public sealed class ForStatementSyntax : StatementSyntax
     {
-        public ForStatementSyntax(SyntaxTree syntaxTree, SyntaxToken forKeyword, SyntaxToken identifier, SyntaxToken inKeyword, ExpressionSyntax lowerBound,
-         SyntaxToken rangeToken, ExpressionSyntax upperBound, SyntaxToken loopKeyword, StatementSyntax body, SyntaxToken endKeyword)
+        public ForStatementSyntax(SyntaxTree syntaxTree, SyntaxToken forKeyword, SyntaxToken identifier, SyntaxToken inKeyword,SyntaxToken? reverseKeyword,
+         ExpressionSyntax lowerBound,SyntaxToken rangeToken, ExpressionSyntax upperBound, SyntaxToken loopKeyword, StatementSyntax body,
+          SyntaxToken endKeyword)
          : base(syntaxTree)
         {
             ForKeyword = forKeyword;
             Identifier = identifier;
             InKeyword = inKeyword;
+            ReverseKeyword = reverseKeyword;
             LowerBound = lowerBound;
             RangeToken = rangeToken;
             UpperBound = upperBound;
@@ -22,6 +24,7 @@ namespace compilers.CodeAnalysis
         public SyntaxToken ForKeyword { get; }
         public SyntaxToken Identifier { get; }
         public SyntaxToken InKeyword { get; }
+        public SyntaxToken? ReverseKeyword { get; }
         public ExpressionSyntax LowerBound { get; }
         public SyntaxToken RangeToken { get; }
         public ExpressionSyntax UpperBound { get; }
