@@ -695,6 +695,10 @@ namespace compilers.CodeAnalysis
                             }
 
                             int len = v.Type.Dimensions.Count;
+                            if(len != indecies.Count)
+                            {
+                                throw new Exception("invalid dimensions count");
+                            }
                             var prod = LLVM.BuildMul(_builder,LLVM.ConstInt(LLVM.Int32Type(),1,0),LLVM.ConstInt(LLVM.Int32Type(),1,0),StringToSBytePtr("prod"));
                             var hash = LLVM.BuildMul(_builder,LLVM.ConstInt(LLVM.Int32Type(),0,0),LLVM.ConstInt(LLVM.Int32Type(),0,0),StringToSBytePtr("prod"));
                             for(int i=len-1;i>=0;i--){
@@ -783,6 +787,10 @@ namespace compilers.CodeAnalysis
                         }
 
                         int len = a.ExactVar.Type.Dimensions.Count;
+                        if(len != indecies.Count)
+                        {
+                            throw new Exception("invalid dimensions count");
+                        }
                         var prod = LLVM.BuildMul(_builder,LLVM.ConstInt(LLVM.Int32Type(),1,0),LLVM.ConstInt(LLVM.Int32Type(),1,0),StringToSBytePtr("prod"));
                         var hash = LLVM.BuildMul(_builder,LLVM.ConstInt(LLVM.Int32Type(),0,0),LLVM.ConstInt(LLVM.Int32Type(),0,0),StringToSBytePtr("prod"));
                         for(int i=len-1;i>=0;i--){
