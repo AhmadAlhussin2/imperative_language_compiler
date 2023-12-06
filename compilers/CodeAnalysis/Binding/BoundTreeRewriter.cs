@@ -77,7 +77,7 @@ namespace compilers.CodeAnalysis.Binding
             var body = RewriteStatement(node.Body);
             if (lowerBound == node.LowerBound && upperBound == node.UpperBound && body == node.Body)
                 return node;
-            return new BoundForStatement(node.Variable, lowerBound, upperBound, body,node.Reverse);
+            return new BoundForStatement(node.Variable, lowerBound, upperBound, body, node.Reverse);
         }
 
         protected virtual BoundStatement RewriteWhileStatement(BoundWhileStatement node)

@@ -1,5 +1,4 @@
 using System.Collections.Immutable;
-using compilers.CodeAnalysis.Symbol;
 using compilers.CodeAnalysis.Text;
 
 namespace compilers.CodeAnalysis
@@ -233,16 +232,6 @@ namespace compilers.CodeAnalysis
             var expression = ParseExpression();
             return new ReturnStatementSyntax(_syntaxTree, keyword, expression);
         }
-
-        // private SyntaxNode ParseArrayDeclaration()
-        // {
-        //     var arrayKeyworld = MatchToken(SyntaxKind.ArrayKeyword);
-        //     var openBracket = MatchToken(SyntaxKind.OpenSquareBracketToken);
-        //     var size = ParseExpression();
-        //     var closeBracket = MatchToken(SyntaxKind.CloseSquareBracketToken);
-        //     return new ArrayDeclarationSyntax(arrayKeyworld, openBracket, size, closeBracket);
-        // }
-
         private void ParseTypeDeclaration()
         {
             var typeKeyword = MatchToken(SyntaxKind.TypeKeyword);
@@ -316,21 +305,11 @@ namespace compilers.CodeAnalysis
             var varKeyword = MatchToken(SyntaxKind.VarKeyword);
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
             var typeClause = ParseOptionalType();
-            // if (Current.Kind != SyntaxKind.IsKeyword)
-            // {
-            //      return new VariableDeclerationSyntax(varKeyword, identifier, typeClause, null, null);
-            // }
             var isKeyword = MatchToken(SyntaxKind.IsKeyword);
             var initializer = ParseExpression();
             return new VariableDeclerationSyntax(_syntaxTree, varKeyword, identifier, typeClause, isKeyword, initializer);
         }
 
-        // private TypeClauseSyntax? ParseOptionalTypeClause()
-        // {
-        //     if (Current.Kind != SyntaxKind.ColonToken)
-        //         return null;
-        //     return ParseTypeClause();
-        // }
         private TypeSyntax? ParseOptionalType()
         {
             if (Current.Kind != SyntaxKind.ColonToken)
@@ -340,10 +319,13 @@ namespace compilers.CodeAnalysis
         }
         private TypeSyntax ParseType()
         {
-            if (Current.Kind == SyntaxKind.IdentifierToken){
+            if (Current.Kind == SyntaxKind.IdentifierToken)
+            {
                 var type = MatchToken(SyntaxKind.IdentifierToken);
-                if (_typeAlias.TryGetValue(type.Text, out var new_type)){
-                    if (new_type != null){
+                if (_typeAlias.TryGetValue(type.Text, out var new_type))
+                {
+                    if (new_type != null)
+                    {
                         return new_type;
                     }
                 }
@@ -375,17 +357,6 @@ namespace compilers.CodeAnalysis
             Console.WriteLine(Current.Kind);
             throw new Exception("Unknown type");
         }
-        // private TypeClauseSyntax ParseTypeClause()
-        // {
-        //     var colonToken = MatchToken(SyntaxKind.ColonToken);
-        //     if (Current.Kind == SyntaxKind.IntegerKeyword || Current.Kind == SyntaxKind.RealKeyword || Current.Kind == SyntaxKind.BooleanKeyword)
-        //     {
-        //         var identifierType = NextToken();
-        //         return new TypeClauseSyntax(_syntaxTree, colonToken, identifierType);
-        //     }
-        //     var identifier = MatchToken(SyntaxKind.IdentifierToken);
-        //     return new TypeClauseSyntax(_syntaxTree, colonToken, identifier);
-        // }
 
         private ExpressionStatementSyntax ParseExpressionStatement()
         {

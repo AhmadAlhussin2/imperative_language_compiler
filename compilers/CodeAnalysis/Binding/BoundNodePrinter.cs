@@ -141,7 +141,7 @@ namespace compilers.CodeAnalysis.Binding
             writer.WriteIdentifier(node.Variable.Name);
             if (node.Indicies != null)
             {
-                foreach(var Bexpr in node.Indicies)
+                foreach (var Bexpr in node.Indicies)
                 {
                     writer.WritePunctuation(" [ ");
                     Bexpr.WriteTo(writer);
@@ -152,8 +152,8 @@ namespace compilers.CodeAnalysis.Binding
 
         private static void WriteAssignmentExpression(BoundAssignmentExpression node, IndentedTextWriter writer)
         {
-            
-            if(node.ExactVar!=null)
+
+            if (node.ExactVar != null)
             {
                 WriteVariableExpression(node.ExactVar, writer);
             }
@@ -184,7 +184,8 @@ namespace compilers.CodeAnalysis.Binding
         {
             writer.WriteKeyword("var ");
             writer.WriteIdentifier(node.Variable.Name);
-            if (node.Type != null){
+            if (node.Type != null)
+            {
                 writer.WritePunctuation(" : ");
                 writer.WriteIdentifier(node.Type.ToString());
             }

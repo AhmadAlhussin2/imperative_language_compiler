@@ -242,20 +242,20 @@ namespace compilers.CodeAnalysis.Binding
             if (syntax is ArrayType a)
             {
                 var b = syntax;
-                List<int> dimensions=new();
-                while(b is ArrayType A)
+                List<int> dimensions = new();
+                while (b is ArrayType A)
                 {
-                    if(A.Size is LiteralExpressionSyntax v)
+                    if (A.Size is LiteralExpressionSyntax v)
                     {
                         dimensions.Add((int)v.Value);
                         b = A.Type;
                     }
-                    else 
+                    else
                     {
                         throw new Exception("length of array must be constant");
                     }
                 }
-            
+
                 return new TypeSymbol("array", a.Size, BindTypeClause(a.Type), dimensions);
             }
             return type;
@@ -405,10 +405,10 @@ namespace compilers.CodeAnalysis.Binding
                 return boundExpression;
             }
             var convertedExpression = BindConversion(syntax.Expression.Span, boundExpression, variable!.Type);
-            if(syntax.Variable.Indices != null)
+            if (syntax.Variable.Indices != null)
             {
-                List<BoundExpression>? indicies=new();
-                foreach(var expr in syntax.Variable.Indices)
+                List<BoundExpression>? indicies = new();
+                foreach (var expr in syntax.Variable.Indices)
                 {
                     indicies.Add(BindExpression(expr));
                 }

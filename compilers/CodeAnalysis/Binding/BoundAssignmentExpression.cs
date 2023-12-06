@@ -5,7 +5,7 @@ namespace compilers.CodeAnalysis.Binding
     internal sealed class BoundAssignmentExpression : BoundExpression
     {
 
-        public BoundAssignmentExpression(VariableSymbol variable, BoundExpression boundExpression, BoundVariableExpression?  exactVar=null)
+        public BoundAssignmentExpression(VariableSymbol variable, BoundExpression boundExpression, BoundVariableExpression? exactVar = null)
         {
             Variable = variable;
             ExactVar = exactVar;

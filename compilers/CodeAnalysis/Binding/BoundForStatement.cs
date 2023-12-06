@@ -5,7 +5,7 @@ namespace compilers.CodeAnalysis.Binding
     internal sealed class BoundForStatement : BoundStatement
     {
 
-        public BoundForStatement(VariableSymbol variable, BoundExpression lowerBound, BoundExpression upperBound, BoundStatement body,bool reverse)
+        public BoundForStatement(VariableSymbol variable, BoundExpression lowerBound, BoundExpression upperBound, BoundStatement body, bool reverse)
         {
             Variable = variable;
             LowerBound = lowerBound;
