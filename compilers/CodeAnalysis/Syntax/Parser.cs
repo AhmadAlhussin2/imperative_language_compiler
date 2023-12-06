@@ -205,10 +205,6 @@ namespace compilers.CodeAnalysis
         {
             switch (Current.Kind)
             {
-                case SyntaxKind.IsKeyword:
-                case SyntaxKind.ThenKeyword:
-                case SyntaxKind.LoopKeyword:
-                    return ParseBlockStatement();
                 case SyntaxKind.VarKeyword:
                     return ParseVariableDeclaration();
                 case SyntaxKind.IfKeyword:

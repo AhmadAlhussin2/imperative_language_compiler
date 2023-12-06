@@ -223,25 +223,25 @@ namespace compilers.CodeAnalysis
             if (generateCode) unsafe
                 {
                     
-                    if (node.Initializer.Type == TypeSymbol.Int)
+                    if (node.Variable.Type == TypeSymbol.Int)
                     {
                         var n = LLVM.BuildAlloca(_builder, LLVM.Int32Type(), StringToSBytePtr(node.Variable.Name));
                         LLVM.BuildStore(_builder, lst, n);
                         _valueStack.Push(n);
                     }
-                    else if (node.Initializer.Type == TypeSymbol.Real)
+                    else if (node.Variable.Type == TypeSymbol.Real)
                     {
                         var n = LLVM.BuildAlloca(_builder, LLVM.DoubleType(), StringToSBytePtr(node.Variable.Name));
                         LLVM.BuildStore(_builder, LLVM.ConstReal(LLVM.DoubleType(), Convert.ToDouble(value)), n);
                         _valueStack.Push(n);
                     }
-                    else if (node.Initializer.Type == TypeSymbol.Bool)
+                    else if (node.Variable.Type == TypeSymbol.Bool)
                     {
                         LLVMValueRef b = LLVM.BuildAlloca(_builder, LLVM.Int1Type(), StringToSBytePtr(node.Variable.Name));
                         LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int1Type(), Convert.ToUInt32(value), 0), b);
                         _valueStack.Push(b);
                     }
-                    else if(node.Initializer.Type.Name == "array")
+                    else if(node.Variable.Type.Name == "array")
                     {
                         int arraySize = 0;
                         var type = TypeSymbol.Int;
@@ -308,15 +308,14 @@ namespace compilers.CodeAnalysis
         private object EvaluateConversionExpression(BoundConversionExpression node, bool generateCode)
         {
             var value = EvaluateExpression(node.Expression, generateCode);
+            // if (node.Type == TypeSymbol.Bool)
+            //     return Convert.ToBoolean(value);
+            // else if (node.Type == TypeSymbol.Int)
+            //     return Convert.ToInt32(value);
+            // else if (node.Type == TypeSymbol.Real)
+            //     return Convert.ToDouble(value);
             return value;
-            if (node.Type == TypeSymbol.Bool)
-                return Convert.ToBoolean(value);
-            else if (node.Type == TypeSymbol.Int)
-                return Convert.ToInt32(value);
-            else if (node.Type == TypeSymbol.Real)
-                return Convert.ToDouble(value);
-            else
-                throw new Exception($"Unexpected casting");
+           
         }
         private object? EvaluateCallExpression(BoundCallExpression node, bool generateCode)
         {
@@ -684,6 +683,38 @@ namespace compilers.CodeAnalysis
                             var d = LLVM.BuildLoad2(_builder, LLVM.Int1Type(), myVar, StringToSBytePtr("load"));
                             _valueStack.Push(d);
                         }
+                        else if(v.Indicies != null && v.Type.Dimensions!=null)
+                        {
+                            Console.WriteLine(v.Variable.Type.Leaf());
+                            List<LLVMValueRef> indecies = new();
+                            foreach(var expr in v.Indicies)
+                            {
+                                var val = EvaluateExpression(expr,true);
+                                var reff = _valueStack.Pop();
+                                indecies.Add(reff);
+                            }
+
+                            int len = v.Type.Dimensions.Count;
+                            var prod = LLVM.BuildMul(_builder,LLVM.ConstInt(LLVM.Int32Type(),1,0),LLVM.ConstInt(LLVM.Int32Type(),1,0),StringToSBytePtr("prod"));
+                            var hash = LLVM.BuildMul(_builder,LLVM.ConstInt(LLVM.Int32Type(),0,0),LLVM.ConstInt(LLVM.Int32Type(),0,0),StringToSBytePtr("prod"));
+                            for(int i=len-1;i>=0;i--){
+                                var index = indecies[i];
+                                var mul = LLVM.BuildMul(_builder, prod, index, StringToSBytePtr("dxi"));
+                                hash = LLVM.BuildAdd(_builder, mul, hash, StringToSBytePtr("nextSum"));
+                                prod = LLVM.BuildMul(_builder, prod, LLVM.ConstInt(LLVM.Int32Type(), (ulong)v.Type.Dimensions[i], 0), StringToSBytePtr("dxi"));
+                            }
+                            var lst = new LLVMOpaqueValue*[] { LLVM.ConstInt(LLVM.Int32Type(), 0, 0),hash };
+                            LLVMOpaqueValue** indeciesLst;
+                            fixed (LLVMOpaqueValue** ptr=lst)
+                            {
+                                indeciesLst = ptr;
+                            } 
+                            var elementPtr = LLVM.BuildGEP2(_builder, _LLVMarrayTypes[v.Variable], myVar, indeciesLst, (uint)2,StringToSBytePtr("ep"));
+
+
+                            var d = LLVM.BuildLoad2(_builder, Conv(v.Variable.Type.Leaf()), elementPtr, StringToSBytePtr("load"));
+                            _valueStack.Push(d);
+                        }
                     }
                 return _globals[v.Variable];
             }
@@ -752,30 +783,21 @@ namespace compilers.CodeAnalysis
                         }
 
                         int len = a.ExactVar.Type.Dimensions.Count;
-                        var prod = LLVM.BuildAlloca(_builder, LLVM.Int32Type(), StringToSBytePtr("HashProd"));
-                        LLVM.BuildStore(_builder, LLVM.ConstInt(LLVM.Int32Type(), 1, 0), prod);
-                        var hash = LLVM.BuildAlloca(_builder, LLVM.Int32Type(), StringToSBytePtr("IndexHash"));
-                        LLVM.BuildStore(_builder, prod, hash);
-
+                        var prod = LLVM.BuildMul(_builder,LLVM.ConstInt(LLVM.Int32Type(),1,0),LLVM.ConstInt(LLVM.Int32Type(),1,0),StringToSBytePtr("prod"));
+                        var hash = LLVM.BuildMul(_builder,LLVM.ConstInt(LLVM.Int32Type(),0,0),LLVM.ConstInt(LLVM.Int32Type(),0,0),StringToSBytePtr("prod"));
                         for(int i=len-1;i>=0;i--){
-                            var prodload = LLVM.BuildLoad2(_builder,LLVM.Int32Type(), prod, StringToSBytePtr("loadProd"));
-                            var index = indecies[i];
-                            var mul = LLVM.BuildMul(_builder, prodload, index, StringToSBytePtr("dxi"));
-                            var sum = LLVM.BuildLoad2(_builder, LLVM.Int32Type(), hash, StringToSBytePtr("curHash"));
-                            mul = LLVM.BuildAdd(_builder, mul, sum, StringToSBytePtr("nextSum"));
-                            LLVM.BuildStore(_builder, mul, hash);
-                            mul = LLVM.BuildMul(_builder, prodload, LLVM.ConstInt(LLVM.Int32Type(), (ulong)a.ExactVar.Type.Dimensions[i], 0), StringToSBytePtr("dxi"));
-                            LLVM.BuildStore(_builder, mul, prod);
+                            var mul = LLVM.BuildMul(_builder, prod, indecies[i], StringToSBytePtr("dxi"));
+                            hash = LLVM.BuildAdd(_builder, mul, hash, StringToSBytePtr("nextSum"));
+                            prod = LLVM.BuildMul(_builder, prod, LLVM.ConstInt(LLVM.Int32Type(), (ulong)a.ExactVar.Type.Dimensions[i], 0), StringToSBytePtr("dxi"));
                         }
-                        var hashload = LLVM.BuildLoad2(_builder, LLVM.Int32Type(), hash, StringToSBytePtr("curHash"));
-                        var lst = new LLVMOpaqueValue*[] { hashload };
+                        var lst = new LLVMOpaqueValue*[] { LLVM.ConstInt(LLVM.Int32Type(), 0, 0), hash };
                         LLVMOpaqueValue** indeciesLst;
                         fixed (LLVMOpaqueValue** ptr=lst)
                         {
                             indeciesLst = ptr;
                         } 
-                        var elementPtr = LLVM.BuildGEP2(_builder, _LLVMarrayTypes[a.Variable], ret, indeciesLst, (uint)1,StringToSBytePtr("ep"));
-                        //LLVM.BuildStore(_builder, last, elementPtr);
+                        var elementPtr = LLVM.BuildGEP2(_builder, _LLVMarrayTypes[a.Variable], ret, indeciesLst, (uint)2,StringToSBytePtr("ep"));
+                        LLVM.BuildStore(_builder, last, elementPtr);
                         
                         _valueStack.Push(ret);
                     }

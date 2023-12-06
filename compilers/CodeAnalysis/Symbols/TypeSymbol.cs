@@ -17,7 +17,11 @@ namespace compilers.CodeAnalysis.Symbol
         }
 
         public override SymbolKind Kind => SymbolKind.Type;
-
+        public TypeSymbol Leaf()
+        {
+            if(Type==null)return this;
+            return Type;
+        }
         public ExpressionSyntax? Size { get; }
         public TypeSymbol? Type { get; }
         public List<int>? Dimensions { get; }
