@@ -10,6 +10,7 @@ namespace compilers.CodeAnalysis
         private readonly ImmutableArray<SyntaxToken> _tokens;
         private readonly DiagnosticBag _diagnostics = new DiagnosticBag();
         private readonly SourceText _text;
+        private Dictionary<string, TypeSyntax> _typeAlias = new();
         private int _position;
 
 
@@ -216,7 +217,8 @@ namespace compilers.CodeAnalysis
                 case SyntaxKind.RecordKeyword:
                     return ParseRecordDeclaration();
                 case SyntaxKind.TypeKeyword:
-                    return ParseTypeDeclaration();
+                    ParseTypeDeclaration();
+                    return ParseStatement();
                 case SyntaxKind.ReturnKeyword:
                     return ParseReturnStatement();
                 default:
@@ -241,31 +243,13 @@ namespace compilers.CodeAnalysis
         //     return new ArrayDeclarationSyntax(arrayKeyworld, openBracket, size, closeBracket);
         // }
 
-        private StatementSyntax ParseTypeDeclaration()
+        private void ParseTypeDeclaration()
         {
             var typeKeyword = MatchToken(SyntaxKind.TypeKeyword);
             var name = MatchToken(SyntaxKind.IdentifierToken);
             var isKeyword = MatchToken(SyntaxKind.IsKeyword);
-            var type = ParseTypeStatement();
-            return new TypeDeclarationSyntax(_syntaxTree, typeKeyword, name, isKeyword, type);
-        }
-
-        private SyntaxNode ParseTypeStatement()
-        {
-            if (Current.Kind == SyntaxKind.RealKeyword || Current.Kind == SyntaxKind.IntegerKeyword || Current.Kind == SyntaxKind.BooleanKeyword)
-            {
-                return NextToken();
-            }
-            if (Current.Kind == SyntaxKind.RecordKeyword)
-            {
-                return ParseRecordDeclaration();
-            }
-            // if(Current.Kind == SyntaxKind.ArrayKeyword)
-            // {
-            //     return ParseArrayDeclaration();
-            // }
-            var type = MatchToken(SyntaxKind.IdentifierToken);
-            return type;
+            _typeAlias[name.Text] = ParseType();
+            return;
         }
 
         private StatementSyntax ParseRecordDeclaration()
@@ -294,7 +278,7 @@ namespace compilers.CodeAnalysis
             var endKeyword = MatchToken(SyntaxKind.EndKeyword);
             return new ForStatementSyntax(_syntaxTree, forKeyword, identifier, inKeyword, reverseKeyword, lowerBound, rangeToken, upperBound, loopKeyword, body, endKeyword);
         }
-        
+
         private StatementSyntax ParseWhileStatement()
         {
             var whileKeyword = MatchToken(SyntaxKind.WhileKeyword);
@@ -356,6 +340,14 @@ namespace compilers.CodeAnalysis
         }
         private TypeSyntax ParseType()
         {
+            if (Current.Kind == SyntaxKind.IdentifierToken){
+                var type = MatchToken(SyntaxKind.IdentifierToken);
+                if (_typeAlias.TryGetValue(type.Text, out var new_type)){
+                    if (new_type != null){
+                        return new_type;
+                    }
+                }
+            }
             if (Current.Kind == SyntaxKind.IntegerKeyword)
             {
                 var keyword = MatchToken(SyntaxKind.IntegerKeyword);
