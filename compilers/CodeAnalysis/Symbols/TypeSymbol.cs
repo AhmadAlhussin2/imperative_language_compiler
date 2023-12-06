@@ -9,16 +9,18 @@ namespace compilers.CodeAnalysis.Symbol
         public static readonly TypeSymbol Void = new("void");
         public static readonly TypeSymbol Array = new("array");
 
-        internal TypeSymbol(string name, ExpressionSyntax? size = null, TypeSymbol? type = null) : base(name)
+        internal TypeSymbol(string name, ExpressionSyntax? size = null, TypeSymbol? type = null, List<int>? dimensions=null) : base(name)
         {
             Size = size;
             Type = type;
+            Dimensions = dimensions;
         }
 
         public override SymbolKind Kind => SymbolKind.Type;
 
         public ExpressionSyntax? Size { get; }
         public TypeSymbol? Type { get; }
+        public List<int>? Dimensions { get; }
 
         public override string ToString()
         {

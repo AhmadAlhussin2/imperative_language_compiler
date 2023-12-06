@@ -222,14 +222,14 @@ namespace compilers.CodeAnalysis.Binding
 
         private BoundStatement BindVariableDeclaration(VariableDeclerationSyntax syntax)
         {
-            // Console.WriteLine(syntax.TypeClause);
+            //Console.WriteLine(syntax.TypeClause);    
             var type = BindTypeClause(syntax.TypeClause);
             // Console.WriteLine(type);
             var initializer = BindExpression(syntax.Initializer!);
             var variableType = type ?? initializer.Type;
             var convertedInitializer = BindConversion(syntax.Initializer!.Span, initializer, variableType);
             var variable = BindVariable(syntax.Identifier, variableType);
-            return new BoundVariableDeclaration(variable, convertedInitializer, type);
+            return new BoundVariableDeclaration(variable, convertedInitializer, syntax.TypeClause, type);
         }
 
         private TypeSymbol? BindTypeClause(TypeSyntax? syntax)
@@ -241,7 +241,22 @@ namespace compilers.CodeAnalysis.Binding
                 _diagnostics.ReportUndefinedType(syntax.Identifier.Span, syntax.Identifier.Text);
             if (syntax is ArrayType a)
             {
-                return new TypeSymbol("array", a.Size, BindTypeClause(a.Type));
+                var b = syntax;
+                List<int> dimensions=new();
+                while(b is ArrayType A)
+                {
+                    if(A.Size is LiteralExpressionSyntax v)
+                    {
+                        dimensions.Add((int)v.Value);
+                        b = A.Type;
+                    }
+                    else 
+                    {
+                        throw new Exception("length of array must be constant");
+                    }
+                }
+            
+                return new TypeSymbol("array", a.Size, BindTypeClause(a.Type), dimensions);
             }
             return type;
         }

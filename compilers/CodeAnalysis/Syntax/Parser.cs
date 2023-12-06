@@ -189,6 +189,7 @@ namespace compilers.CodeAnalysis
         private ParameterSyntax ParseParameter()
         {
             var identifier = MatchToken(SyntaxKind.IdentifierToken);
+            MatchToken(SyntaxKind.ColonToken);
             var type = ParseType();
             return new ParameterSyntax(_syntaxTree, identifier, type);
         }
@@ -378,6 +379,7 @@ namespace compilers.CodeAnalysis
                 var type = ParseType();
                 return new ArrayType(_syntaxTree, arrayKeyword, openSquare, size, closeSquare, type);
             }
+            Console.WriteLine(Current.Kind);
             throw new Exception("Unknown type");
         }
         // private TypeClauseSyntax ParseTypeClause()

@@ -41,6 +41,7 @@ namespace compilers
                     var builder = LLVM.CreateBuilder();
                     
                     /*
+                    -- References --
                     Declare function
                     LLVMOpaqueType*[] paramTypes = {LLVM.Int32Type()};
                     LLVMTypeRef doubleType;
@@ -64,6 +65,7 @@ namespace compilers
                     LLVM.PositionBuilderAtEnd(builder, entryBlock);
                     
                     /*
+                    -- Refereces -- 
                     Call function and store value in new variable
                     LLVMOpaqueValue*[] paramValues = {LLVM.ConstInt(LLVM.Int32Type(), 1, 0)};
                     LLVMValueRef callDouble;
@@ -73,32 +75,53 @@ namespace compilers
                     }
                     var x = LLVM.BuildAlloca(builder, LLVM.Int32Type(), StringToSBytePtr("x"));
                     LLVM.BuildStore(builder, callDouble, x);
+                
+                    
+                    int arraySize = 10;
+                    var arrayType = LLVM.ArrayType(LLVM.Int32Type(), (uint)arraySize);
+                    var arrayAlloca = LLVM.BuildAlloca(builder, arrayType,  StringToSBytePtr("myArray"));
+
+                    var index = LLVM.ConstInt(LLVM.Int32Type(), 2, 0); // Index 2, change as needed
+                    var lst = new LLVMOpaqueValue*[] { index };
+                    LLVMOpaqueValue** indecies;
+                    fixed (LLVMOpaqueValue** ptr=lst)
+                    {
+                        indecies = ptr;
+                    } 
+                    LLVMValueRef elementPtr = LLVM.BuildGEP2(builder, arrayType, arrayAlloca, indecies, (uint)1,StringToSBytePtr("load"));
+                    LLVMValueRef valueToStore = LLVM.ConstInt(LLVM.Int32Type(), 42, 0); // Value to store, change as needed
+                    LLVM.BuildStore(builder, valueToStore, elementPtr);
+
+                    var load = LLVM.BuildLoad2(builder,LLVM.Int32Type(), elementPtr,StringToSBytePtr("zip"));
                     */
+                    
 
                     var text = File.ReadAllText(path);
                     var syntaxTree = SyntaxTree.Parse(text);
                     syntaxTree.Root.WriteTo(_syntaxTreeWriter);
                     var compilation = new Compilation(syntaxTree);
                     compilation.WriteTree(_boundSyntaxTreeWriter);
-                    // var result = compilation.Evaluate(builder, module, mainFunction);
-                    // if (result.Diagnostics.Any())
-                    // {
-                    //     Console.Error.WriteDiagnostics(result.Diagnostics, syntaxTree);
-                    // }
-                    // else
-                    // {
-                    //     if (result.Value != null)
-                    //     {
-                    //         Console.WriteLine(result.Value);
-                    //     }
-                    //     compilation.WriteTree(Console.Out);
-                    //     var error = StringToSBytePtr("");
-                    //     LLVM.BuildRetVoid(builder);
-                    //     LLVM.PrintModuleToFile(module, StringToSBytePtr("output.ll"), &error);
-
+                    var result = compilation.Evaluate(builder, module, mainFunction);
+                    if (result.Diagnostics.Any())
+                    {
+                        Console.Error.WriteDiagnostics(result.Diagnostics, syntaxTree);
+                    }
+                    else
+                    {
+                        if (result.Value != null)
+                        {
+                            Console.WriteLine(result.Value);
+                        }
+                        compilation.WriteTree(Console.Out);
+                        
+                        var error = StringToSBytePtr("");
+                        
+                        LLVM.BuildRetVoid(builder);
+                        LLVM.PrintModuleToFile(module, StringToSBytePtr("output.ll"), &error);
+                    
                         LLVM.DisposeBuilder(builder);
                         LLVM.DisposeModule(module);
-                    // }
+                    }
                 }
                 catch (ArgumentOutOfRangeException)
                 {

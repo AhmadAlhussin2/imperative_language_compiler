@@ -12,6 +12,28 @@ namespace compilers.CodeAnalysis
             Type = type;
         }
 
+        public int FlatenArray(){
+            if(Size is LiteralExpressionSyntax se){
+                int ret  = (int)se.Value;
+                if(Type is ArrayType a){
+                    return ret * a.FlatenArray();
+                }
+                return ret;
+            }
+            throw new Exception("Only constants are allowed in array dimensions");
+        }
+
+        public TypeSyntax GetPrimitive()
+        {
+            var myType = Type;
+            while(myType is ArrayType t)
+            {
+                myType = t.Type;
+            }
+
+            return myType;
+        }
+
         public SyntaxToken ArrayKeyword { get; }
         public SyntaxToken OpenSquare { get; }
         public ExpressionSyntax Size { get; }
