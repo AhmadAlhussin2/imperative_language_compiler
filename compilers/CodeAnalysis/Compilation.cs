@@ -6,158 +6,151 @@ using System.Text;
 using System.Runtime.InteropServices;
 using compilers.CodeAnalysis.Symbols;
 using compilers.CodeAnalysis.Syntax;
-namespace compilers.CodeAnalysis
+namespace compilers.CodeAnalysis;
+
+public sealed class Compilation
 {
-    public sealed class Compilation
+    private static readonly StreamWriter BoundSyntaxTreeWriter = new("B_AST(functions).txt");
+    private BoundGlobalScope? _globalScope;
+    public Compilation(SyntaxTree syntax) : this(null, syntax)
     {
-        static private readonly StreamWriter _boundSyntaxTreeWriter = new("B_AST(functions).txt");
-        private BoundGlobalScope? _globalScope;
-        public Compilation(SyntaxTree syntax) : this(null, syntax)
-        {
-        }
-        private Compilation(Compilation? previous, SyntaxTree syntax)
-        {
-            Previous = previous;
-            Syntax = syntax;
-        }
-        static unsafe sbyte* StringToSBytePtr(string str)
-        {
-            // Convert the string to a byte array using UTF-8 encoding
-            byte[] bytes = Encoding.UTF8.GetBytes(str + '\0');
+    }
+    private Compilation(Compilation? previous, SyntaxTree syntax)
+    {
+        Previous = previous;
+        Syntax = syntax;
+    }
+    static unsafe sbyte* StringToSBytePtr(string str)
+    {
+        // Convert the string to a byte array using UTF-8 encoding
+        byte[] bytes = Encoding.UTF8.GetBytes(str + '\0');
 
-            // Allocate unmanaged memory to hold the null-terminated string
-            IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
+        // Allocate unmanaged memory to hold the null-terminated string
+        IntPtr ptr = Marshal.AllocHGlobal(bytes.Length);
 
-            // Copy the byte array to the allocated memory
-            Marshal.Copy(bytes, 0, ptr, bytes.Length);
+        // Copy the byte array to the allocated memory
+        Marshal.Copy(bytes, 0, ptr, bytes.Length);
 
-            // Return a pointer to the allocated memory
-            return (sbyte*)ptr;
-        }
+        // Return a pointer to the allocated memory
+        return (sbyte*)ptr;
+    }
 
-        public Compilation? Previous { get; }
-        public SyntaxTree Syntax { get; }
-        internal BoundGlobalScope GlobalScope
+    private Compilation? Previous { get; }
+    private SyntaxTree Syntax { get; }
+    private BoundGlobalScope GlobalScope
+    {
+        get
         {
-            get
+            if (_globalScope == null)
             {
-                if (_globalScope == null)
-                {
-                    _globalScope = Binder.BindGlobalScope(Previous?.GlobalScope, Syntax.Root);
-                }
-                return _globalScope;
+                _globalScope = Binder.BindGlobalScope(Previous?.GlobalScope, Syntax.Root);
             }
+            return _globalScope;
         }
-        public Compilation ContinueWith(SyntaxTree syntaxTree)
+    }
+    
+    private LLVMTypeRef TypeConverter(TypeSymbol type)
+    {
+        unsafe
         {
-            return new Compilation(this, syntaxTree);
-        }
-        public LLVMTypeRef TypeConverter(TypeSymbol type)
-        {
-            unsafe
+            if (type == TypeSymbol.Int)
             {
-                if (type == TypeSymbol.Int)
-                {
-                    return LLVM.Int32Type();
-                }
-                else if (type == TypeSymbol.Real)
-                {
-                    return LLVM.DoubleType();
-                }
-                else if (type == TypeSymbol.Bool)
-                {
-                    return LLVM.Int1Type();
-                }
-                else
-                {
-                    throw new Exception("Type Erorr");
-                }
+                return LLVM.Int32Type();
             }
-        }
-        public EvaluationResult Evaluate(LLVMBuilderRef builder, LLVMModuleRef module, LLVMValueRef function)
-        {
-            var diagnostics = Syntax.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
-            if (diagnostics.Any())
+            if (type == TypeSymbol.Real)
             {
-                return new EvaluationResult(diagnostics, null);
+                return LLVM.DoubleType();
             }
-
-            var program = Binder.BindProgram(GlobalScope);
-
-            if (program.Diagnostics.Any())
+            if (type == TypeSymbol.Bool)
             {
-                return new EvaluationResult(program.Diagnostics.ToImmutableArray(), null);
+                return LLVM.Int1Type();
             }
-            foreach (var funco in program.FunctionBodies)
+            throw new Exception("Type Error");
+        }
+    }
+    public EvaluationResult Evaluate(LLVMBuilderRef builder, LLVMModuleRef module, LLVMValueRef function)
+    {
+        var diagnostics = Syntax.Diagnostics.Concat(GlobalScope.Diagnostics).ToImmutableArray();
+        if (diagnostics.Any())
+        {
+            return new EvaluationResult(diagnostics, null);
+        }
+
+        var program = Binder.BindProgram(GlobalScope);
+
+        if (program.Diagnostics.Any())
+        {
+            return new EvaluationResult([..program.Diagnostics], null);
+        }
+        foreach (var func in program.FunctionBodies)
+        {
+            BoundSyntaxTreeWriter.Write("routine " + func.Key.Name + " (");
+            int cntC = 0;
+            foreach (var parameter in func.Key.Parameters)
             {
-                _boundSyntaxTreeWriter.Write("routine " + funco.Key.Name + " (");
-                int cntC = 0;
-                foreach (var parameter in funco.Key.Parameters)
-                {
-                    if (cntC > 0) _boundSyntaxTreeWriter.Write(", ");
-                    _boundSyntaxTreeWriter.Write(parameter.Name + " : " + parameter.Type);
-                    cntC++;
+                if (cntC > 0) BoundSyntaxTreeWriter.Write(", ");
+                BoundSyntaxTreeWriter.Write(parameter.Name + " : " + parameter.Type);
+                cntC++;
 
-                }
-                _boundSyntaxTreeWriter.WriteLine(") : " + funco.Key.Type + " is");
-                funco.Value.WriteTo(_boundSyntaxTreeWriter);
             }
-            Dictionary<FunctionSymbol, LLVMValueRef> LLVMfunctions = new();
-            Dictionary<FunctionSymbol, LLVMTypeRef> LLVMfunctiontypes = new();
-            foreach (var funco in program.FunctionBodies) unsafe
-                {
-                    var len = funco.Key.Parameters.Length;
-                    LLVMOpaqueType*[] paramTypes = new LLVMOpaqueType*[len];
-                    for (int i = 0; i < len; i++)
-                    {
-                        paramTypes[i] = TypeConverter(funco.Key.Parameters[i].Type);
-                    }
-                    LLVMTypeRef funcType;
-                    fixed (LLVMOpaqueType** ptr = paramTypes)
-                    {
-                        funcType = LLVM.FunctionType(TypeConverter(funco.Key.Type), ptr, 1, 0);
-                    }
-                    var thisfunction = LLVM.AddFunction(module, StringToSBytePtr(funco.Key.Name), funcType);
-                    var thisEntry = LLVM.AppendBasicBlock(thisfunction, StringToSBytePtr("entry"));
-                    var thisbuilder = LLVM.CreateBuilder();
-                    LLVM.PositionBuilderAtEnd(thisbuilder, thisEntry);
-                    var evalulator = new Evaluator(thisbuilder, program.FunctionBodies, LLVMfunctions, LLVMfunctiontypes, funco.Value);
-                    var locals = new Dictionary<VariableSymbol, object>();
-                    var LLVMlocals = new Dictionary<VariableSymbol, LLVMValueRef>();
-                    for (int i = 0; i < len; i++)
-                    {
-                        var parameter = funco.Key.Parameters[i];
-                        if (parameter.Type == TypeSymbol.Int || parameter.Type == TypeSymbol.Real) locals.Add(parameter, 0);
-                        else locals.Add(parameter, false);
-
-                        var LLVMparameter = LLVM.GetParam(thisfunction, Convert.ToUInt32(i));
-                        LLVMlocals.Add(parameter, LLVMparameter);
-                    }
-                    evalulator.LlvmLocals.Push(LLVMlocals);
-                    evalulator.Locals.Push(locals);
-                    var result = evalulator.Evaluate(thisfunction);
-                    evalulator.Locals.Pop();
-                    evalulator.LlvmLocals.Pop();
-                    LLVMfunctions.Add(funco.Key, thisfunction);
-                    LLVMfunctiontypes.Add(funco.Key, funcType);
-                }
-            var statement = GetStatement();
-            var evaluator = new Evaluator(builder, program.FunctionBodies, LLVMfunctions, LLVMfunctiontypes, statement);
-            var value = evaluator.Evaluate(function);
-            _boundSyntaxTreeWriter.Close();
-            return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
+            BoundSyntaxTreeWriter.WriteLine(") : " + func.Key.Type + " is");
+            func.Value.WriteTo(BoundSyntaxTreeWriter);
         }
-
-        internal void WriteTree(TextWriter boundSyntaxTreeWriter)
+        var llvmFunctions = new Dictionary<FunctionSymbol, LLVMValueRef>();
+        var llvmFunctionTypes = new Dictionary<FunctionSymbol, LLVMTypeRef>();
+        foreach (var func in program.FunctionBodies) unsafe
         {
-            var statement = GetStatement();
-            statement.WriteTo(boundSyntaxTreeWriter);
-        }
+            var len = func.Key.Parameters.Length;
+            var paramTypes = new LLVMOpaqueType*[len];
+            for (int i = 0; i < len; i++)
+            {
+                paramTypes[i] = TypeConverter(func.Key.Parameters[i].Type);
+            }
+            LLVMTypeRef funcType;
+            fixed (LLVMOpaqueType** ptr = paramTypes)
+            {
+                funcType = LLVM.FunctionType(TypeConverter(func.Key.Type), ptr, 1, 0);
+            }
+            var thisFunction = LLVM.AddFunction(module, StringToSBytePtr(func.Key.Name), funcType);
+            var thisEntry = LLVM.AppendBasicBlock(thisFunction, StringToSBytePtr("entry"));
+            var thisBuilder = LLVM.CreateBuilder();
+            LLVM.PositionBuilderAtEnd(thisBuilder, thisEntry);
+            var evalulator = new Evaluator(thisBuilder, program.FunctionBodies, llvmFunctions, llvmFunctionTypes, func.Value);
+            var locals = new Dictionary<VariableSymbol, object>();
+            var llvmLocals = new Dictionary<VariableSymbol, LLVMValueRef>();
+            for (var i = 0; i < len; i++)
+            {
+                var parameter = func.Key.Parameters[i];
+                if (parameter.Type == TypeSymbol.Int || parameter.Type == TypeSymbol.Real) locals.Add(parameter, 0);
+                else locals.Add(parameter, false);
 
-        private BoundBlockStatement GetStatement()
-        {
-            var result = GlobalScope.Statement;
-            return Lowerer.Lower(result);
+                var llvmParameter = LLVM.GetParam(thisFunction, Convert.ToUInt32(i));
+                llvmLocals.Add(parameter, llvmParameter);
+            }
+            evalulator.LlvmLocals.Push(llvmLocals);
+            evalulator.Locals.Push(locals); 
+            evalulator.Evaluate(thisFunction);
+            evalulator.Locals.Pop();
+            evalulator.LlvmLocals.Pop();
+            llvmFunctions.Add(func.Key, thisFunction);
+            llvmFunctionTypes.Add(func.Key, funcType);
         }
+        var statement = GetStatement();
+        var evaluator = new Evaluator(builder, program.FunctionBodies, llvmFunctions, llvmFunctionTypes, statement);
+        var value = evaluator.Evaluate(function);
+        BoundSyntaxTreeWriter.Close();
+        return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
+    }
+
+    internal void WriteTree(TextWriter boundSyntaxTreeWriter)
+    {
+        var statement = GetStatement();
+        statement.WriteTo(boundSyntaxTreeWriter);
+    }
+
+    private BoundBlockStatement GetStatement()
+    {
+        var result = GlobalScope.Statement;
+        return Lowerer.Lower(result);
     }
 }

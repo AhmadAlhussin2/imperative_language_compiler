@@ -1,14 +1,12 @@
-namespace compilers.CodeAnalysis.Syntax
+namespace compilers.CodeAnalysis.Syntax;
+
+public abstract class TypeSyntax : SyntaxNode
 {
-    public abstract class TypeSyntax : SyntaxNode
+    protected TypeSyntax(SyntaxTree syntaxTree)
+    : base(syntaxTree)
     {
-        public TypeSyntax(SyntaxTree syntaxTree)
-        : base(syntaxTree)
-        {
-        }
-
-        public abstract SyntaxToken Identifier { get; }
-
     }
+
+    public abstract SyntaxToken Identifier { get; }
 
 }

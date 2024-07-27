@@ -1,15 +1,14 @@
-namespace compilers.CodeAnalysis.Syntax
+namespace compilers.CodeAnalysis.Syntax;
+
+public sealed class NameExpressionSyntax : ExpressionSyntax
 {
-    public sealed class NameExpressionSyntax : ExpressionSyntax
+    public NameExpressionSyntax(SyntaxTree syntaxTree, Variable variable)
+    : base(syntaxTree)
     {
-        public NameExpressionSyntax(SyntaxTree syntaxTree, Variable variable)
-        : base(syntaxTree)
-        {
-            Variable = variable;
-        }
-        public override SyntaxKind Kind => SyntaxKind.NameExpression;
-
-        public Variable Variable { get; }
-
+        Variable = variable;
     }
+    public override SyntaxKind Kind => SyntaxKind.NameExpression;
+
+    public Variable Variable { get; }
+
 }

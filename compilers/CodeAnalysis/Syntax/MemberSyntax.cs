@@ -1,9 +1,8 @@
-namespace compilers.CodeAnalysis.Syntax
+namespace compilers.CodeAnalysis.Syntax;
+
+public abstract class MemberSyntax : SyntaxNode
 {
-    public abstract class MemberSyntax : SyntaxNode
+    protected MemberSyntax(SyntaxTree syntaxTree) : base(syntaxTree)
     {
-        protected MemberSyntax(SyntaxTree syntaxTree) : base(syntaxTree)
-        {
-        }
     }
 }

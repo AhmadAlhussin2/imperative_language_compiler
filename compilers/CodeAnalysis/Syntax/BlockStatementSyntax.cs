@@ -1,16 +1,15 @@
 using System.Collections.Immutable;
-namespace compilers.CodeAnalysis.Syntax
+namespace compilers.CodeAnalysis.Syntax;
+
+public sealed class BlockStatementSyntax : StatementSyntax
 {
-    public sealed class BlockStatementSyntax : StatementSyntax
+    public BlockStatementSyntax(SyntaxTree syntaxTree, ImmutableArray<StatementSyntax> statements)
+    : base(syntaxTree)
     {
-        public BlockStatementSyntax(SyntaxTree syntaxTree, ImmutableArray<StatementSyntax> statements)
-        : base(syntaxTree)
-        {
-            Statements = statements;
-        }
-
-        public ImmutableArray<StatementSyntax> Statements { get; }
-
-        public override SyntaxKind Kind => SyntaxKind.BlockStatement;
+        Statements = statements;
     }
+
+    public ImmutableArray<StatementSyntax> Statements { get; }
+
+    public override SyntaxKind Kind => SyntaxKind.BlockStatement;
 }

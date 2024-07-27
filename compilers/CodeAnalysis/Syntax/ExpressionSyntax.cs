@@ -1,9 +1,8 @@
-namespace compilers.CodeAnalysis.Syntax
+namespace compilers.CodeAnalysis.Syntax;
+
+public abstract class ExpressionSyntax : SyntaxNode
 {
-    public abstract class ExpressionSyntax : SyntaxNode
+    protected ExpressionSyntax(SyntaxTree syntaxTree) : base(syntaxTree)
     {
-        protected ExpressionSyntax(SyntaxTree syntaxTree) : base(syntaxTree)
-        {
-        }
     }
 }
