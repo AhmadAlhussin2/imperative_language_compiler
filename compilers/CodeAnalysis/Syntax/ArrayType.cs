@@ -1,4 +1,4 @@
-namespace compilers.CodeAnalysis
+namespace compilers.CodeAnalysis.Syntax
 {
     public sealed class ArrayType : TypeSyntax
     {
@@ -14,7 +14,7 @@ namespace compilers.CodeAnalysis
 
         public int FlatenArray(){
             if(Size is LiteralExpressionSyntax se){
-                int ret  = (int)se.Value;
+                var ret  = (int)se.Value;
                 if(Type is ArrayType a){
                     return ret * a.FlatenArray();
                 }
@@ -34,7 +34,7 @@ namespace compilers.CodeAnalysis
             return myType;
         }
 
-        public SyntaxToken ArrayKeyword { get; }
+        private SyntaxToken ArrayKeyword { get; }
         public SyntaxToken OpenSquare { get; }
         public ExpressionSyntax Size { get; }
         public SyntaxToken CloseSquare { get; }

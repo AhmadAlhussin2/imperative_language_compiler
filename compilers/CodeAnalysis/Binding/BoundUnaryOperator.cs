@@ -1,4 +1,5 @@
-using compilers.CodeAnalysis.Symbol;
+using compilers.CodeAnalysis.Symbols;
+using compilers.CodeAnalysis.Syntax;
 
 namespace compilers.CodeAnalysis.Binding
 {

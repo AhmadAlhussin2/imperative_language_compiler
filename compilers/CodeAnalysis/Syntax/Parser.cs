@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using compilers.CodeAnalysis.Text;
-
-namespace compilers.CodeAnalysis
+namespace compilers.CodeAnalysis.Syntax
 {
     internal sealed class Parser
     {
@@ -21,11 +20,11 @@ namespace compilers.CodeAnalysis
             do
             {
                 token = Lexer.NextToken();
-                if (token.Kind != SyntaxKind.WhiteSpace && token.Kind != SyntaxKind.UnknowToken)
+                if (token.Kind != SyntaxKind.WhiteSpace && token.Kind != SyntaxKind.UnknownToken)
                 {
                     tokens.Add(token);
                 }
-            } while (token.Kind != SyntaxKind.EOFToken);
+            } while (token.Kind != SyntaxKind.EofToken);
             _syntaxTree = syntaxTree;
             _tokens = tokens.ToImmutableArray();
             _diagnostics.AddRange(Lexer.Diagnostics);
@@ -121,14 +120,14 @@ namespace compilers.CodeAnalysis
         public CompilationUnitSyntax ParseCompilationUnit()
         {
             var members = ParseMembers();
-            var EOFToken = MatchToken(SyntaxKind.EOFToken);
+            var EOFToken = MatchToken(SyntaxKind.EofToken);
             return new CompilationUnitSyntax(_syntaxTree, members, EOFToken);
         }
 
         private ImmutableArray<MemberSyntax> ParseMembers()
         {
             var members = ImmutableArray.CreateBuilder<MemberSyntax>();
-            while (Current.Kind != SyntaxKind.EOFToken)
+            while (Current.Kind != SyntaxKind.EofToken)
             {
                 var c = Current;
                 var member = ParseMember();
@@ -160,7 +159,7 @@ namespace compilers.CodeAnalysis
             var isKeyword = MatchToken(SyntaxKind.IsKeyword);
             var body = ParseBlockStatement();
             var endKeyword = MatchToken(SyntaxKind.EndKeyword);
-            return new FunctionDeclerationSyntax(_syntaxTree, routineKeyword, identifier, openParenthesisToken, parameters, closeParenthesisToken, typeClause, isKeyword, body, endKeyword);
+            return new FunctionDeclarationSyntax(_syntaxTree, routineKeyword, identifier, openParenthesisToken, parameters, closeParenthesisToken, typeClause, isKeyword, body, endKeyword);
         }
 
         private SeparatedSyntaxList<ParameterSyntax> ParseParametersList()
@@ -169,7 +168,7 @@ namespace compilers.CodeAnalysis
             var parseNextParameter = true;
             while (parseNextParameter &&
                   Current.Kind != SyntaxKind.CloseParenthesisToken &&
-                  Current.Kind != SyntaxKind.EOFToken)
+                  Current.Kind != SyntaxKind.EofToken)
             {
                 var parameter = ParseParameter();
                 nodesAndSeparators.Add(parameter);
@@ -246,7 +245,7 @@ namespace compilers.CodeAnalysis
             var recordKeyword = MatchToken(SyntaxKind.RecordKeyword);
             var parameters = ParseParametersList();
             var endKeyword = MatchToken(SyntaxKind.EndKeyword);
-            return new RecordDeclerationSyntax(_syntaxTree, recordKeyword, parameters, endKeyword);
+            return new RecordDeclarationSyntax(_syntaxTree, recordKeyword, parameters, endKeyword);
         }
 
         private StatementSyntax ParseForStatement()
@@ -307,7 +306,7 @@ namespace compilers.CodeAnalysis
             var typeClause = ParseOptionalType();
             var isKeyword = MatchToken(SyntaxKind.IsKeyword);
             var initializer = ParseExpression();
-            return new VariableDeclerationSyntax(_syntaxTree, varKeyword, identifier, typeClause, isKeyword, initializer);
+            return new VariableDeclarationSyntax(_syntaxTree, varKeyword, identifier, typeClause, isKeyword, initializer);
         }
 
         private TypeSyntax? ParseOptionalType()
@@ -368,7 +367,7 @@ namespace compilers.CodeAnalysis
         {
             var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
             //var startToken = NextToken();
-            while (Current.Kind != SyntaxKind.EOFToken && Current.Kind != SyntaxKind.EndKeyword && (Current.Kind != SyntaxKind.ElseKeyword || !waitForElse))
+            while (Current.Kind != SyntaxKind.EofToken && Current.Kind != SyntaxKind.EndKeyword && (Current.Kind != SyntaxKind.ElseKeyword || !waitForElse))
             {
                 var c = Current;
                 var statement = ParseStatement();
@@ -447,7 +446,7 @@ namespace compilers.CodeAnalysis
             var nodesAndSeparators = ImmutableArray.CreateBuilder<SyntaxNode>();
             var parseNextArgument = true;
             while (parseNextArgument && Current.Kind != SyntaxKind.CloseParenthesisToken &&
-                  Current.Kind != SyntaxKind.EOFToken)
+                  Current.Kind != SyntaxKind.EofToken)
             {
                 var expression = ParseExpression();
                 nodesAndSeparators.Add(expression);

@@ -78,7 +78,7 @@ namespace compilers.CodeAnalysis.Text
             var l = position + 1 >= text.Length ? '\0' : text[position + 1];
             if (c == '\r' && l == '\n')
                 return 2;
-            if (c == '\r' || c == '\n')
+            if (c is '\r' or '\n')
                 return 1;
             return 0;
         }

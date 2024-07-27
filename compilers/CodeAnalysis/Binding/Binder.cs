@@ -1,6 +1,8 @@
 using System.Collections.Immutable;
 using compilers.CodeAnalysis.Lowering;
-using compilers.CodeAnalysis.Symbol;
+using compilers.CodeAnalysis.Symbols;
+using compilers.CodeAnalysis.Syntax;
+using compilers.CodeAnalysis.Text;
 
 namespace compilers.CodeAnalysis.Binding
 {
@@ -72,7 +74,7 @@ namespace compilers.CodeAnalysis.Binding
                     var binder = new Binder(parentScope, function);
                     if (function.Decleration != null)
                     {
-                        BoundStatement? body = binder.BindStatement(function.Decleration.Body);
+                        var body = binder.BindStatement(function.Decleration.Body);
                         var loweredBody = Lowerer.Lower(body);
                         functionBodies.Add(function, loweredBody);
                         diagnostics.AddRange(binder.Diagnostics);
@@ -88,7 +90,7 @@ namespace compilers.CodeAnalysis.Binding
             var parentScope = CreateParentScopes(previous);
             var binder = new Binder(parentScope, null);
 
-            foreach (var function in syntax.Members.OfType<FunctionDeclerationSyntax>())
+            foreach (var function in syntax.Members.OfType<FunctionDeclarationSyntax>())
                 binder.BindFunctionDecleration(function);
             var statementBuilder = ImmutableArray.CreateBuilder<BoundStatement>();
             foreach (var globalStatement in syntax.Members.OfType<GlobalStatementSyntax>())
@@ -109,7 +111,7 @@ namespace compilers.CodeAnalysis.Binding
             return new BoundGlobalScope(previous, diagnostic, functions, variables, statement);
         }
 
-        private void BindFunctionDecleration(FunctionDeclerationSyntax syntax)
+        private void BindFunctionDecleration(FunctionDeclarationSyntax syntax)
         {
             var parameters = ImmutableArray.CreateBuilder<ParameterSymbol>();
             var seenParameterNames = new HashSet<string>();
@@ -143,8 +145,8 @@ namespace compilers.CodeAnalysis.Binding
             {
                 case SyntaxKind.BlockStatement:
                     return BindBlockStatement((BlockStatementSyntax)syntax);
-                case SyntaxKind.VariableDecleration:
-                    return BindVariableDeclaration((VariableDeclerationSyntax)syntax);
+                case SyntaxKind.VariableDeclaration:
+                    return BindVariableDeclaration((VariableDeclarationSyntax)syntax);
                 case SyntaxKind.IfStatement:
                     return BindIfStatement((IfStatementSyntax)syntax);
                 case SyntaxKind.WhileStatement:
@@ -182,7 +184,7 @@ namespace compilers.CodeAnalysis.Binding
         {
             var lowerBound = BindExpression(syntax.LowerBound, TypeSymbol.Int);
             var upperBound = BindExpression(syntax.UpperBound, TypeSymbol.Int);
-            bool reverse = syntax.ReverseKeyword != null;
+            var reverse = syntax.ReverseKeyword != null;
             _scope = new BoundScope(_scope);
             var variable = BindVariable(syntax.Identifier, TypeSymbol.Int);
             var body = BindStatement(syntax.Body);
@@ -192,7 +194,7 @@ namespace compilers.CodeAnalysis.Binding
 
         private VariableSymbol BindVariable(SyntaxToken identifier, TypeSymbol type)
         {
-            var name = identifier.Text ?? "?";
+            var name = identifier.Text;
             var declare = !identifier.IsMissing;
             var variable = _function == null
                                 ? (VariableSymbol)new GlobalVariableSymbol(name, type)
@@ -220,14 +222,14 @@ namespace compilers.CodeAnalysis.Binding
             return new BoundIfStatement(condition, statement, elseStatement);
         }
 
-        private BoundStatement BindVariableDeclaration(VariableDeclerationSyntax syntax)
+        private BoundStatement BindVariableDeclaration(VariableDeclarationSyntax syntax)
         {
             //Console.WriteLine(syntax.TypeClause);    
             var type = BindTypeClause(syntax.TypeClause);
             // Console.WriteLine(type);
-            var initializer = BindExpression(syntax.Initializer!);
+            var initializer = BindExpression(syntax.Initializer);
             var variableType = type ?? initializer.Type;
-            var convertedInitializer = BindConversion(syntax.Initializer!.Span, initializer, variableType);
+            var convertedInitializer = BindConversion(syntax.Initializer.Span, initializer, variableType);
             var variable = BindVariable(syntax.Identifier, variableType);
             return new BoundVariableDeclaration(variable, convertedInitializer, syntax.TypeClause, type);
         }
@@ -242,13 +244,13 @@ namespace compilers.CodeAnalysis.Binding
             if (syntax is ArrayType a)
             {
                 var b = syntax;
-                List<int> dimensions = new();
-                while (b is ArrayType A)
+                var dimensions = new List<int>();
+                while (b is ArrayType arrayType)
                 {
-                    if (A.Size is LiteralExpressionSyntax v)
+                    if (arrayType.Size is LiteralExpressionSyntax v)
                     {
                         dimensions.Add((int)v.Value);
-                        b = A.Type;
+                        b = arrayType.Type;
                     }
                     else
                     {
@@ -276,7 +278,7 @@ namespace compilers.CodeAnalysis.Binding
                 var statement = BindStatement(statementSyntax);
                 statements.Add(statement);
             }
-            _scope = _scope!.Parent!;
+            _scope = _scope.Parent!;
             return new BoundBlockStatement(statements.ToImmutable());
         }
 
@@ -335,7 +337,7 @@ namespace compilers.CodeAnalysis.Binding
         }
         private BoundExpression BindCallExpression(CallExpressionSyntax syntax)
         {
-            if (syntax.Arguments.Count == 1 && LookupType(syntax.Identifier.Text) is TypeSymbol type)
+            if (syntax.Arguments.Count == 1 && LookupType(syntax.Identifier.Text) is { } type)
             {
                 return BindConversion(syntax.Arguments[0], type, allowExplicit: true);
             }
@@ -407,12 +409,12 @@ namespace compilers.CodeAnalysis.Binding
             var convertedExpression = BindConversion(syntax.Expression.Span, boundExpression, variable!.Type);
             if (syntax.Variable.Indices != null)
             {
-                List<BoundExpression>? indicies = new();
+                var indexes = new List<BoundExpression>();
                 foreach (var expr in syntax.Variable.Indices)
                 {
-                    indicies.Add(BindExpression(expr));
+                    indexes.Add(BindExpression(expr));
                 }
-                return new BoundAssignmentExpression(variable, convertedExpression, new BoundVariableExpression(variable, indicies));
+                return new BoundAssignmentExpression(variable, convertedExpression, new BoundVariableExpression(variable, indexes));
             }
             return new BoundAssignmentExpression(variable, convertedExpression);
         }
@@ -421,7 +423,7 @@ namespace compilers.CodeAnalysis.Binding
         {
             var name = syntax.Variable.Identifier.Text;
             var indices = syntax.Variable.Indices;
-            List<BoundExpression> boundIndices = new();
+            List<BoundExpression> boundIndices = [];
             if (indices != null)
             {
                 foreach (var index in indices)
@@ -447,9 +449,9 @@ namespace compilers.CodeAnalysis.Binding
             return BindExpression(syntax.Expression);
         }
 
-        private BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
+        private static BoundExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
         {
-            var value = syntax.Value ?? 0;
+            var value = syntax.Value;
             return new BoundLiteralExpression(value);
         }
 

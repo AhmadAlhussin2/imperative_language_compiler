@@ -1,13 +1,14 @@
 using System.Collections;
-using System.Collections.Generic;
-using compilers.CodeAnalysis.Symbol;
+using compilers.CodeAnalysis.Symbols;
+using compilers.CodeAnalysis.Syntax;
+using compilers.CodeAnalysis.Text;
 
 namespace compilers.CodeAnalysis
 {
     internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
     {
 
-        private readonly List<Diagnostic> _diagnostics = new();
+        private readonly List<Diagnostic> _diagnostics = [];
         public IEnumerator<Diagnostic> GetEnumerator() => _diagnostics.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -37,19 +38,19 @@ namespace compilers.CodeAnalysis
 
         public void ReportUnexpectedToken(TextSpan span, SyntaxKind actualKind, SyntaxKind expectedKind)
         {
-            var message = $"Unexprected token <{actualKind}>, expected <{expectedKind}>.";
+            var message = $"Unexpected token <{actualKind}>, expected <{expectedKind}>.";
             Report(span, message);
         }
 
         public void ReportUndefinedUnaryOperator(TextSpan span, string operatorText, TypeSymbol operandType)
         {
-            var message = $"Unary Operator '{operatorText}' is not definted for type {operandType}";
+            var message = $"Unary Operator '{operatorText}' is not defined for type {operandType}";
             Report(span, message);
         }
 
         public void ReportUndefinedName(TextSpan span, string name)
         {
-            var message = $"Var '{name}' is not definted";
+            var message = $"Var '{name}' is not defined";
             Report(span, message);
         }
 
@@ -86,7 +87,7 @@ namespace compilers.CodeAnalysis
 
         internal void ReportWrongArgumentType(TextSpan span, string name, string parameterName, TypeSymbol parameterType, TypeSymbol argumentType)
         {
-            var message = $"Function '{name}': Prameter '{parameterName}' requires a value of type '{parameterType}' but was given a value of type'{argumentType}'.";
+            var message = $"Function '{name}': Parameter '{parameterName}' requires a value of type '{parameterType}' but was given a value of type'{argumentType}'.";
             Report(span, message);
         }
 

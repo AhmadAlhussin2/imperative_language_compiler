@@ -1,10 +1,11 @@
 using System.Collections.Immutable;
 using compilers.CodeAnalysis.Binding;
 using compilers.CodeAnalysis.Lowering;
-using compilers.CodeAnalysis.Symbol;
 using LLVMSharp.Interop;
 using System.Text;
 using System.Runtime.InteropServices;
+using compilers.CodeAnalysis.Symbols;
+using compilers.CodeAnalysis.Syntax;
 namespace compilers.CodeAnalysis
 {
     public sealed class Compilation
@@ -132,11 +133,11 @@ namespace compilers.CodeAnalysis
                         var LLVMparameter = LLVM.GetParam(thisfunction, Convert.ToUInt32(i));
                         LLVMlocals.Add(parameter, LLVMparameter);
                     }
-                    evalulator._LLVMlocals.Push(LLVMlocals);
-                    evalulator._locals.Push(locals);
+                    evalulator.LlvmLocals.Push(LLVMlocals);
+                    evalulator.Locals.Push(locals);
                     var result = evalulator.Evaluate(thisfunction);
-                    evalulator._locals.Pop();
-                    evalulator._LLVMlocals.Pop();
+                    evalulator.Locals.Pop();
+                    evalulator.LlvmLocals.Pop();
                     LLVMfunctions.Add(funco.Key, thisfunction);
                     LLVMfunctiontypes.Add(funco.Key, funcType);
                 }

@@ -1,3 +1,4 @@
+using compilers.CodeAnalysis.Text;
 namespace compilers.CodeAnalysis
 {
     public sealed class Diagnostic
@@ -8,7 +9,7 @@ namespace compilers.CodeAnalysis
             Message = message;
         }
         public TextSpan Span { get; }
-        public string Message { get; }
+        private string Message { get; }
 
         public override string ToString() => Message;
 

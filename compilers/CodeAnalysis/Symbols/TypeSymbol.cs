@@ -1,4 +1,5 @@
-namespace compilers.CodeAnalysis.Symbol
+using compilers.CodeAnalysis.Syntax;
+namespace compilers.CodeAnalysis.Symbols
 {
     public sealed class TypeSymbol : Symbol
     {

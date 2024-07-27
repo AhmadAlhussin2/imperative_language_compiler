@@ -1,4 +1,5 @@
-using compilers.CodeAnalysis.Symbol;
+using compilers.CodeAnalysis.Symbols;
+using compilers.CodeAnalysis.Syntax;
 
 namespace compilers.CodeAnalysis.Binding
 {
@@ -29,7 +30,7 @@ namespace compilers.CodeAnalysis.Binding
         public TypeSymbol RightType { get; }
         public TypeSymbol Type { get; }
 
-        private static readonly BoundBinaryOperator[] _operators = {
+        private static readonly BoundBinaryOperator[] Operators = {
             new BoundBinaryOperator(SyntaxKind.PlusToken,BoundBinaryOperatorKind.Addition,TypeSymbol.Int),
             new BoundBinaryOperator(SyntaxKind.PlusToken,BoundBinaryOperatorKind.Addition,TypeSymbol.Real),
 
@@ -69,7 +70,7 @@ namespace compilers.CodeAnalysis.Binding
 
         public static BoundBinaryOperator? Bind(SyntaxKind syntaxKind, TypeSymbol leftType, TypeSymbol rightType)
         {
-            foreach (var op in _operators)
+            foreach (var op in Operators)
             {
                 if (op.SyntaxKind == syntaxKind && op.LeftType == leftType && op.RightType == rightType)
                 {

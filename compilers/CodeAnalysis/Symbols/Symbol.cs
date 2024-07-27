@@ -1,4 +1,4 @@
-namespace compilers.CodeAnalysis.Symbol
+namespace compilers.CodeAnalysis.Symbols
 {
     public abstract class Symbol
     {

@@ -1,14 +1,13 @@
-using compilers.CodeAnalysis.Symbol;
+using compilers.CodeAnalysis.Symbols;
 using compilers.CodeAnalysis.Text;
-
-namespace compilers.CodeAnalysis
+namespace compilers.CodeAnalysis.Syntax
 {
     internal sealed class Lexer
     {
         private readonly SyntaxTree _syntaxTree;
         private readonly SourceText _text;
         private int _position;
-        private DiagnosticBag _diagnostics = new();
+        private readonly DiagnosticBag _diagnostics = new();
 
         public DiagnosticBag Diagnostics => _diagnostics;
 
@@ -87,12 +86,12 @@ namespace compilers.CodeAnalysis
             var number = _text.ToString(start, length);
             if (!int.TryParse(number, out var value))
             {
-                if (!double.TryParse(number, out var real_value))
+                if (!double.TryParse(number, out var realValue))
                 {
                     _diagnostics.ReportInvalidNumber(new TextSpan(start, length), number, TypeSymbol.Int);
                     return new SyntaxToken(_syntaxTree, SyntaxKind.RealNumberToken, start, number, "Nan");
                 }
-                return new SyntaxToken(_syntaxTree, SyntaxKind.RealNumberToken, start, number, real_value);
+                return new SyntaxToken(_syntaxTree, SyntaxKind.RealNumberToken, start, number, realValue);
             }
             return new SyntaxToken(_syntaxTree, SyntaxKind.NumberToken, start, number, value);
         }
@@ -100,7 +99,7 @@ namespace compilers.CodeAnalysis
         public SyntaxToken NextToken()
         {
             if (_position >= _text.Length)
-                return new SyntaxToken(_syntaxTree, SyntaxKind.EOFToken, _position, "\0", null);
+                return new SyntaxToken(_syntaxTree, SyntaxKind.EofToken, _position, "\0", null);
             var start = _position;
             if (char.IsDigit(Current))
             {
@@ -166,7 +165,7 @@ namespace compilers.CodeAnalysis
                     if (Current == '_' || char.IsLetter(Current))
                         return ReadVarOrKeyword(start);
                     _diagnostics.ReportBadCharacter(new TextSpan(start, _position), Current);
-                    return new SyntaxToken(_syntaxTree, SyntaxKind.UnknowToken, _position++, _text.ToString(_position - 1, 1), null);
+                    return new SyntaxToken(_syntaxTree, SyntaxKind.UnknownToken, _position++, _text.ToString(_position - 1, 1), null);
             }
         }
 

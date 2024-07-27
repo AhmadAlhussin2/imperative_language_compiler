@@ -1,14 +1,13 @@
 using System.Collections.Immutable;
 using System.Reflection;
-
-namespace compilers.CodeAnalysis.Symbol
+namespace compilers.CodeAnalysis.Symbols
 {
     internal static class BuiltinFunctions
     {
         public static readonly FunctionSymbol PrintInt = new FunctionSymbol 
         (
-            "printInt", 
-            ImmutableArray.Create(new ParameterSymbol("value", TypeSymbol.Int)), 
+            "printInt",
+            [new ParameterSymbol("value", TypeSymbol.Int)], 
             TypeSymbol.Void
         );
         public static readonly FunctionSymbol ReadInt = new FunctionSymbol 

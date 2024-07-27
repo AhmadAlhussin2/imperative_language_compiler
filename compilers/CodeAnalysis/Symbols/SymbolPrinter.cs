@@ -1,6 +1,5 @@
-using compilers.IO;
-
-namespace compilers.CodeAnalysis.Symbol
+using compilers.CodeAnalysis.IO;
+namespace compilers.CodeAnalysis.Symbols
 {
     internal static class SymbolPrinter
     {

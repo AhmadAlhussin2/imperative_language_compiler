@@ -1,8 +1,7 @@
 using System.CodeDom.Compiler;
-using System.Collections.Immutable;
-using compilers.CodeAnalysis;
-
-namespace compilers.IO
+using compilers.CodeAnalysis.Syntax;
+using compilers.CodeAnalysis.Text;
+namespace compilers.CodeAnalysis.IO
 {
     public static class TextWriterExtensions
     {

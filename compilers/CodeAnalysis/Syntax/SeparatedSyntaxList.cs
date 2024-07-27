@@ -1,7 +1,6 @@
-using System.Collections.Immutable;
 using System.Collections;
-
-namespace compilers.CodeAnalysis
+using System.Collections.Immutable;
+namespace compilers.CodeAnalysis.Syntax
 {
     public abstract class SeparatedSyntaxList
     {

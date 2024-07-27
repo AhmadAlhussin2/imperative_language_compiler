@@ -1,7 +1,6 @@
 using System.Collections.Immutable;
 using compilers.CodeAnalysis.Text;
-
-namespace compilers.CodeAnalysis
+namespace compilers.CodeAnalysis.Syntax
 {
     public sealed class SyntaxTree
     {
@@ -55,18 +54,18 @@ namespace compilers.CodeAnalysis
                 while (true)
                 {
                     var token = l.NextToken();
-                    if (token.Kind == SyntaxKind.EOFToken)
+                    if (token.Kind == SyntaxKind.EofToken)
                     {
                         root = new CompilationUnitSyntax(syntaxTree, ImmutableArray<MemberSyntax>.Empty, token);
                         break;
                     }
                     tokens!.Add(token);
                 }
-                d = l.Diagnostics.ToImmutableArray();
+                d = [..l.Diagnostics];
             }
             var syntaxTree = new SyntaxTree(text, ParseTokens);
-            diagnostics = syntaxTree.Diagnostics.ToImmutableArray();
-            return tokens.ToImmutableArray();
+            diagnostics = [..syntaxTree.Diagnostics];
+            return [..tokens];
         }
     }
 }

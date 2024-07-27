@@ -1,4 +1,4 @@
-namespace compilers.CodeAnalysis
+namespace compilers.CodeAnalysis.Syntax
 {
     public enum SyntaxKind
     {
@@ -11,8 +11,8 @@ namespace compilers.CodeAnalysis
         SlashToken,
         OpenParenthesisToken,
         CloseParenthesisToken,
-        UnknowToken,
-        EOFToken,
+        UnknownToken,
+        EofToken,
         LessThanOrEqualToken,
         LessThanToken,
         GreaterThanOrEqualToken,
@@ -65,25 +65,21 @@ namespace compilers.CodeAnalysis
         CompilationUnit,
         BlockStatement,
         ExpressionStatement,
-        VariableDecleration,
+        VariableDeclaration,
         IfStatement,
         ElseClause,
         WhileStatement,
         ForStatement,
         InKeyword,
         CallExpression,
-        TypeClause,
         GlobalStatement,
-        FunctionDecleration,
         Parameter,
         TypeStatement,
-        RecordDecleration,
+        RecordDeclaration,
         ReturnStatement,
-        BadToken,
-        ArrayDeclaration,
-        TypeSyntax,
-        PrimativeType,
+        PrimitiveType,
         ArrayType,
-        Variable
+        Variable,
+        FunctionDecleration
     }
 }

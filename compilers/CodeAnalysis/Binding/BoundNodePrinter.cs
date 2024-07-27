@@ -1,7 +1,8 @@
 
 using System.CodeDom.Compiler;
-using compilers.CodeAnalysis.Symbol;
-using compilers.IO;
+using compilers.CodeAnalysis.IO;
+using compilers.CodeAnalysis.Symbols;
+using compilers.CodeAnalysis.Syntax;
 
 namespace compilers.CodeAnalysis.Binding
 {
@@ -141,10 +142,10 @@ namespace compilers.CodeAnalysis.Binding
             writer.WriteIdentifier(node.Variable.Name);
             if (node.Indicies != null)
             {
-                foreach (var Bexpr in node.Indicies)
+                foreach (var expr in node.Indicies)
                 {
                     writer.WritePunctuation(" [ ");
-                    Bexpr.WriteTo(writer);
+                    expr.WriteTo(writer);
                     writer.WritePunctuation(" ] ");
                 }
             }
@@ -265,7 +266,7 @@ namespace compilers.CodeAnalysis.Binding
             writer.WriteLine();
         }
 
-        private static void WriteErrorExpression(BoundErrorExpression node, IndentedTextWriter writer)
+        private static void WriteErrorExpression(BoundErrorExpression _, IndentedTextWriter writer)
         {
             writer.WriteKeyword("?");
         }

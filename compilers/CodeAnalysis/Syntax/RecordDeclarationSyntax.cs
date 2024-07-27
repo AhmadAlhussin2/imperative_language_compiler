@@ -1,8 +1,8 @@
-namespace compilers.CodeAnalysis
+namespace compilers.CodeAnalysis.Syntax
 {
-    public sealed class RecordDeclerationSyntax : StatementSyntax
+    public sealed class RecordDeclarationSyntax : StatementSyntax
     {
-        public RecordDeclerationSyntax(
+        public RecordDeclarationSyntax(
             SyntaxTree syntaxTree,
             SyntaxToken recordKeyword,
             SeparatedSyntaxList<ParameterSyntax> parameters,
@@ -13,7 +13,7 @@ namespace compilers.CodeAnalysis
             EndKeyword = endKeyword;
         }
 
-        public override SyntaxKind Kind => SyntaxKind.RecordDecleration;
+        public override SyntaxKind Kind => SyntaxKind.RecordDeclaration;
 
         public SyntaxToken RecordKeyword { get; }
 

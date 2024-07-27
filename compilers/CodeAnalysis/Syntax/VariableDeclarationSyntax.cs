@@ -1,8 +1,8 @@
-namespace compilers.CodeAnalysis
+namespace compilers.CodeAnalysis.Syntax
 {
-    public sealed class VariableDeclerationSyntax : StatementSyntax
+    public sealed class VariableDeclarationSyntax : StatementSyntax
     {
-        public VariableDeclerationSyntax(SyntaxTree syntaxTree, SyntaxToken varKeyword, SyntaxToken identifier, TypeSyntax? typeClause, SyntaxToken isToken, ExpressionSyntax initializer)
+        public VariableDeclarationSyntax(SyntaxTree syntaxTree, SyntaxToken varKeyword, SyntaxToken identifier, TypeSyntax? typeClause, SyntaxToken isToken, ExpressionSyntax initializer)
         : base(syntaxTree)
         {
             VarKeyword = varKeyword;
@@ -12,7 +12,7 @@ namespace compilers.CodeAnalysis
             Initializer = initializer;
         }
 
-        public override SyntaxKind Kind => SyntaxKind.VariableDecleration;
+        public override SyntaxKind Kind => SyntaxKind.VariableDeclaration;
 
         public SyntaxToken VarKeyword { get; }
         public SyntaxToken Identifier { get; }

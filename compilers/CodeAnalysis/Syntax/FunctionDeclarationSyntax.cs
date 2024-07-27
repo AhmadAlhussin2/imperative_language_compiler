@@ -1,8 +1,8 @@
-namespace compilers.CodeAnalysis
+namespace compilers.CodeAnalysis.Syntax
 {
-    public sealed class FunctionDeclerationSyntax : MemberSyntax
+    public sealed class FunctionDeclarationSyntax : MemberSyntax
     {
-        public FunctionDeclerationSyntax(
+        public FunctionDeclarationSyntax(
             SyntaxTree syntaxTree,
             SyntaxToken routineKeyword, SyntaxToken identifier,
             SyntaxToken openParenthesisToken, SeparatedSyntaxList<ParameterSyntax> parameters,

@@ -1,10 +1,10 @@
 using System.Collections.Immutable;
-
-namespace compilers.CodeAnalysis.Symbol
+using compilers.CodeAnalysis.Syntax;
+namespace compilers.CodeAnalysis.Symbols
 {
     public sealed class FunctionSymbol : Symbol
     {
-        public FunctionSymbol(string name, ImmutableArray<ParameterSymbol> parameters, TypeSymbol type, FunctionDeclerationSyntax? decleration = null)
+        public FunctionSymbol(string name, ImmutableArray<ParameterSymbol> parameters, TypeSymbol type, FunctionDeclarationSyntax? decleration = null)
             : base(name)
         {
             Parameters = parameters;
@@ -15,6 +15,6 @@ namespace compilers.CodeAnalysis.Symbol
 
         public ImmutableArray<ParameterSymbol> Parameters { get; }
         public TypeSymbol Type { get; }
-        public FunctionDeclerationSyntax? Decleration { get; }
+        public FunctionDeclarationSyntax? Decleration { get; }
     }
 }

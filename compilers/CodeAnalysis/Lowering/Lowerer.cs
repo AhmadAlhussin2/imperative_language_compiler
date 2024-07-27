@@ -1,6 +1,7 @@
 using System.Collections.Immutable;
 using compilers.CodeAnalysis.Binding;
-using compilers.CodeAnalysis.Symbol;
+using compilers.CodeAnalysis.Symbols;
+using compilers.CodeAnalysis.Syntax;
 
 namespace compilers.CodeAnalysis.Lowering
 {
@@ -51,7 +52,7 @@ namespace compilers.CodeAnalysis.Lowering
                 var endLabel = GenerateLabel();
                 var gotoFalse = new BoundConditionalGotoStatement(endLabel, node.Condition, false);
                 var endLabelStatement = new BoundLabelStatement(endLabel);
-                var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(gotoFalse, node.ThenStatement, endLabelStatement));
+                var result = new BoundBlockStatement(ImmutableArray.Create(gotoFalse, node.ThenStatement, endLabelStatement));
                 return RewriteStatement(result);
             }
             else
@@ -65,7 +66,7 @@ namespace compilers.CodeAnalysis.Lowering
                 var elseLabelStatement = new BoundLabelStatement(elseLabel);
                 var endLabelStatement = new BoundLabelStatement(endLabel);
                 var result = new BoundBlockStatement(
-                        ImmutableArray.Create<BoundStatement>(
+                        ImmutableArray.Create(
                             gotoFalse,
                             node.ThenStatement,
                             gotoEndStatement,
@@ -90,7 +91,7 @@ namespace compilers.CodeAnalysis.Lowering
             var endLabelStatement = new BoundLabelStatement(endLabel);
 
             var result = new BoundBlockStatement(
-                ImmutableArray.Create<BoundStatement>(
+                ImmutableArray.Create(
                     goToCheck,
                     continueLabelStatement,
                     node.Body,
@@ -124,9 +125,9 @@ namespace compilers.CodeAnalysis.Lowering
                     )
                 )
             );
-            var whileBlock = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(node.Body, increment));
-            var WhileStatement = new BoundWhileStatement(condition, whileBlock);
-            var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(variableDecleration, upperBoundDecleration, WhileStatement));
+            var whileBlock = new BoundBlockStatement(ImmutableArray.Create(node.Body, increment));
+            var whileStatement = new BoundWhileStatement(condition, whileBlock);
+            var result = new BoundBlockStatement(ImmutableArray.Create<BoundStatement>(variableDecleration, upperBoundDecleration, whileStatement));
             return RewriteStatement(result);
         }
     }

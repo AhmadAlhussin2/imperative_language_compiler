@@ -1,19 +1,16 @@
-using compilers.CodeAnalysis.Symbol;
-
-namespace compilers.CodeAnalysis
+namespace compilers.CodeAnalysis.Syntax
 {
     public sealed class PrimativeType : TypeSyntax
     {
-        private SyntaxToken _identifier;
 
         public PrimativeType(SyntaxTree syntaxTree, SyntaxToken identifier) : base(syntaxTree)
         {
-            _identifier = identifier;
+            Identifier = identifier;
         }
 
-        public override SyntaxToken Identifier => _identifier;
+        public override SyntaxToken Identifier { get; }
 
-        public override SyntaxKind Kind => SyntaxKind.PrimativeType;
+        public override SyntaxKind Kind => SyntaxKind.PrimitiveType;
 
     }
 
