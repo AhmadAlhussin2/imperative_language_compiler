@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
 
-namespace compilers.CodeAnalysis;
+namespace ImperativeCompiler.CodeAnalysis;
 
 public sealed class EvaluationResult
 {

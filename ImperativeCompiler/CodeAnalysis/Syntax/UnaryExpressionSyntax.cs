@@ -1,4 +1,4 @@
-namespace compilers.CodeAnalysis.Syntax;
+namespace ImperativeCompiler.CodeAnalysis.Syntax;
 
 public sealed class UnaryExpressionSyntax : ExpressionSyntax
 {

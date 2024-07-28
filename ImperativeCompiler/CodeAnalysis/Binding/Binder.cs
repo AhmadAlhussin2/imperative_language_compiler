@@ -1,10 +1,9 @@
 using System.Collections.Immutable;
-using compilers.CodeAnalysis.Lowering;
-using compilers.CodeAnalysis.Symbols;
-using compilers.CodeAnalysis.Syntax;
-using compilers.CodeAnalysis.Text;
-
-namespace compilers.CodeAnalysis.Binding;
+using ImperativeCompiler.CodeAnalysis.Lowering;
+using ImperativeCompiler.CodeAnalysis.Symbols;
+using ImperativeCompiler.CodeAnalysis.Syntax;
+using ImperativeCompiler.CodeAnalysis.Text;
+namespace ImperativeCompiler.CodeAnalysis.Binding;
 
 internal sealed class Binder
 {

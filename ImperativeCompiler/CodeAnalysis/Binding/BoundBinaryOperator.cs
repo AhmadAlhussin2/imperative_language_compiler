@@ -1,7 +1,6 @@
-using compilers.CodeAnalysis.Symbols;
-using compilers.CodeAnalysis.Syntax;
-
-namespace compilers.CodeAnalysis.Binding
+using ImperativeCompiler.CodeAnalysis.Symbols;
+using ImperativeCompiler.CodeAnalysis.Syntax;
+namespace ImperativeCompiler.CodeAnalysis.Binding
 {
     internal sealed class BoundBinaryOperator
     {

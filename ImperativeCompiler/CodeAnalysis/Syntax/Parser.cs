@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
-using compilers.CodeAnalysis.Text;
-namespace compilers.CodeAnalysis.Syntax;
+using ImperativeCompiler.CodeAnalysis.Text;
+namespace ImperativeCompiler.CodeAnalysis.Syntax;
 
 internal sealed class Parser
 {

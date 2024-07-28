@@ -1,5 +1,5 @@
-using compilers.CodeAnalysis.Text;
-namespace compilers.CodeAnalysis.Syntax;
+using ImperativeCompiler.CodeAnalysis.Text;
+namespace ImperativeCompiler.CodeAnalysis.Syntax;
 
 public class SyntaxToken : SyntaxNode
 {

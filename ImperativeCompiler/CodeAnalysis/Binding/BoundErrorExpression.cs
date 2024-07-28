@@ -1,11 +1,9 @@
-using compilers.CodeAnalysis.Symbols;
+using ImperativeCompiler.CodeAnalysis.Symbols;
+namespace ImperativeCompiler.CodeAnalysis.Binding;
 
-namespace compilers.CodeAnalysis.Binding
+internal sealed class BoundErrorExpression : BoundExpression
 {
-    internal sealed class BoundErrorExpression : BoundExpression
-    {
-        public override TypeSymbol Type => TypeSymbol.Error;
+    public override TypeSymbol Type => TypeSymbol.Error;
 
-        public override BoundNodeKind Kind => BoundNodeKind.ErrorExpression;
-    }
+    public override BoundNodeKind Kind => BoundNodeKind.ErrorExpression;
 }

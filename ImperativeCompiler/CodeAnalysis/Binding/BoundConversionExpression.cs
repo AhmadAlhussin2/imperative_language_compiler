@@ -1,18 +1,16 @@
-using compilers.CodeAnalysis.Symbols;
+using ImperativeCompiler.CodeAnalysis.Symbols;
+namespace ImperativeCompiler.CodeAnalysis.Binding;
 
-namespace compilers.CodeAnalysis.Binding
+internal sealed class BoundConversionExpression : BoundExpression
 {
-    internal sealed class BoundConversionExpression : BoundExpression
+    public BoundConversionExpression(TypeSymbol type, BoundExpression expression)
     {
-        public BoundConversionExpression(TypeSymbol type, BoundExpression expression)
-        {
-            Type = type;
-            Expression = expression;
-        }
-
-        public override TypeSymbol Type { get; }
-        public BoundExpression Expression { get; }
-
-        public override BoundNodeKind Kind => BoundNodeKind.ConversionExpression;
+        Type = type;
+        Expression = expression;
     }
+
+    public override TypeSymbol Type { get; }
+    public BoundExpression Expression { get; }
+
+    public override BoundNodeKind Kind => BoundNodeKind.ConversionExpression;
 }

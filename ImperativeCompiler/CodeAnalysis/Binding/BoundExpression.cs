@@ -1,9 +1,7 @@
-using compilers.CodeAnalysis.Symbols;
+using ImperativeCompiler.CodeAnalysis.Symbols;
+namespace ImperativeCompiler.CodeAnalysis.Binding;
 
-namespace compilers.CodeAnalysis.Binding
+internal abstract class BoundExpression : BoundNode
 {
-    internal abstract class BoundExpression : BoundNode
-    {
-        public abstract TypeSymbol Type { get; }
-    }
+    public abstract TypeSymbol Type { get; }
 }

@@ -1,12 +1,11 @@
 using System.Collections.Immutable;
 using System.Runtime.InteropServices;
 using System.Text;
-using compilers.CodeAnalysis.Binding;
-using compilers.CodeAnalysis.Symbols;
-using compilers.CodeAnalysis.Syntax;
+using ImperativeCompiler.CodeAnalysis.Binding;
+using ImperativeCompiler.CodeAnalysis.Symbols;
+using ImperativeCompiler.CodeAnalysis.Syntax;
 using LLVMSharp.Interop;
-
-namespace compilers.CodeAnalysis;
+namespace ImperativeCompiler.CodeAnalysis;
 
 internal sealed class Evaluator
 {

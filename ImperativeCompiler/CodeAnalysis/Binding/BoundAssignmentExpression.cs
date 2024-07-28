@@ -1,6 +1,5 @@
-using compilers.CodeAnalysis.Symbols;
-
-namespace compilers.CodeAnalysis.Binding
+using ImperativeCompiler.CodeAnalysis.Symbols;
+namespace ImperativeCompiler.CodeAnalysis.Binding
 {
     internal sealed class BoundAssignmentExpression : BoundExpression
     {

@@ -1,14 +1,13 @@
-namespace compilers.CodeAnalysis.Binding
+namespace ImperativeCompiler.CodeAnalysis.Binding;
+
+internal sealed class BoundGoToStatement : BoundStatement
 {
-    internal sealed class BoundGoToStatement : BoundStatement
+    public BoundGoToStatement(BoundLabel label)
     {
-        public BoundGoToStatement(BoundLabel label)
-        {
-            Label = label;
-        }
-
-        public override BoundNodeKind Kind => BoundNodeKind.GoToStatement;
-
-        public BoundLabel Label { get; }
+        Label = label;
     }
+
+    public override BoundNodeKind Kind => BoundNodeKind.GoToStatement;
+
+    public BoundLabel Label { get; }
 }

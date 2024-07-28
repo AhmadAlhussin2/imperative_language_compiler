@@ -1,7 +1,6 @@
-using compilers.CodeAnalysis.Symbols;
-using compilers.CodeAnalysis.Text;
-
-namespace compilers.CodeAnalysis.Syntax;
+using ImperativeCompiler.CodeAnalysis.Symbols;
+using ImperativeCompiler.CodeAnalysis.Text;
+namespace ImperativeCompiler.CodeAnalysis.Syntax;
 
 internal sealed class Lexer
 {

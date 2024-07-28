@@ -1,20 +1,18 @@
 using System.Collections.Immutable;
-using compilers.CodeAnalysis.Symbols;
+using ImperativeCompiler.CodeAnalysis.Symbols;
+namespace ImperativeCompiler.CodeAnalysis.Binding;
 
-namespace compilers.CodeAnalysis.Binding
+internal sealed class BoundCallExpression : BoundExpression
 {
-    internal sealed class BoundCallExpression : BoundExpression
+    public BoundCallExpression(FunctionSymbol function, ImmutableArray<BoundExpression> arguments)
     {
-        public BoundCallExpression(FunctionSymbol function, ImmutableArray<BoundExpression> arguments)
-        {
-            Function = function;
-            Arguments = arguments;
-        }
-        public override TypeSymbol Type => Function.Type;
-
-        public override BoundNodeKind Kind => BoundNodeKind.CallExpression;
-
-        public FunctionSymbol Function { get; }
-        public ImmutableArray<BoundExpression> Arguments { get; }
+        Function = function;
+        Arguments = arguments;
     }
+    public override TypeSymbol Type => Function.Type;
+
+    public override BoundNodeKind Kind => BoundNodeKind.CallExpression;
+
+    public FunctionSymbol Function { get; }
+    public ImmutableArray<BoundExpression> Arguments { get; }
 }

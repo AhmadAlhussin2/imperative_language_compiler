@@ -1,6 +1,6 @@
 using System.Collections.Immutable;
-using compilers.CodeAnalysis.Text;
-namespace compilers.CodeAnalysis.Syntax;
+using ImperativeCompiler.CodeAnalysis.Text;
+namespace ImperativeCompiler.CodeAnalysis.Syntax;
 
 public sealed class SyntaxTree
 {
@@ -59,7 +59,7 @@ public sealed class SyntaxTree
                     root = new CompilationUnitSyntax(syntaxTree, ImmutableArray<MemberSyntax>.Empty, token);
                     break;
                 }
-                tokens!.Add(token);
+                tokens.Add(token);
             }
             d = [..l.Diagnostics];
         }

@@ -1,13 +1,12 @@
-namespace compilers.CodeAnalysis.Binding
+namespace ImperativeCompiler.CodeAnalysis.Binding;
+
+internal abstract class BoundNode
 {
-    internal abstract class BoundNode
+    public abstract BoundNodeKind Kind { get; }
+    public override string ToString()
     {
-        public abstract BoundNodeKind Kind { get; }
-        public override string ToString()
-        {
-            using var writer = new StringWriter();
-            this.WriteTo(writer);
-            return writer.ToString();
-        }
+        using var writer = new StringWriter();
+        this.WriteTo(writer);
+        return writer.ToString();
     }
 }

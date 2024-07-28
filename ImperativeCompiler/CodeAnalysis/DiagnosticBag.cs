@@ -1,9 +1,8 @@
 using System.Collections;
-using compilers.CodeAnalysis.Symbols;
-using compilers.CodeAnalysis.Syntax;
-using compilers.CodeAnalysis.Text;
-
-namespace compilers.CodeAnalysis;
+using ImperativeCompiler.CodeAnalysis.Symbols;
+using ImperativeCompiler.CodeAnalysis.Syntax;
+using ImperativeCompiler.CodeAnalysis.Text;
+namespace ImperativeCompiler.CodeAnalysis;
 
 internal sealed class DiagnosticBag : IEnumerable<Diagnostic>
 {

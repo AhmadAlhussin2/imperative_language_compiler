@@ -1,12 +1,12 @@
 using System.Collections.Immutable;
-using compilers.CodeAnalysis.Binding;
-using compilers.CodeAnalysis.Lowering;
-using LLVMSharp.Interop;
-using System.Text;
 using System.Runtime.InteropServices;
-using compilers.CodeAnalysis.Symbols;
-using compilers.CodeAnalysis.Syntax;
-namespace compilers.CodeAnalysis;
+using System.Text;
+using ImperativeCompiler.CodeAnalysis.Binding;
+using ImperativeCompiler.CodeAnalysis.Lowering;
+using ImperativeCompiler.CodeAnalysis.Symbols;
+using ImperativeCompiler.CodeAnalysis.Syntax;
+using LLVMSharp.Interop;
+namespace ImperativeCompiler.CodeAnalysis;
 
 public sealed class Compilation
 {

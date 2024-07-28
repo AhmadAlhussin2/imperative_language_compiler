@@ -1,16 +1,15 @@
-namespace compilers.CodeAnalysis.Binding
+namespace ImperativeCompiler.CodeAnalysis.Binding;
+
+internal sealed class BoundWhileStatement : BoundStatement
 {
-    internal sealed class BoundWhileStatement : BoundStatement
+    public BoundWhileStatement(BoundExpression condition, BoundStatement body)
     {
-        public BoundWhileStatement(BoundExpression condition, BoundStatement body)
-        {
-            Condition = condition;
-            Body = body;
-        }
-
-        public BoundExpression Condition { get; }
-        public BoundStatement Body { get; }
-
-        public override BoundNodeKind Kind => BoundNodeKind.WhileStatement;
+        Condition = condition;
+        Body = body;
     }
+
+    public BoundExpression Condition { get; }
+    public BoundStatement Body { get; }
+
+    public override BoundNodeKind Kind => BoundNodeKind.WhileStatement;
 }

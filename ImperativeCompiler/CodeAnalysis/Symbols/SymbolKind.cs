@@ -1,11 +1,10 @@
-namespace compilers.CodeAnalysis.Symbols
+namespace ImperativeCompiler.CodeAnalysis.Symbols;
+
+public enum SymbolKind
 {
-    public enum SymbolKind
-    {
-        Type,
-        Function,
-        Parameter,
-        LocalVariable,
-        GlobalVariable
-    }
+    Type,
+    Function,
+    Parameter,
+    LocalVariable,
+    GlobalVariable
 }

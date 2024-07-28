@@ -1,4 +1,4 @@
-namespace compilers.CodeAnalysis.Binding;
+namespace ImperativeCompiler.CodeAnalysis.Binding;
 
 internal enum BoundBinaryOperatorKind
 {

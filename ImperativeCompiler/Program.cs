@@ -1,11 +1,10 @@
 ﻿using System.Runtime.InteropServices;
 using System.Text;
-using compilers.CodeAnalysis;
-using compilers.CodeAnalysis.IO;
-using compilers.CodeAnalysis.Syntax;
+using ImperativeCompiler.CodeAnalysis;
+using ImperativeCompiler.CodeAnalysis.IO;
+using ImperativeCompiler.CodeAnalysis.Syntax;
 using LLVMSharp.Interop;
-
-namespace compilers;
+namespace ImperativeCompiler;
 
 internal abstract class Program
 {

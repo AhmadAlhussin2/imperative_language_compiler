@@ -1,5 +1,5 @@
-using compilers.CodeAnalysis.Text;
-namespace compilers.CodeAnalysis;
+using ImperativeCompiler.CodeAnalysis.Text;
+namespace ImperativeCompiler.CodeAnalysis;
 
 public sealed class Diagnostic
 {

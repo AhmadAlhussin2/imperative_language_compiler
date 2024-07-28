@@ -1,16 +1,14 @@
 using System.Collections.Immutable;
+namespace ImperativeCompiler.CodeAnalysis.Binding;
 
-namespace compilers.CodeAnalysis.Binding
+internal sealed class BoundBlockStatement : BoundStatement
 {
-    internal sealed class BoundBlockStatement : BoundStatement
+    public BoundBlockStatement(ImmutableArray<BoundStatement> statements)
     {
-        public BoundBlockStatement(ImmutableArray<BoundStatement> statements)
-        {
-            Statements = statements;
-        }
-
-        public ImmutableArray<BoundStatement> Statements { get; }
-
-        public override BoundNodeKind Kind => BoundNodeKind.BlockStatement;
+        Statements = statements;
     }
+
+    public ImmutableArray<BoundStatement> Statements { get; }
+
+    public override BoundNodeKind Kind => BoundNodeKind.BlockStatement;
 }

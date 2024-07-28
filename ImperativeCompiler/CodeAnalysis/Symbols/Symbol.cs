@@ -1,16 +1,15 @@
-namespace compilers.CodeAnalysis.Symbols
+namespace ImperativeCompiler.CodeAnalysis.Symbols;
+
+public abstract class Symbol
 {
-    public abstract class Symbol
+    private protected Symbol(string name)
     {
-        private protected Symbol(string name)
-        {
-            Name = name;
-        }
-        public abstract SymbolKind Kind { get; }
-        public string Name { get; }
-        public void WriteTo(TextWriter writer)
-        {
-            SymbolPrinter.WriteTo(this, writer);
-        }
+        Name = name;
+    }
+    public abstract SymbolKind Kind { get; }
+    public string Name { get; }
+    public void WriteTo(TextWriter writer)
+    {
+        SymbolPrinter.WriteTo(this, writer);
     }
 }

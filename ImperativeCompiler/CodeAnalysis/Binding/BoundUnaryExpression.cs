@@ -1,19 +1,17 @@
-using compilers.CodeAnalysis.Symbols;
+using ImperativeCompiler.CodeAnalysis.Symbols;
+namespace ImperativeCompiler.CodeAnalysis.Binding;
 
-namespace compilers.CodeAnalysis.Binding
+internal sealed class BoundUnaryExpression : BoundExpression
 {
-    internal sealed class BoundUnaryExpression : BoundExpression
+    public BoundUnaryExpression(BoundUnaryOperator op, BoundExpression operand)
     {
-        public BoundUnaryExpression(BoundUnaryOperator op, BoundExpression operand)
-        {
-            Op = op;
-            Operand = operand;
-        }
-        public BoundUnaryOperator Op { get; }
-        public BoundExpression Operand { get; }
-
-        public override TypeSymbol Type => Op.Type;
-
-        public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
+        Op = op;
+        Operand = operand;
     }
+    public BoundUnaryOperator Op { get; }
+    public BoundExpression Operand { get; }
+
+    public override TypeSymbol Type => Op.Type;
+
+    public override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
 }

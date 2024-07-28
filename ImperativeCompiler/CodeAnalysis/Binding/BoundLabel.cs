@@ -1,16 +1,15 @@
-namespace compilers.CodeAnalysis.Binding
-{
-    internal sealed class BoundLabel
-    {
-        internal BoundLabel(string name)
-        {
-            Name = name;
-        }
+namespace ImperativeCompiler.CodeAnalysis.Binding;
 
-        public string Name { get; }
-        public override string ToString()
-        {
-            return Name;
-        }
+internal sealed class BoundLabel
+{
+    internal BoundLabel(string name)
+    {
+        Name = name;
+    }
+
+    public string Name { get; }
+    public override string ToString()
+    {
+        return Name;
     }
 }

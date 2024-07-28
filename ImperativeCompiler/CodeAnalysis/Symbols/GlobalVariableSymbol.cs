@@ -1,13 +1,12 @@
-namespace compilers.CodeAnalysis.Symbols
-{
-    public sealed class GlobalVariableSymbol : VariableSymbol
-    {
-        internal GlobalVariableSymbol(string name, TypeSymbol type) 
-            : base(name, type)
-        {
-            
-        }
+namespace ImperativeCompiler.CodeAnalysis.Symbols;
 
-        public override SymbolKind Kind => SymbolKind.GlobalVariable;
+public sealed class GlobalVariableSymbol : VariableSymbol
+{
+    internal GlobalVariableSymbol(string name, TypeSymbol type) 
+    : base(name, type)
+    {
+            
     }
+
+    public override SymbolKind Kind => SymbolKind.GlobalVariable;
 }
