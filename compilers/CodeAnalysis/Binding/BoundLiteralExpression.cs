@@ -1,23 +1,28 @@
 using compilers.CodeAnalysis.Symbols;
 
-namespace compilers.CodeAnalysis.Binding
+namespace compilers.CodeAnalysis.Binding;
+
+internal sealed class BoundLiteralExpression : BoundExpression
 {
-    internal sealed class BoundLiteralExpression : BoundExpression
+    public BoundLiteralExpression(object value)
     {
-        public BoundLiteralExpression(object value)
+        Value = value;
+        switch (value)
         {
-            Value = value;
-            if (value is bool)
+            case bool:
                 Type = TypeSymbol.Bool;
-            else if (value is int)
+                break;
+            case int:
                 Type = TypeSymbol.Int;
-            else if (value is double)
+                break;
+            case double:
                 Type = TypeSymbol.Real;
-            else
+                break;
+            default:
                 throw new Exception($"Unexpected literal {value} of type {value.GetType()}");
         }
-        public override BoundNodeKind Kind => BoundNodeKind.LiteralExpression;
-        public override TypeSymbol Type { get; }
-        public object Value { get; }
     }
+    public override BoundNodeKind Kind => BoundNodeKind.LiteralExpression;
+    public override TypeSymbol Type { get; }
+    public object Value { get; }
 }

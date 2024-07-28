@@ -1,21 +1,20 @@
 using compilers.CodeAnalysis.Symbols;
 
-namespace compilers.CodeAnalysis.Binding
+namespace compilers.CodeAnalysis.Binding;
+
+internal sealed class BoundBinaryExpression : BoundExpression
 {
-    internal sealed class BoundBinaryExpression : BoundExpression
+    public BoundBinaryExpression(BoundExpression left, BoundBinaryOperator op, BoundExpression right)
     {
-        public BoundBinaryExpression(BoundExpression left, BoundBinaryOperator op, BoundExpression right)
-        {
-            Op = op;
-            Left = left;
-            Right = right;
-        }
-        public BoundExpression Left { get; }
-        public BoundBinaryOperator Op { get; }
-        public BoundExpression Right { get; }
-
-        public override TypeSymbol Type => Op.Type;
-
-        public override BoundNodeKind Kind => BoundNodeKind.BinaryExpression;
+        Op = op;
+        Left = left;
+        Right = right;
     }
+    public BoundExpression Left { get; }
+    public BoundBinaryOperator Op { get; }
+    public BoundExpression Right { get; }
+
+    public override TypeSymbol Type => Op.Type;
+
+    public override BoundNodeKind Kind => BoundNodeKind.BinaryExpression;
 }

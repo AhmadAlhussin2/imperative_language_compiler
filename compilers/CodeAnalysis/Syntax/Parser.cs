@@ -36,7 +36,7 @@ internal sealed class Parser
     {
         var index = _position + offset;
         if (index >= _tokens.Length)
-            return _tokens[_tokens.Length - 1];
+            return _tokens.Last();
         return _tokens[index];
     }
     private SyntaxToken Current => Peek(0);
@@ -55,10 +55,10 @@ internal sealed class Parser
     }
     private ExpressionSyntax ParseExpression()
     {
-        return ParseAssignmentExpresion();
+        return ParseAssignmentExpression();
     }
 
-    private ExpressionSyntax ParseAssignmentExpresion()
+    private ExpressionSyntax ParseAssignmentExpression()
     {
         if (Peek(0).Kind != SyntaxKind.IdentifierToken)
         {
@@ -69,7 +69,7 @@ internal sealed class Parser
         if (Peek(0).Kind == SyntaxKind.AssignmentToken)
         {
             var operatorToken = NextToken();
-            var right = ParseAssignmentExpresion();
+            var right = ParseAssignmentExpression();
             return new AssignmentExpressionSyntax(_syntaxTree, variable, operatorToken, right);
         }
         _position = pos;
@@ -79,7 +79,7 @@ internal sealed class Parser
     private Variable ParseVariableExpression()
     {
         var identifier = MatchToken(SyntaxKind.IdentifierToken);
-        List<ExpressionSyntax> indices = new();
+        var indices = new List<ExpressionSyntax>();
         while (Current.Kind == SyntaxKind.OpenSquareBracketToken)
         {
             MatchToken(SyntaxKind.OpenSquareBracketToken);

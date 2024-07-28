@@ -26,11 +26,11 @@ namespace compilers.CodeAnalysis.Binding
 
         public SyntaxKind SyntaxKind { get; }
         public BoundBinaryOperatorKind Kind { get; }
-        public TypeSymbol LeftType { get; }
-        public TypeSymbol RightType { get; }
+        private TypeSymbol LeftType { get; }
+        private TypeSymbol RightType { get; }
         public TypeSymbol Type { get; }
 
-        private static readonly BoundBinaryOperator[] Operators = {
+        private static readonly BoundBinaryOperator[] Operators = [
             new BoundBinaryOperator(SyntaxKind.PlusToken,BoundBinaryOperatorKind.Addition,TypeSymbol.Int),
             new BoundBinaryOperator(SyntaxKind.PlusToken,BoundBinaryOperatorKind.Addition,TypeSymbol.Real),
 
@@ -64,9 +64,9 @@ namespace compilers.CodeAnalysis.Binding
             new BoundBinaryOperator(SyntaxKind.OrKeyword,BoundBinaryOperatorKind.LogicalOr,TypeSymbol.Bool),
             new BoundBinaryOperator(SyntaxKind.XorKeyword,BoundBinaryOperatorKind.LogicalXor,TypeSymbol.Bool),
             new BoundBinaryOperator(SyntaxKind.EqualToken,BoundBinaryOperatorKind.Equal,TypeSymbol.Bool),
-            new BoundBinaryOperator(SyntaxKind.NotEqualToken,BoundBinaryOperatorKind.NotEqual,TypeSymbol.Bool),
+            new BoundBinaryOperator(SyntaxKind.NotEqualToken,BoundBinaryOperatorKind.NotEqual,TypeSymbol.Bool)
 
-        };
+        ];
 
         public static BoundBinaryOperator? Bind(SyntaxKind syntaxKind, TypeSymbol leftType, TypeSymbol rightType)
         {

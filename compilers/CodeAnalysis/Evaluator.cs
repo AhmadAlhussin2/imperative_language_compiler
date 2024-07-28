@@ -615,7 +615,7 @@ internal sealed class Evaluator
                     }
                     return -(int)operand;
                 }
-                else if (u.Operand.Type == TypeSymbol.Real) unsafe
+                if (u.Operand.Type == TypeSymbol.Real) unsafe
                 {
                     if (generateCode)
                     {
@@ -635,7 +635,7 @@ internal sealed class Evaluator
                     }
                     return -(int)operand;
                 }
-                else if (u.Operand.Type == TypeSymbol.Real) unsafe
+                if (u.Operand.Type == TypeSymbol.Real) unsafe
                 {
                     if (generateCode)
                     {

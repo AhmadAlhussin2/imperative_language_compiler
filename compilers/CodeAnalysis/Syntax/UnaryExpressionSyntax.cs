@@ -11,5 +11,4 @@ public sealed class UnaryExpressionSyntax : ExpressionSyntax
     public SyntaxToken OperatorToken { get; }
     public ExpressionSyntax Operand { get; }
     public override SyntaxKind Kind => SyntaxKind.UnaryExpression;
-
 }

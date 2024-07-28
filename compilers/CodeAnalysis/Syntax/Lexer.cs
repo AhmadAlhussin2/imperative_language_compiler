@@ -125,7 +125,7 @@ internal sealed class Lexer
                 if (Lookahead == '=')
                     return new SyntaxToken(_syntaxTree, SyntaxKind.NotEqualToken, _position += 2, "/=", null);
                 else
-                    return new SyntaxToken(_syntaxTree, SyntaxKind.NegationToken, _position++, "/", null);
+                    return new SyntaxToken(_syntaxTree, SyntaxKind.SlashToken, _position++, "/", null);
             case '(':
                 return new SyntaxToken(_syntaxTree, SyntaxKind.OpenParenthesisToken, _position++, "(", null);
             case ')':
