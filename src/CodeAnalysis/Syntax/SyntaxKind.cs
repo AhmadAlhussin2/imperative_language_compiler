@@ -18,7 +18,6 @@ public enum SyntaxKind
     GreaterThanOrEqualToken,
     GreaterThanToken,
     NotEqualToken,
-    NegationToken,
     ModuloToken,
     AssignmentToken,
     ColonToken,
@@ -80,5 +79,5 @@ public enum SyntaxKind
     PrimitiveType,
     ArrayType,
     Variable,
-    FunctionDecleration
+    FunctionDeclaration
 }

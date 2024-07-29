@@ -21,7 +21,7 @@ public sealed class FunctionDeclarationSyntax : MemberSyntax
         EndKeyword = endKeyword;
     }
 
-    public override SyntaxKind Kind => SyntaxKind.FunctionDecleration;
+    public override SyntaxKind Kind => SyntaxKind.FunctionDeclaration;
 
     public SyntaxToken RoutineKeyword { get; }
     public SyntaxToken Identifier { get; }

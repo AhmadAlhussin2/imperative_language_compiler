@@ -8,7 +8,7 @@ public static class OperatorsPriority
         {
             case SyntaxKind.PlusToken:
             case SyntaxKind.MinusToken:
-            case SyntaxKind.NegationToken:
+            case SyntaxKind.NotKeyword:
                 return 8;
             default:
                 return 0;
@@ -22,7 +22,7 @@ public static class OperatorsPriority
                 return "+";
             case SyntaxKind.MinusToken:
                 return "-";
-            case SyntaxKind.NegationToken:
+            case SyntaxKind.NotKeyword:
                 return "not";
             case SyntaxKind.StarToken:
                 return "*";
@@ -60,8 +60,6 @@ public static class OperatorsPriority
                 return "end";
             case SyntaxKind.ForKeyword:
                 return "for";
-            case SyntaxKind.NotKeyword:
-                return "not";
             case SyntaxKind.VarKeyword:
                 return "var";
             case SyntaxKind.ElseKeyword:
