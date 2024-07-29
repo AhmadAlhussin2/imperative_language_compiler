@@ -22,7 +22,7 @@ internal sealed class BoundUnaryOperator
     public TypeSymbol Type { get; }
 
     private static BoundUnaryOperator[] _operators = {
-        new BoundUnaryOperator(SyntaxKind.NegationToken,BoundUnaryOperatorKind.LogicalNegation,TypeSymbol.Bool),
+        new BoundUnaryOperator(SyntaxKind.NotKeyword,BoundUnaryOperatorKind.LogicalNegation,TypeSymbol.Bool),
         new BoundUnaryOperator(SyntaxKind.PlusToken,BoundUnaryOperatorKind.Identity,TypeSymbol.Int),
         new BoundUnaryOperator(SyntaxKind.MinusToken,BoundUnaryOperatorKind.Negation,TypeSymbol.Int),
         new BoundUnaryOperator(SyntaxKind.MinusToken,BoundUnaryOperatorKind.Negation,TypeSymbol.Real),
