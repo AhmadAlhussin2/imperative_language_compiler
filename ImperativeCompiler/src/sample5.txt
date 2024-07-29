@@ -1,0 +1,6 @@
+var x is 10
+var y is 15
+
+var z is x / y
+
+x := 10 - 10
