@@ -1,5 +1,0 @@
-var arr : array [10] array [10] integer is 0
-
-var x : integer is 10
-
-arr := arr * x

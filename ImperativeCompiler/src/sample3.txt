@@ -1,6 +1,0 @@
-var arr : array [10] array [10] integer is 0
-for i in 0..9 loop
-    for j in 0..9 loop
-        arr[i][j] := i*j
-    end
-end
