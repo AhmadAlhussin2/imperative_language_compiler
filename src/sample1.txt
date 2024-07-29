@@ -1,0 +1,4 @@
+var ans: integer is 0
+for i in 1..10 loop
+    ans := ans + i 
+end
