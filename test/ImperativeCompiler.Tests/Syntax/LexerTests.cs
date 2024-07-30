@@ -1,7 +1,7 @@
 using FluentAssertions;
 using ImperativeCompiler.CodeAnalysis.Syntax;
 
-namespace ImperativeCompiler.Tests;
+namespace ImperativeCompiler.Tests.Syntax;
 
 public class LexerTests
 {

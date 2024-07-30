@@ -25,7 +25,7 @@ public abstract class SyntaxNode
             return token;
         return GetChildren().Last().GetLastToken();
     }
-    private IEnumerable<SyntaxNode> GetChildren()
+    public IEnumerable<SyntaxNode> GetChildren()
     {
         var properties = GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance);
         foreach (var property in properties)
