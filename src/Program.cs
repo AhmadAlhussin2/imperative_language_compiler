@@ -8,8 +8,8 @@ namespace ImperativeCompiler;
 
 internal abstract class Program
 {
-    private static readonly StreamWriter SyntaxTreeWriter = new StreamWriter("AST.txt");
-    private static readonly StreamWriter BoundSyntaxTreeWriter = new StreamWriter("B_AST.txt");
+    private static readonly StreamWriter SyntaxTreeWriter = new("AST.txt");
+    private static readonly StreamWriter BoundSyntaxTreeWriter = new("B_AST.txt");
     static unsafe sbyte* StringToSBytePtr(string str)
     {
         // Convert the string to a byte array using UTF-8 encoding
