@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.002.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "compilers", "src/ImperativeCompiler.csproj", "{34F74AFE-ACFD-402D-ABAF-8CD316E98827}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "compilers", "src\CompilerCore\ImperativeCompiler.csproj", "{34F74AFE-ACFD-402D-ABAF-8CD316E98827}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImperativeCompiler.Tests", "test\ImperativeCompiler.Tests\ImperativeCompiler.Tests.csproj", "{C9768343-F8C8-4AAB-A267-2FBCD32FD48B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CompilerWebApplication", "CompilerWebApplication\CompilerWebApplication.csproj", "{6ED8CF5B-3528-471E-9B2C-05D9ADEAF8C3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{C9768343-F8C8-4AAB-A267-2FBCD32FD48B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C9768343-F8C8-4AAB-A267-2FBCD32FD48B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C9768343-F8C8-4AAB-A267-2FBCD32FD48B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6ED8CF5B-3528-471E-9B2C-05D9ADEAF8C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6ED8CF5B-3528-471E-9B2C-05D9ADEAF8C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6ED8CF5B-3528-471E-9B2C-05D9ADEAF8C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6ED8CF5B-3528-471E-9B2C-05D9ADEAF8C3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

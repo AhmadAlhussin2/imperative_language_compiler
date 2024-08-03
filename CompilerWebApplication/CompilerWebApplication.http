@@ -1,0 +1,6 @@
+@CompilerWebApplication_HostAddress = http://localhost:5127
+
+GET {{CompilerWebApplication_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
