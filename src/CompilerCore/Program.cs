@@ -26,8 +26,32 @@ internal abstract class Program
     }
     private static void Main(string[] args)
     {
-        var fileName = args.Length == 0 ? Console.ReadLine()! : args.Single();
-        var path = Path.Combine(Directory.GetCurrentDirectory(), fileName);
+        if (args.Length != 2 || args.First() is not ("file" or "text"))
+        {
+            Console.WriteLine("Usage: dotnet run [file|text] (file containing code or code)");
+            return;
+        }
+
+        string text;
+        if (args.First() == "file")
+        {
+            var fileName = args[1];
+            var path = Path.Combine(Directory.GetCurrentDirectory(), fileName);
+            try
+            {
+                text = File.ReadAllText(path);
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine($"{path} not found");
+                return;
+            }
+        }
+        else
+        {
+            text = args[1];
+        }
+
         unsafe
         {
             try
@@ -38,7 +62,6 @@ internal abstract class Program
                 var mainFunction = LLVM.AddFunction(module, StringToSBytePtr("main"), functionType);
                 var entryBlock = LLVM.AppendBasicBlock(mainFunction, StringToSBytePtr("entry"));
                 LLVM.PositionBuilderAtEnd(builder, entryBlock);
-                var text = File.ReadAllText(path);
                 var syntaxTree = SyntaxTree.Parse(text);
                 syntaxTree.Root.WriteTo(SyntaxTreeWriter);
                 var compilation = new Compilation(syntaxTree);
@@ -68,10 +91,6 @@ internal abstract class Program
             catch (ArgumentOutOfRangeException)
             {
                 return;
-            }
-            catch (FileNotFoundException)
-            {
-                Console.WriteLine($"{path} not found");
             }
             catch (Exception error)
             {
