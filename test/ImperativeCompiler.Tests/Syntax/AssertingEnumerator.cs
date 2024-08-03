@@ -1,6 +1,6 @@
 using ImperativeCompiler.CodeAnalysis.Syntax;
 
-namespace ImperativeCompiler.Tests;
+namespace ImperativeCompiler.Tests.Syntax;
 
 internal sealed class AssertingEnumerator : IDisposable
 {

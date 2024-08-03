@@ -24,7 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\src\ImperativeCompiler.csproj" />
+      <ProjectReference Include="..\..\src\CompilerCore\ImperativeCompiler.csproj" />
     </ItemGroup>
 
 </Project>
