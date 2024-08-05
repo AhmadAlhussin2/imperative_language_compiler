@@ -234,3 +234,5 @@ B_AST.txt
 Errors.txt
 output.*
 out/
+
+ERROR_LOG.txt

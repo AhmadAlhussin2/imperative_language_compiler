@@ -8,8 +8,11 @@ namespace ImperativeCompiler;
 
 internal abstract class Program
 {
-    private static readonly StreamWriter SyntaxTreeWriter = new StreamWriter("AST.txt");
-    private static readonly StreamWriter BoundSyntaxTreeWriter = new StreamWriter("B_AST.txt");
+    private static readonly StreamWriter SyntaxTreeWriter = new("AST.txt");
+    private static readonly StreamWriter BoundSyntaxTreeWriter = new("B_AST.txt");
+    private static readonly StreamWriter ErrorFileStream = new("ERROR_LOG.txt");
+    private static readonly StreamWriter OutputFileStream = new("output.txt");
+
     static unsafe sbyte* StringToSBytePtr(string str)
     {
         // Convert the string to a byte array using UTF-8 encoding
@@ -24,11 +27,16 @@ internal abstract class Program
         // Return a pointer to the allocated memory
         return (sbyte*)ptr;
     }
+
+
     private static void Main(string[] args)
     {
-        if (args.Length != 2 || args.First() is not ("file" or "text"))
+        var reporter = new Reporter();
+        if (args.Length < 2 || args.First() is not ("file" or "text"))
         {
-            Console.WriteLine("Usage: dotnet run [file|text] (file containing code or code)");
+            ErrorFileStream.WriteLineAsync("Usage: dotnet run [file|text] (file containing code or code)");
+            ErrorFileStream.Close();
+            reporter.ReportFailure();
             return;
         }
 
@@ -43,13 +51,21 @@ internal abstract class Program
             }
             catch (FileNotFoundException)
             {
-                Console.WriteLine($"{path} not found");
+                ErrorFileStream.WriteLine($"{path} not found");
+                ErrorFileStream.Close();
+                reporter.ReportFailure();
                 return;
             }
         }
         else
         {
-            text = args[1];
+            var sb = new StringBuilder();
+            for (var i = 1; i < args.Length; i++)
+            {
+                sb.Append(args[i]);
+                sb.Append(" ");
+            }
+            text = sb.ToString();
         }
 
         unsafe
@@ -69,36 +85,35 @@ internal abstract class Program
                 var result = compilation.Evaluate(builder, module, mainFunction);
                 if (result.Diagnostics.Any())
                 {
-                    Console.Error.WriteDiagnostics(result.Diagnostics, syntaxTree);
+                    ErrorFileStream.WriteDiagnostics(result.Diagnostics, syntaxTree);
+                    ErrorFileStream.Close();
+                    reporter.ReportFailure();
+                    return;
                 }
-                else
+                if (result.Value != null)
                 {
-                    if (result.Value != null)
-                    {
-                        Console.WriteLine(result.Value);
-                    }
-                    compilation.WriteTree(Console.Out);
-
-                    var error = StringToSBytePtr("");
-
-                    LLVM.BuildRetVoid(builder);
-                    LLVM.PrintModuleToFile(module, StringToSBytePtr("output.ll"), &error);
-
-                    LLVM.DisposeBuilder(builder);
-                    LLVM.DisposeModule(module);
+                    OutputFileStream.WriteLine(result.Value);
+                    OutputFileStream.Close();
                 }
+
+                var error = StringToSBytePtr("");
+
+                LLVM.BuildRetVoid(builder);
+                LLVM.PrintModuleToFile(module, StringToSBytePtr("output.ll"), &error);
+
+                LLVM.DisposeBuilder(builder);
+                LLVM.DisposeModule(module);
             }
-            catch (ArgumentOutOfRangeException)
+            catch (Exception)
             {
+                ErrorFileStream.WriteLine("Unknown error");
+                ErrorFileStream.Close();
+                reporter.ReportFailure();
                 return;
-            }
-            catch (Exception error)
-            {
-                Console.ResetColor();
-                Console.WriteLine(error);
             }
         }
         SyntaxTreeWriter.Close();
         BoundSyntaxTreeWriter.Close();
+        reporter.ReportSuccess();
     }
 }

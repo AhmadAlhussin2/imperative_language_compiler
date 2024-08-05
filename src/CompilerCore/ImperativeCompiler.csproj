@@ -10,9 +10,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Json.Net" Version="1.0.33" />
     <PackageReference Include="libLLVM" Version="16.0.6" />
     <PackageReference Include="LLVMSharp" Version="16.0.0" />
     <PackageReference Include="LLVMSharp.Interop" Version="16.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
   </ItemGroup>
 
   <PropertyGroup>
